@@ -22,6 +22,9 @@
             <p><a href="@($"/clientes/{Id}/editar")">Editar cliente</a></p>
             @if (Details.Customer.IsActive) { <p><a href="@($"/clientes/{Id}/visitas/nueva")">Iniciar visita</a></p> }
         </AuthorizeView>
+        <AuthorizeView Policy="@Permissions.ReadClinical">
+            <p><a href="@($"/clientes/{Id}/clinica")" data-enhance-nav="false">Recetas y antecedentes visuales</a></p>
+        </AuthorizeView>
         @if (Result?.Error is not null) { <p role="alert">@Result.Error</p><a href="@($"/clientes/{Id}")">Recargar ficha</a> }
         <AuthorizeView Policy="@Permissions.DeactivateCustomers" Context="deactivationAuth">
             @if (Details.Customer.IsActive)
@@ -31,7 +34,7 @@
         </AuthorizeView>
         <section>
             <h2>Historial de visitas administrativas</h2>
-            <p>Las recetas y los antecedentes visuales se incorporarán en una fase posterior. Fechas en hora argentina.</p>
+            <p>Este historial contiene sólo información administrativa. Fechas en hora argentina.</p>
             @foreach (var visit in Details.Visits)
             {
                 <article class="visit">

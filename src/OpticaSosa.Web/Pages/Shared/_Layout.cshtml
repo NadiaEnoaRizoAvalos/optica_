@@ -16,6 +16,7 @@
             <nav aria-label="Principal">
                 <a href="/">Inicio</a>
                 @if (Roles.All.Any(User.IsInRole)) { <a href="/clientes">Clientes</a> }
+                @if (User.IsInRole(Roles.Professional)) { <a href="/clinica/profesionales">Profesionales</a> }
                 <a href="/cuenta/clave">Mi contraseña</a>
                 @if (User.IsInRole(Roles.Administrator))
                 {

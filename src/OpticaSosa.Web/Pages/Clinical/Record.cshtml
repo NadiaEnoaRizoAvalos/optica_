@@ -1,0 +1,50 @@
+@page "/clientes/{customerId:guid}/clinica/{id:guid}"
+@using OpticaSosa.Domain.Clinical
+@using OpticaSosa.Web.Pages.Clinical
+@model OpticaSosa.Web.Pages.Clinical.RecordModel
+@{ var d = Model.Details; ViewData["Title"] = ClinicalDisplay.Kind(d.Kind); }
+
+<p class="eyebrow">Acceso profesional</p>
+<h1>@ClinicalDisplay.Kind(d.Kind)</h1>
+<nav><a href="/clientes/@d.CustomerId/clinica">Historial del cliente</a><a href="/clientes/@d.CustomerId/clinica/nuevo/@d.Id">Crear corrección desde la última versión</a></nav>
+<p>Versión @d.Number de @d.LatestNumber. @(d.Number == d.LatestNumber ? "Versión actual." : "Versión histórica conservada.")</p>
+<dl>
+    <dt>Fecha informada</dt><dd>@d.Data.Date.ToString("dd/MM/yyyy")</dd>
+    <dt>Profesional informante</dt><dd>@d.ProfessionalName · @(d.ProfessionalRegistration ?? "Sin matrícula informada") · @(d.ProfessionalJurisdiction ?? "Sin ámbito informado")</dd>
+    <dt>Procedencia</dt><dd>@d.Data.Source</dd>
+    <dt>Observaciones o antecedente informado</dt><dd class="clinical-notes">@(d.Data.Notes ?? "Sin informar")</dd>
+    <dt>Autor del registro (identificador de usuario)</dt><dd>@d.RecordedByUserId</dd>
+    <dt>Registrado</dt><dd>@d.RecordedAtUtc.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</dd>
+    @if (d.VisitId is not null) { <dt>Visita asociada</dt><dd>@d.VisitId</dd> }
+    @if (d.CorrectionReason is not null) { <dt>Motivo de corrección</dt><dd>@d.CorrectionReason</dd> }
+</dl>
+@if (d.Kind != ClinicalKind.VisualHistory)
+{
+    <div class="table-scroll">
+        <table>
+            <caption>Graduaciones transcritas; dioptrías con 3 decimales</caption>
+            <thead><tr><th>Ojo</th><th>Esfera</th><th>Cilindro</th><th>Eje (°)</th><th>Adición</th><th>Prisma (Δ)</th><th>Base</th></tr></thead>
+            <tbody>
+            @foreach (var pair in new[] { ("Derecho (OD)", d.Data.Right), ("Izquierdo (OI)", d.Data.Left) })
+            {
+                <tr><th scope="row">@pair.Item1</th><td>@ClinicalDisplay.Number(pair.Item2.Sphere)</td><td>@ClinicalDisplay.Number(pair.Item2.Cylinder)</td>
+                    <td>@(pair.Item2.Axis?.ToString() ?? "Sin informar")</td><td>@ClinicalDisplay.Number(pair.Item2.Addition)</td>
+                    <td>@ClinicalDisplay.Number(pair.Item2.Prism)</td><td>@(pair.Item2.Base ?? "Sin informar")</td></tr>
+            }
+            </tbody>
+        </table>
+    </div>
+    <p>Distancia pupilar binocular: @ClinicalDisplay.Number(d.Data.PupillaryDistance, 2) @(d.Data.PupillaryDistance is not null ? "mm" : "")</p>
+}
+<section>
+    <h2>Versiones y correcciones</h2>
+    @foreach (var version in d.History)
+    {
+        <p><a href="?revision=@version.Number&pagina=@d.HistoryPage">Versión @version.Number</a> · @version.RecordedAtUtc.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+            · Autor @version.RecordedByUserId · @(version.CorrectionReason ?? "Registro inicial")</p>
+    }
+    <nav aria-label="Versiones">
+        @if (d.HistoryPage > 1) { <a href="?pagina=@(d.HistoryPage - 1)&revision=@d.Number">Más recientes</a> }
+        @if (d.HasOlderRevisions) { <a href="?pagina=@(d.HistoryPage + 1)&revision=@d.Number">Más antiguas</a> }
+    </nav>
+</section>

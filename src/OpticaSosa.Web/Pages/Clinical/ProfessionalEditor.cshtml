@@ -1,0 +1,25 @@
+@page "/clinica/profesionales/editar/{id:guid?}"
+@model OpticaSosa.Web.Pages.Clinical.ProfessionalEditorModel
+@{ ViewData["Title"] = Model.IsNew ? "Registrar profesional" : "Ficha del profesional"; }
+
+<p class="eyebrow">Registros profesionales</p>
+<h1>@ViewData["Title"]</h1>
+<p>Registrá sólo datos informados. La matrícula y su ámbito son opcionales cuando no figuran en el documento de origen.</p>
+<form method="post">
+    <div asp-validation-summary="All" role="alert"></div>
+    <input asp-for="Input.SubmissionId" type="hidden" />
+    <input asp-for="Input.Version" type="hidden" />
+    <label asp-for="Input.FullName">Nombre completo (obligatorio)</label>
+    <input asp-for="Input.FullName" maxlength="120" required />
+    <div class="settings-grid">
+        <div><label asp-for="Input.Registration">Matrícula informada</label><input asp-for="Input.Registration" maxlength="60" /></div>
+        <div><label asp-for="Input.Jurisdiction">Ámbito o jurisdicción informada</label><input asp-for="Input.Jurisdiction" maxlength="80" /></div>
+    </div>
+    @if (!Model.IsNew)
+    {
+        <label><input asp-for="Input.IsActive" /> Activo para nuevos registros</label>
+        <p class="field-help">Inactivar conserva la ficha y sus referencias históricas.</p>
+    }
+    else { <input asp-for="Input.IsActive" type="hidden" /> }
+    <div class="settings-actions"><button type="submit">Guardar profesional</button><a href="/clinica/profesionales">Volver a profesionales</a></div>
+</form>

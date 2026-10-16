@@ -1,0 +1,33 @@
+@page "/clinica/profesionales"
+@model OpticaSosa.Web.Pages.Clinical.ProfessionalsModel
+@{ ViewData["Title"] = "Profesionales informantes"; }
+
+<p class="eyebrow">Registros profesionales</p>
+<h1>Profesionales informantes</h1>
+<p>Identificá a quien informó una receta o antecedente. Este registro no crea una cuenta de acceso ni certifica su habilitación.</p>
+@if (Model.Message is not null) { <p role="status" class="saved-message">@Model.Message</p> }
+<a href="/clinica/profesionales/editar">Registrar profesional</a>
+<form method="post">
+    <div asp-validation-summary="All" role="alert"></div>
+    <label asp-for="Search">Buscar por nombre, matrícula o ámbito</label>
+    <input asp-for="Search" maxlength="120" />
+    <button type="submit">Buscar</button>
+</form>
+@if (Model.Items.Count == 100) { <p role="status">Se muestran hasta 100 resultados. Refiná la búsqueda.</p> }
+@if (Model.Items.Count == 0) { <p>No hay profesionales para esta búsqueda.</p> }
+else
+{
+    <div class="table-scroll">
+        <table>
+            <caption>Profesionales registrados, incluidos los inactivos</caption>
+            <thead><tr><th>Nombre</th><th>Matrícula</th><th>Ámbito o jurisdicción</th><th>Estado</th><th>Ficha</th></tr></thead>
+            <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr><td>@item.FullName</td><td>@(item.Registration ?? "Sin informar")</td><td>@(item.Jurisdiction ?? "Sin informar")</td>
+                    <td>@(item.IsActive ? "Activo" : "Inactivo")</td><td><a href="/clinica/profesionales/editar/@item.Id">Consultar o editar</a></td></tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}

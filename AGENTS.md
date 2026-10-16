@@ -65,5 +65,6 @@
 
 - Crear pruebas relevantes de invariantes, permisos, persistencia, concurrencia y operaciones críticas; evitar pruebas que sólo repitan la implementación.
 - Ejecutar las pruebas necesarias para el cambio, incluyendo regresiones relacionadas. Registrar comandos y resultados en PLANS.md.
+- En cada entrega informar la compilación por separado (errores y advertencias) y el conteo de pruebas ejecutadas, aprobadas, fallidas y omitidas. No confundir cantidad de proyectos compilados con cantidad de pruebas ni sumar reejecuciones como pruebas diferentes.
 - Antes de liberar datos reales, verificar autorización, protección de adjuntos, ausencia de información sensible en logs y restauración completa en un entorno separado.
 - No agregar herramientas, dependencias ni ejecutar operaciones destructivas sin la autorización requerida arriba.

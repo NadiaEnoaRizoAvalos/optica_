@@ -1,0 +1,7 @@
+@model OpticaSosa.Application.Clinical.EyeInput
+<label asp-for="Sphere">Esfera</label><input asp-for="Sphere" type="number" step="0.001" />
+<label asp-for="Cylinder">Cilindro</label><input asp-for="Cylinder" type="number" step="0.001" />
+<label asp-for="Axis">Eje (grados)</label><input asp-for="Axis" type="number" step="1" min="0" max="180" />
+<label asp-for="Addition">Adición</label><input asp-for="Addition" type="number" step="0.001" />
+<label asp-for="Prism">Prisma (dioptrías prismáticas)</label><input asp-for="Prism" type="number" step="0.001" />
+<label asp-for="Base">Base informada</label><input asp-for="Base" maxlength="60" />

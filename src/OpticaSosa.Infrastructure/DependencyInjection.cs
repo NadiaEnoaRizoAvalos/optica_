@@ -9,6 +9,8 @@ using OpticaSosa.Application.Customers;
 using OpticaSosa.Infrastructure.Customers;
 using OpticaSosa.Application.Business;
 using OpticaSosa.Infrastructure.Business;
+using OpticaSosa.Application.Clinical;
+using OpticaSosa.Infrastructure.Clinical;
 
 namespace OpticaSosa.Infrastructure;
 
@@ -46,6 +48,9 @@ public static class DependencyInjection
         services.AddScoped<ICustomerService, CustomerService>();
         services.AddScoped<IVisitService, VisitService>();
         services.AddScoped<IBusinessSettingsService, BusinessSettingsService>();
+        services.AddScoped<IProfessionalService, ProfessionalService>();
+        services.AddScoped<IClinicalService, ClinicalService>();
+        services.AddScoped<IPrivateAttachmentStore, PrivateAttachmentStore>();
         return services;
     }
 }

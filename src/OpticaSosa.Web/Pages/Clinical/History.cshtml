@@ -1,0 +1,27 @@
+@page "/clientes/{customerId:guid}/clinica"
+@using OpticaSosa.Domain.Clinical
+@using OpticaSosa.Web.Pages.Clinical
+@model OpticaSosa.Web.Pages.Clinical.HistoryModel
+@{ ViewData["Title"] = "Historial clínico"; }
+
+<p class="eyebrow">Acceso profesional</p>
+<h1>Historial clínico</h1>
+<p>@Model.Customer.LastName, @Model.Customer.FirstName</p>
+<nav aria-label="Historial clínico">
+    <a href="/clientes/@Model.Customer.Id">Ficha administrativa</a>
+    <a href="/clinica/profesionales">Profesionales</a>
+    @if (Model.Customer.IsActive) { <a href="/clientes/@Model.Customer.Id/clinica/nuevo">Registrar receta o antecedente</a> }
+</nav>
+<p>El sistema conserva lo informado por profesionales. No genera diagnósticos ni indicaciones médicas.</p>
+@foreach (var item in Model.History.Items)
+{
+    <section>
+        <h2><a href="/clientes/@Model.Customer.Id/clinica/@item.Id">@ClinicalDisplay.Kind(item.Kind)</a></h2>
+        <p>@item.Date.ToString("dd/MM/yyyy") · @item.ProfessionalName · Versión @item.RevisionNumber</p>
+    </section>
+}
+@if (Model.History.Items.Count == 0) { <p>No hay registros en esta página.</p> }
+<nav aria-label="Páginas del historial clínico">
+    @if (Model.History.Page > 1) { <a href="?pagina=@(Model.History.Page - 1)">Más recientes</a> }
+    @if (Model.History.HasMore) { <a href="?pagina=@(Model.History.Page + 1)">Más antiguos</a> }
+</nav>

@@ -1,6 +1,6 @@
 # Requisitos — Sistema de Gestión para Ópticas
 
-Estado: planificación aprobada y fase 1 en desarrollo. Base inicial creada; aún sin módulos operativos.
+Estado: fases 1–3 implementadas y fase 4 autorizada y en desarrollo. Clientes, cuentas, configuración del negocio, recetas y antecedentes disponibles. Adjuntos pendientes de confirmar límites y completar el circuito privado.
 
 ## 1. Objetivo y alcance
 
@@ -44,6 +44,12 @@ En fase 3 se implementan únicamente visitas administrativas con motivo y observ
 - Definir unidades, precisión, campos opcionales y validaciones con el usuario antes de programarlos. Diferenciar dato ausente de cero.
 - Permitir varias recetas por cliente y consulta histórica; una nueva no reemplaza la anterior.
 - No producir diagnósticos, prescripciones ni recomendaciones clínicas automáticamente.
+
+Definición confirmada por el usuario durante fase 4: esfera, cilindro, adición y prisma con hasta **3 decimales**; dioptrías para los primeros tres y dioptrías prismáticas para prisma. Eje entero entre 0 y 180 grados y base como texto informado. Distancia pupilar **binocular**, en milímetros con hasta **2 decimales**. Todos estos campos son opcionales, sin exigir saltos de 0,25 y distinguiendo vacío de cero. No se implementan valores calculados ni conversiones clínicas. La capacidad técnica inicial de los campos numéricos es hasta 9999 en valor absoluto; no constituye un rango clínico de normalidad. Distancia pupilar no negativa.
+
+Las recetas y antecedentes conservan cliente y tipo; pueden asociarse a una visita del mismo cliente. Las correcciones crean versiones con motivo obligatorio, fecha de registro y usuario, sin sustituir versiones anteriores. Cada versión conserva una copia de los datos identificatorios del profesional informante, para que editar su ficha no cambie el documento histórico. Se permite corregir registros de clientes inactivos y de visitas posteriormente canceladas, conservando los vínculos originales.
+
+Profesionales informantes: nombre obligatorio; matrícula y ámbito/jurisdicción opcionales cuando no constan. Registro separado de las cuentas de acceso; crear una ficha no concede permisos ni certifica habilitación. Inactivación sin borrado. Duplicados exactos normalizados de nombre/matrícula/ámbito se rechazan incluso si están inactivos. Acceso clínico según matriz vigente: sólo Profesional; Administrador y AtenciónVentas no reciben acceso clínico por esos roles.
 
 ### RF-04. Fotografías y documentos
 

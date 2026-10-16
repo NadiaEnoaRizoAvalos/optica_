@@ -11,6 +11,9 @@
         <p><a href="/clientes">Administrar clientes y visitas</a></p>
     </AuthorizeView>
     <p><a href="/cuenta/clave" data-enhance-nav="false">Cambiar mi contraseña</a></p>
+    <AuthorizeView Policy="@Permissions.ReadClinical">
+        <p><a href="/clinica/profesionales" data-enhance-nav="false">Profesionales informantes</a></p>
+    </AuthorizeView>
     <AuthorizeView Roles="Administrador">
         <nav aria-label="Administración">
             <a href="/admin/usuarios" data-enhance-nav="false">Administrar usuarios</a>
@@ -24,7 +27,7 @@
     </form>
     <section aria-labelledby="status-title">
         <h2 id="status-title">Configuración inicial</h2>
-        <p>Ya podés probar clientes y visitas administrativas. Recetas, inventario y ventas se incorporarán en próximas fases.</p>
+        <p>Ya podés probar clientes y visitas administrativas. El personal con rol Profesional puede registrar recetas y antecedentes. Inventario y ventas se incorporarán en próximas fases.</p>
         <p>Usá sólo datos ficticios durante el desarrollo.</p>
     </section>
 </main>

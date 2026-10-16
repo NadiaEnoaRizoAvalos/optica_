@@ -168,6 +168,192 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("OpticaSosa.Domain.Clinical.ClinicalRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Kind")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("RevisionNumber")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("VisitId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId", "Id");
+
+                    b.HasIndex("CustomerId", "VisitId");
+
+                    b.ToTable("ClinicalRecords", t =>
+                        {
+                            t.HasCheckConstraint("CK_ClinicalRecord_Kind", "Kind IN (0, 1, 2) AND RevisionNumber > 0");
+                        });
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Clinical.ClinicalRevision", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CorrectionReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(4000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Number")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("ProfessionalId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ProfessionalJurisdiction")
+                        .HasMaxLength(80)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ProfessionalName")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ProfessionalRegistration")
+                        .HasMaxLength(60)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("PupillaryDistanceHundredths")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("RecordId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("RecordedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RecordedByUserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProfessionalId");
+
+                    b.HasIndex("RecordedByUserId");
+
+                    b.HasIndex("RecordId", "Number")
+                        .IsUnique();
+
+                    b.ToTable("ClinicalRevisions", t =>
+                        {
+                            t.HasCheckConstraint("CK_ClinicalRevision_Correction", "Number = 1 OR (Number > 1 AND CorrectionReason IS NOT NULL AND length(trim(CorrectionReason)) > 0)");
+                        });
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Clinical.EyeMeasurement", b =>
+                {
+                    b.Property<Guid>("RevisionId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Side")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("AdditionMilli")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("Axis")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Base")
+                        .HasMaxLength(60)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("CylinderMilli")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("PrismMilli")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("SphereMilli")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("RevisionId", "Side");
+
+                    b.ToTable("EyeMeasurements", t =>
+                        {
+                            t.HasCheckConstraint("CK_EyeMeasurement_SideAxis", "Side IN (0, 1) AND (Axis IS NULL OR Axis BETWEEN 0 AND 180)");
+                        });
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Clinical.Professional", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CreatedByUserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DuplicateKey")
+                        .IsRequired()
+                        .HasMaxLength(262)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Jurisdiction")
+                        .HasMaxLength(80)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Registration")
+                        .HasMaxLength(60)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("DuplicateKey")
+                        .IsUnique();
+
+                    b.ToTable("Professionals");
+                });
+
             modelBuilder.Entity("OpticaSosa.Domain.Customers.Customer", b =>
                 {
                     b.Property<Guid>("Id")
@@ -281,8 +467,6 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
-
-                    b.HasAlternateKey("CustomerId", "Id");
 
                     b.HasIndex("CustomerId")
                         .IsUnique()
@@ -500,6 +684,60 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("OpticaSosa.Domain.Clinical.ClinicalRecord", b =>
+                {
+                    b.HasOne("OpticaSosa.Domain.Customers.Customer", null)
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OpticaSosa.Domain.Customers.Visit", null)
+                        .WithMany()
+                        .HasForeignKey("CustomerId", "VisitId")
+                        .HasPrincipalKey("CustomerId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Clinical.ClinicalRevision", b =>
+                {
+                    b.HasOne("OpticaSosa.Domain.Clinical.Professional", null)
+                        .WithMany()
+                        .HasForeignKey("ProfessionalId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OpticaSosa.Domain.Clinical.ClinicalRecord", null)
+                        .WithMany()
+                        .HasForeignKey("RecordId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OpticaSosa.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("RecordedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Clinical.EyeMeasurement", b =>
+                {
+                    b.HasOne("OpticaSosa.Domain.Clinical.ClinicalRevision", null)
+                        .WithMany("Eyes")
+                        .HasForeignKey("RevisionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Clinical.Professional", b =>
+                {
+                    b.HasOne("OpticaSosa.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("OpticaSosa.Domain.Customers.Customer", b =>
                 {
                     b.HasOne("OpticaSosa.Infrastructure.Identity.ApplicationUser", null)
@@ -527,6 +765,11 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
                         .HasForeignKey("RecordedByUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Clinical.ClinicalRevision", b =>
+                {
+                    b.Navigation("Eyes");
                 });
 #pragma warning restore 612, 618
         }

@@ -5,9 +5,9 @@
 - Fase 0: documentación inicial aprobada por el usuario.
 - Fase 1: aceptada por el usuario tras visualizar la aplicación; autorizó fase 2. No se afirma haber realizado una prueba con internet físicamente desconectado.
 - Fase 2: aceptada al autorizar expresamente fase 3; existe una cuenta de acceso, conservada durante la actualización.
-- Fase 3: implementada y verificada; pendiente de revisión del usuario en navegador. Fase 4 no iniciada.
-- Tarea adicional previa a fase 4: configuración del negocio implementada y verificada; repositorio privado vinculado y primer push aprobado expresamente por el usuario. Publicación en main con verificación de SHA local/remoto al entregar. Fase 4 no iniciada.
-- Base compilada y 54 pruebas aprobadas. SkiaSharp 4.153.1 incorporado con autorización para logos; todos los datos de pruebas son ficticios y están aislados de la base de uso local.
+- Fase 3 y tarea adicional de configuración/GitHub: aceptadas al pedir expresamente continuar con fase 4. Primer push realizado y verificado en main, commit 2c4d495.
+- Fase 4: autorizada y en desarrollo. Recetas, antecedentes y profesionales implementados y verificados como módulo funcional; adjuntos pendientes de confirmar límites y completar su circuito. Fase 5 no iniciada.
+- Última suite: 74 pruebas ejecutadas y aprobadas (26 Infraestructura y 48 Web), 0 fallidas, 0 omitidas; 20 pruebas nuevas respecto de la entrega anterior. Compilación: 0 errores y 0 advertencias. Todos los datos de pruebas son ficticios y están aislados de la base local.
 - Trabajar una funcionalidad por tarea; marcar cada tarea y registrar su validación al terminar.
 - El cierre de cada fase requiere cumplir sus criterios y aprobación explícita para avanzar. No encadenar fases automáticamente.
 - Solicitar autorización específica para instalaciones y cambios destructivos.
@@ -76,7 +76,7 @@ Antes de iniciar esta fase se realizará la tarea adicional autorizada de GitHub
 - [x] Crear copia SQLite y adjuntos antes de migrar, verificarla y aplicar BusinessConfiguration explícitamente; Up sólo crea una tabla, sin borrar registros. Comparación posterior: diez tablas previas intactas e integridad correcta. No se guardó una marca ficticia en la base local.
 - [x] Preparar entrega verificada e inventario para el commit local y revisión del primer push. El identificador del commit se informa al entregar y se consulta con git log -1; no se incluye un hash autorreferencial en estos archivos.
 - [x] Obtener aprobación del inventario para el primer push al remoto privado. El usuario aprobó el commit inicial b640541 y solicitó consolidar la política de versionado; se publica junto con esa actualización documental coherente, sin reescribir el commit inicial. Verificar main local contra origin/main al entregar.
-- [ ] Obtener aceptación de esta tarea y autorización separada antes de fase 4.
+- [x] Obtener aceptación de esta tarea y autorización separada antes de fase 4: el usuario pidió expresamente continuar con fase 4.
 
 Verificación local: servidor dejado activo en localhost:5080; ingreso 200 con nombre genérico y sin marca fija, CSS 200, configuración/clientes anónimos 302 al ingreso, stderr vacío. La interfaz administrativa y la persistencia se comprobaron automáticamente en bases ficticias; la revisión visual manual corresponde al usuario.
 
@@ -84,14 +84,27 @@ Configuración Git/GitHub — 2026-10-15: revisados Git, autor existente, origin
 
 Copia previa privada: data/migration-backups/pre-negocio-2026-10-15-54128ddd3dce4dc781c428fd527ccb62. Es una copia para esta migración, no reemplaza los respaldos operativos de fase 7. Licencias comerciales del producto, pruebas gratuitas y panel de ventas siguen pospuestos.
 
-### Alcance clínico de fase 4 — no iniciado
+### Alcance clínico de fase 4 — en desarrollo
 
-- [ ] Validar campos, unidades y permisos clínicos con la óptica.
-- [ ] Implementar profesionales, recetas médicas y registros de la óptica.
-- [ ] Implementar graduaciones por ojo y antecedentes con procedencia y autoría.
-- [ ] Implementar historial de correcciones y acceso restringido.
+- [ ] Completar validación de alcance: el usuario confirmó graduaciones con 3 decimales y distancia pupilar binocular en mm con 2 decimales; permisos vigentes sólo Profesional. Sigue pendiente la segunda consulta enviada sobre permisos/límites de adjuntos (propuesta PNG/JPEG/PDF de hasta 10 MB, máximo 10 por receta o antecedente).
+- [x] Implementar profesionales, recetas médicas y registros de la óptica; búsqueda, consulta, edición e inactivación de profesionales, separadas de cuentas de acceso.
+- [x] Implementar graduaciones por ojo y antecedentes con procedencia y autoría. Enteros escalados conservan precisión exacta, lateralidad y diferencia entre cero y ausente.
+- [x] Implementar historial de correcciones y acceso restringido. Versiones append-only con motivo, profesional informante histórico y usuario; cliente/tipo/visita no cambian en una corrección. Lectura y escritura autorizadas en servidor y casos de uso; auditoría sin contenido clínico.
 - [ ] Implementar carga y consulta privada de imágenes/PDF con límites y validación.
-- [ ] Probar lateralidad, relaciones entre clientes, permisos, cargas inválidas e integridad de archivos ante fallos.
+- [ ] Completar pruebas de adjuntos. Ya probados lateralidad, relaciones entre clientes, precisión, permisos HTTP/Aplicación, CSRF, correcciones, conflictos, duplicados, migración conservadora y escritura atómica de archivos privados; falta integración de carga/consulta y validación de contenido.
+
+Entrega funcional parcial de fase 4 — 2026-10-15:
+
+- Alcance cotejado antes de modificar código. No se instalaron dependencias nuevas ni se avanzó a inventario.
+- Formularios Razor HTTP para el módulo clínico, integrados con las fichas Blazor existentes y el estilo adaptable del sistema. POST evita poner términos de búsqueda profesionales en URLs; listas e historial acotados con refinamiento/paginación.
+- Migración ClinicalRecords aditiva: crea Professionals, ClinicalRecords, ClinicalRevisions y EyeMeasurements, con referencias restrictivas a usuario/cliente/profesional y FK compuesta que impide asociar una visita de otro cliente. No se ejecuta Down ni se borra historial.
+- `dotnet build OpticaSosa.sln --no-restore -m:1 -nr:false`: 0 errores y 0 advertencias. `dotnet test OpticaSosa.sln --no-build --no-restore --verbosity minimal -m:1 -nr:false`: 74 ejecutadas, 74 aprobadas, 0 fallidas, 0 omitidas. No se suman las reejecuciones como pruebas nuevas. `dotnet-ef migrations has-pending-model-changes`: sin diferencias.
+- Se corrigieron errores iniciales de plantilla y la simulación del envío de decimales: las pruebas ahora envían los marcadores invariantes que genera Razor, igual que el navegador. Se detuvo sólo el servidor de esta aplicación por bloqueo de DLL. Ante un fallo de memoria de MSBuild, se cerraron sus servidores de compilación y se verificó con un solo nodo; no se atribuyó ese intento fallido a pruebas aprobadas.
+- Almacenamiento interno privado probado: identificadores GUID, archivos fuera de wwwroot, escritura transitoria con publicación atómica sin sobrescritura, rechazo de enlaces y limpieza de sus propios temporales ante fallos/cancelación. Todavía no se habilitan cargas ni descargas clínicas; falta el caso de uso con metadatos y validación acordada.
+- Copia previa consistente: `data/migration-backups/pre-fase4-2026-10-15-a3f655349bba4e84bd519e557762d28e`, con SQLite y adjuntos; integrity_check y foreign_key_check correctos, 11 tablas previas registradas y 0 archivos existentes. Aplicación explícita con `--initialize-database`: migración completada; comparación por hash confirmó las 11 tablas previas intactas y las cuatro nuevas vacías. No se crearon cuentas, contraseñas ni pacientes de prueba en la base local.
+- Servidor reiniciado en segundo plano en localhost:5080: ingreso y CSS 200, rutas clínicas anónimas 302 al ingreso, stderr vacío. Formularios autenticados comprobados automáticamente en hosts aislados; la revisión visual manual queda para el usuario. Remoto confirmado privado y sincronizado antes de publicar el módulo; informar SHA/resultado del push al entregar.
+- Para probar: con una cuenta de rol Profesional, abrir Clientes → ficha → Recetas y antecedentes visuales. Registrar un profesional desde `/clinica/profesionales`, crear una receta y consultar/corregir sus versiones. Un administrador puede crear la cuenta Profesional desde Usuarios; no obtiene acceso clínico por ser Administrador. Usar sólo datos ficticios.
+- Pendiente: respuesta sobre límites/permisos de adjuntos y completar esa funcionalidad antes de cerrar fase 4. No solicitar ni interpretar aprobación de fase 5 en esta entrega parcial.
 
 Criterios de aceptación: historial clínico trazable sin generación automática de diagnósticos; adjuntos inaccesibles sin permiso; ausencia de datos sensibles en logs. Aprobar antes de fase 5.
 
@@ -200,4 +213,4 @@ En tareas futuras registrar aquí el alcance concreto, comandos/pruebas ejecutad
 
 ### Confirmaciones de alcance
 
-El usuario confirmó los roles administrador, atención/ventas y profesional con acceso clínico restringido, y la clasificación de recurrente basada en una visita completada anterior. Autorizó SDK, EF Core/SQLite y pruebas; aprobó fase 2 y sus paquetes adicionales y herramienta local EF. Posteriormente aprobó fase 3, solicitó cotejar su alcance y confirmó documento obligatorio. Fase 4 requiere nueva aprobación explícita.
+El usuario confirmó los roles administrador, atención/ventas y profesional con acceso clínico restringido, y la clasificación de recurrente basada en una visita completada anterior. Autorizó SDK, EF Core/SQLite y pruebas; aprobó fase 2 y sus paquetes adicionales y herramienta local EF. Posteriormente aprobó fase 3, solicitó cotejar su alcance y confirmó documento obligatorio. Tras publicar el avance en GitHub aprobó fase 4, pidió informar cantidades de pruebas en las próximas entregas y confirmó 3 decimales en dioptrías y 2 en distancia pupilar binocular. La fase 5 requiere nueva aprobación explícita.

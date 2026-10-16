@@ -1,0 +1,64 @@
+@page "/clientes/{customerId:guid}/clinica/nuevo/{id:guid?}"
+@using OpticaSosa.Domain.Clinical
+@using OpticaSosa.Web.Pages.Clinical
+@model OpticaSosa.Web.Pages.Clinical.RecordEditorModel
+@{ ViewData["Title"] = Model.Correcting ? "Corregir registro clínico" : "Registrar receta o antecedente"; }
+
+<p class="eyebrow">Acceso profesional</p>
+<h1>@ViewData["Title"]</h1>
+<p>@Model.Customer.LastName, @Model.Customer.FirstName</p>
+<p>Transcribí únicamente información aportada por el profesional. Un campo vacío significa que no fue informado.</p>
+@if (Model.Correcting) { <p>Se creará una versión nueva con motivo obligatorio; la versión anterior se conserva.</p> }
+<form method="post">
+    <div asp-validation-summary="All" role="alert"></div>
+    <input asp-for="Input.SubmissionId" type="hidden" /><input asp-for="Input.Version" type="hidden" />
+    @if (Model.Correcting)
+    {
+        <input asp-for="Input.Kind" type="hidden" /><input asp-for="Input.VisitId" type="hidden" />
+        <p>Tipo: @ClinicalDisplay.Kind(Model.Input.Kind). El cliente, tipo y vínculo de visita se conservan.</p>
+    }
+    else
+    {
+        <label asp-for="Input.Kind">Tipo de registro</label>
+        <select asp-for="Input.Kind">
+            @foreach (var kind in Enum.GetValues<ClinicalKind>()) { <option value="@((int)kind)">@ClinicalDisplay.Kind(kind)</option> }
+        </select>
+        <label asp-for="Input.VisitId">Visita administrativa (opcional)</label>
+        <select asp-for="Input.VisitId">
+            <option value="">Sin visita asociada</option>
+            @foreach (var visit in Model.Visits) { <option value="@visit.Id">@visit.StartedAtUtc.ToLocalTime().ToString("dd/MM/yyyy HH:mm") · @visit.Reason</option> }
+        </select>
+        <p class="field-help">Se ofrecen hasta 25 visitas recientes. La asociación es opcional.</p>
+    }
+    <label asp-for="Input.Date">Fecha del documento o información</label><input asp-for="Input.Date" type="date" required />
+    <label asp-for="ProfessionalSearch">Filtrar profesionales por nombre, matrícula o ámbito</label>
+    <input asp-for="ProfessionalSearch" maxlength="120" />
+    <button type="submit" asp-page-handler="SearchProfessionals" formnovalidate>Buscar profesionales sin guardar</button>
+    <label asp-for="Input.ProfessionalId">Profesional informante</label>
+    <select asp-for="Input.ProfessionalId" required>
+        <option value="">Seleccionar profesional activo</option>
+        @foreach (var professional in Model.Professionals) { <option value="@professional.Id">@professional.FullName · @(professional.Registration ?? "Sin matrícula informada")</option> }
+    </select>
+    <p class="field-help">Hasta 100 coincidencias activas por búsqueda. Podés filtrar sin guardar el registro.</p>
+    <p><a href="/clinica/profesionales" target="_blank" rel="noopener">Consultar o registrar profesionales en otra pestaña</a>.</p>
+    <label asp-for="Input.Source">Procedencia (obligatoria)</label><input asp-for="Input.Source" maxlength="200" required />
+    <label asp-for="Input.Notes">Observaciones o antecedente informado (obligatorio para antecedentes)</label>
+    <textarea asp-for="Input.Notes" maxlength="4000"></textarea>
+    <section>
+        <h2>Graduaciones de recetas</h2>
+        <p>Para antecedentes visuales dejá estos campos vacíos. Dioptrías con hasta 3 decimales; eje entero de 0 a 180°; prisma en dioptrías prismáticas. No se exige un incremento de 0,25.</p>
+        <div class="settings-grid">
+            <fieldset><legend>Ojo derecho (OD)</legend>@Html.EditorFor(m => m.Input.Right, "EyeFields")</fieldset>
+            <fieldset><legend>Ojo izquierdo (OI)</legend>@Html.EditorFor(m => m.Input.Left, "EyeFields")</fieldset>
+        </div>
+        <label asp-for="Input.PupillaryDistance">Distancia pupilar binocular (mm, hasta 2 decimales)</label>
+        <input asp-for="Input.PupillaryDistance" type="number" step="0.01" min="0" />
+    </section>
+    @if (Model.Correcting)
+    {
+        <label asp-for="Input.CorrectionReason">Motivo de corrección (obligatorio)</label>
+        <textarea asp-for="Input.CorrectionReason" maxlength="500" required></textarea>
+    }
+    <div class="settings-actions"><button type="submit">Guardar @(Model.Correcting ? "nueva versión" : "registro")</button>
+        <a href="/clientes/@Model.Customer.Id/clinica">Volver al historial</a></div>
+</form>

@@ -121,4 +121,16 @@ El usuario aprobó expresamente la primera publicación del inventario en ARCHIV
 
 .gitignore excluye datos de cada instalación, bases/auxiliares, imágenes/documentos de usuarios, secretos, .env, respaldos, logs y binarios. Código, pruebas, migraciones y documentación técnica sí se versionan. Las credenciales GitHub permanecen en el gestor de credenciales de Windows; no se incorporan a configuración fuente ni documentación. Nunca compartir contraseñas o tokens en el chat.
 
-Licencias comerciales del producto, pruebas gratuitas y panel de ventas permanecen pospuestos. Fase 4 requiere aprobación posterior.
+Licencias comerciales del producto, pruebas gratuitas y panel de ventas permanecen pospuestos. Fase 4 fue autorizada y está en desarrollo; fase 5 requiere aprobación posterior.
+
+## Recetas y antecedentes — módulo inicial de fase 4
+
+1. Ingresar con rol **Profesional**. Si sólo existe Administrador, crear una cuenta individual de rol Profesional desde Usuarios, eligiendo su contraseña localmente. Administrador y AtenciónVentas no reciben acceso clínico por esos roles.
+2. Abrir **Profesionales informantes** desde el inicio (`http://localhost:5080/clinica/profesionales`). Registrar un nombre ficticio y, si figuran, matrícula y ámbito. Esto no crea una cuenta de acceso. Es posible consultar, buscar, editar e inactivar sin borrar la ficha.
+3. Abrir Clientes, elegir un cliente ficticio y entrar en **Recetas y antecedentes visuales**. Crear una receta médica, un registro de la óptica o un antecedente informado. Elegir profesional, fecha y procedencia; la visita es opcional y debe pertenecer al mismo cliente.
+4. En recetas, transcribir OD/OI por separado: esfera, cilindro, adición y prisma hasta 3 decimales; eje entero de 0 a 180° y base textual. Distancia pupilar binocular en mm con 2 decimales. Todos estos valores son opcionales: vacío y cero son distintos. Para antecedentes, escribir lo informado por el profesional y dejar vacías las graduaciones.
+5. Consultar el registro y usar **Crear corrección desde la última versión**, con motivo obligatorio. Se conservan las versiones anteriores, usuario, fecha de registro y datos del profesional que constaban en cada versión. Ante un conflicto, recargar antes de corregir; no se sobrescribe silenciosamente.
+
+La aplicación no genera diagnósticos ni recetas automáticamente. Las consultas y cambios se auditan sin copiar el contenido clínico. El módulo conserva las capas y SQLite, con referencias restrictivas y sin borrar historial. La suite actual tiene 74 pruebas: 26 Infraestructura y 48 Web; los informes de próximas entregas separarán errores/advertencias de compilación y pruebas ejecutadas/aprobadas/fallidas/omitidas.
+
+**Adjuntos todavía pendientes:** su almacenamiento interno ya tiene escritura atómica privada probada, pero no se habilitaron formularios ni descargas. Se envió una consulta para acordar PNG/JPEG/PDF, hasta 10 MB y 10 por registro, y mantener acceso sólo Profesional. Esta entrega no cierra la fase 4 ni inicia inventario.
