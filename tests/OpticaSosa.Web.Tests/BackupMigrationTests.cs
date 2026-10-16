@@ -8,14 +8,19 @@ using Microsoft.Extensions.DependencyInjection;
 using OpticaSosa.Application.Security;
 using OpticaSosa.Infrastructure.Identity;
 using OpticaSosa.Infrastructure.Persistence;
+using OpticaSosa.Infrastructure.Backups;
+using OpticaSosa.Infrastructure.Clinical;
 using Xunit;
 
 namespace OpticaSosa.Web.Tests;
 
 public sealed class BackupMigrationTests
 {
-    [Fact]
-    public async Task ForwardMigrationPreservesEveryPriorTableAndPrivateOriginal()
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    public async Task ForwardMigrationAndIsolatedRecoveryPreservePriorData(bool stopAfterFirstMigration, bool useSqlScript)
     {
         await using var app = new SecurityApp(); using var scope = app.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<OpticaDbContext>();
@@ -32,17 +37,58 @@ public sealed class BackupMigrationTests
         using var customers = await CustomerScenario.OpenAsync(app);
         var customer = (await customers.Customers.CreateAsync(CustomerScenario.Input())).CustomerId!.Value;
         using var pro = await ClinicalScenario.OpenAsync(app);
-        Assert.True((await pro.Clinical.CreateAsync(customer, ClinicalScenario.Input(await pro.AddProfessionalAsync()))).Succeeded);
+        var record = await pro.Clinical.CreateAsync(customer, ClinicalScenario.Input(await pro.AddProfessionalAsync()));
+        Assert.True(record.Succeeded);
+        var documents = new[] { (BusinessForms.Logo(), "receta-ficticia.png", "image/png"),
+            (AttachmentTestContext.Pdf(), "receta-ficticia.pdf", "application/pdf") };
+        foreach (var (bytes, name, type) in documents)
+        {
+            var detail = (await pro.Clinical.GetAsync(customer, record.Id!.Value))!;
+            using var input = new MemoryStream(bytes);
+            Assert.True((await pro.Attachments.UploadAsync(customer, record.Id.Value,
+                new(Guid.NewGuid(), detail.RevisionId, detail.Version, name, type, bytes.Length, input))).Succeeded);
+        }
         var before = await RowsAsync(db);
         var original = Path.Combine(paths.AttachmentsDirectory, "original-ficticio.txt");
         await File.WriteAllTextAsync(original, "Original ficticio conservado");
-        Assert.False(await app.Services.GetRequiredService<OpticaSosa.Infrastructure.Backups.BackupCoordinator>().ReadyAsync(default));
-        await db.Database.MigrateAsync();
+        var coordinator = app.Services.GetRequiredService<BackupCoordinator>();
+        var verifier = app.Services.GetRequiredService<BackupVerifier>();
+        var snapshot = await app.Services.GetRequiredService<ClinicalSnapshotWriter>()
+            .CreateAsync(Path.Combine(paths.DataDirectory, "migration-rehearsal"));
+        await verifier.VerifyAsync(snapshot.Directory);
+        var snapshotHash = SHA256.HashData(await File.ReadAllBytesAsync(Path.Combine(snapshot.Directory, "optica.db")));
+        Assert.False(await coordinator.ReadyAsync(default));
+        if (useSqlScript)
+        {
+            var script = db.GetService<IMigrator>().GenerateScript("20261016035916_QualityWorkflow",
+                "20261016161235_BackupDestinationBinding");
+            await db.Database.ExecuteSqlRawAsync(script);
+        }
+        else if (stopAfterFirstMigration)
+            await db.GetService<IMigrator>().MigrateAsync("20261016055719_AutomaticBackups");
+        else await db.Database.MigrateAsync();
         var after = await RowsAsync(db);
         Assert.All(before, pair => Assert.Equal(pair.Value, after[pair.Key]));
         Assert.Equal(before.Count + 2, after.Count);
         Assert.Equal("Original ficticio conservado", await File.ReadAllTextAsync(original));
         Assert.Equal(0, await db.BackupSettings.CountAsync()); Assert.Equal(0, await db.BackupRuns.CountAsync());
+        Assert.Equal(!stopAfterFirstMigration, await coordinator.ReadyAsync(default));
+
+        // Recuperación hacia un directorio nuevo: no ejecutar Down ni reemplazar la base ensayada.
+        var recovered = await verifier.RestoreIsolatedAsync(snapshot.Directory);
+        Assert.NotEqual(paths.DataDirectory, recovered);
+        var options = new DbContextOptionsBuilder<OpticaDbContext>().UseSqlite(new Microsoft.Data.Sqlite.SqliteConnectionStringBuilder
+            { DataSource = Path.Combine(recovered, "optica.db"), Mode = Microsoft.Data.Sqlite.SqliteOpenMode.ReadOnly, Pooling = false }.ToString()).Options;
+        await using var restored = new OpticaDbContext(options);
+        var recoveredRows = await RowsAsync(restored);
+        Assert.Equal(before.Count, recoveredRows.Count);
+        Assert.All(before, pair => Assert.Equal(pair.Value, recoveredRows[pair.Key]));
+        Assert.Equal("20261016035916_QualityWorkflow", (await restored.Database.GetAppliedMigrationsAsync()).Last());
+        Assert.Equal(snapshotHash, SHA256.HashData(await File.ReadAllBytesAsync(Path.Combine(recovered, "optica.db"))));
+        Assert.Equal(snapshotHash, SHA256.HashData(await File.ReadAllBytesAsync(Path.Combine(snapshot.Directory, "optica.db"))));
+        Assert.Equal("Original ficticio conservado", await File.ReadAllTextAsync(Path.Combine(recovered, "attachments", "original-ficticio.txt")));
+        Assert.Equal(2, await restored.ClinicalAttachments.CountAsync());
+        await verifier.VerifyAsync(recovered);
     }
 
     private static async Task<Dictionary<string, string>> RowsAsync(OpticaDbContext db)

@@ -40,7 +40,7 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
                 defaultValue: "OpticaSosaBackups");
 
             // Una instalación previa debe revisar/vincular el destino antes de reactivar.
-            migrationBuilder.Sql("UPDATE BackupSettings SET Enabled = 0, NextUtc = NULL");
+            migrationBuilder.Sql("UPDATE BackupSettings SET Enabled = 0, NextUtc = NULL;");
         }
 
         /// <inheritdoc />

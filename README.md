@@ -206,3 +206,24 @@ En esta PC se autorizó exclusivamente preparar D:\Optica\Respaldos. Quedó vac�
 WindowsServices 10.0.12 está agregado con autorización, pero no se registró ningún servicio ni se cambiaron cuentas Windows. El despliegue como servicio requiere autorización, rutas absolutas, identidad/ACL y recuperación de claves revisadas; AddWindowsService no registra el servicio por sí mismo. Las pruebas del hospedado no equivalen a validar un servicio registrado en esta PC. El programador funciona dentro del mismo servidor, sin sesión de navegador, mientras PC/proceso estén activos.
 
 BitLocker/BitLocker To Go sólo están propuestos: antes de activarlos se requieren dos custodias separadas de recuperación, validación de claves y prueba en equipo independiente. No guardar recuperación con el mismo respaldo ni publicar claves. Administrar copias no concede lectura clínica en la aplicación; proteger además acceso físico y administrativo Windows. La subtarea 5.2 no habilita uso con datos clínicos reales; 5.1 y 5.3 continúan pendientes.
+
+### Revisión previa de migraciones de respaldos — autorización operativa pendiente
+
+Desde QualityWorkflow hay dos migraciones pendientes, revisadas tanto en C# como en el SQL generado:
+
+| Migración | Cambios hacia adelante |
+| --- | --- |
+| 20261016055719_AutomaticBackups | Crea BackupSettings (instalación, habilitación, frecuencia/hora/zona, volumen, conservación, versión y próxima ejecución), BackupRuns (identidad, tiempos, disparador, estado/error, directorio/volumen, archivos, períodos perdidos y actor) e índice StartedUtc. |
+| 20261016161235_BackupDestinationBinding | Añade BindingId y RelativeFolder a ambas tablas. El valor heredado de carpeta es OpticaSosaBackups; no prepara esa carpeta ni selecciona un disco. Si ya hubiera configuración, establece Enabled=0 y NextUtc=NULL. |
+
+Son aditivas para el esquema y no modifican tablas de clientes, clínica, profesionales, documentos, pedidos/calidad o Identity. También registran las versiones en __EFMigrationsHistory. La segunda contiene una actualización de seguridad exclusivamente sobre BackupSettings: no es una migración sin ningún UPDATE. Los métodos Down sí eliminan tablas/columnas y no forman parte del procedimiento aprobado ni de los ensayos de recuperación.
+
+Se corrigió el terminador de la sentencia UPDATE para que el script generado sea ejecutable junto con la siguiente sentencia; no cambia su efecto. Las pruebas aplican el migrador y el script completo en bases ficticias, simulan una detención entre migraciones y restauran el punto anterior en otro directorio privado, sin Down, sobrescritura o cambios al respaldo original. Se comparan todas las tablas previas y hashes de SQLite, con PNG/PDF relacionados.
+
+Antes de actualizar la instalación de uso se requiere aprobación explícita para las dos migraciones y la pausa de mantenimiento. Durante esa pausa debe generarse/verificarse una copia final consistente con originales y configuración, conservarse el punto de recuperación y comprobarse que no hubo cambios posteriores que queden fuera de la copia. Tras actualizar: comparar datos previos, integridad/FKs, cuentas y originales; comprobar /admin/respaldos con programación desactivada y escritura externa bloqueada. Si falla, detener la habilitación, preservar los archivos y recuperar a un directorio nuevo; reemplazar la base operativa o cambiar su ruta requiere autorización específica y revisión de cualquier dato posterior al punto recuperado. No ejecutar Down por rutina.
+
+La copia local existente es un punto de recuperación verificable, no protección ante rotura del disco del servidor ni evidencia de recuperación de cifrado/claves en otra PC. Su vigencia debe revisarse justo antes de migrar; las operaciones posteriores, incluida auditoría, pueden no estar incluidas.
+
+Autorizaciones separadas: **migraciones/configuración**, **escritura externa y vinculación del marcador**, **copias al disco real**, **activación del programador**, **cifrado y recuperación de claves**, y **registro/identidad del servicio Windows**. Aprobar una no aprueba las demás. Puede habilitarse la pantalla para guardar disco/carpeta y horario sin conceder escritura externa ni activar programación.
+
+Después de autorizar/aplicar únicamente las migraciones, en /admin/respaldos: inspeccionar discos (sólo lectura), seleccionar el volumen verificado y escribir Optica/Respaldos como carpeta relativa para el destino previamente preparado. Elegir hora local, zona, frecuencia y conservación; guardar con Activar programación desmarcado. La letra actual no es la identidad persistida. No vincular ni encolar copias hasta autorizar la escritura externa; no activar el cronograma hasta completar y aprobar su procedimiento. Si se cambia la cuenta Windows del futuro servicio, verificar sus permisos antes de escribir.
