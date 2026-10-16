@@ -332,4 +332,25 @@ Estado interpretado según evidencia: «implementada» refiere a funciones exist
 
 Fuente histórica: PLANS.md del commit 94301cd. Las descripciones y motivos originales D-01–D-36 se conservan literalmente en las fichas anteriores, incluidos sus enlaces. La interpretación actual no convierte propuestas anteriores en implementaciones.
 
+### D-47 — Respaldos con motor compartido y ejecución sin sesión HTTP
+
+- **Descripción:** Extraer ClinicalSnapshotWriter del respaldo manual y reutilizarlo para tareas encoladas/programadas dentro del servidor; serializar copias y cambios de adjuntos, conservar hashes y verificar SQLite/relaciones antes del manifiesto completo.
+- **Motivo:** Automatizar sin duplicar el mecanismo ni depender del navegador, manteniendo compatibilidad del respaldo local anterior.
+- **Estado:** Implementada y probada con destinos/datos ficticios en 5.2; aceptación e instalación operativa pendientes.
+- **Consecuencias:** Migración aditiva AutomaticBackups generada, sin aplicar a la base de uso. El programador no migra al arrancar; una base anterior muestra aviso. Cuentas y módulos clínicos/calidad conservados; 5.1/5.3 pendientes.
+
+### D-48 — Destino por GUID y autorización separada de escritura externa
+
+- **Descripción:** Seleccionar volumen explícitamente y verificar NTFS, disco físico independiente, capacidad y ACL. Configuración desactivada/sin hora inicial y Backups:ExternalWritesAuthorized=false por defecto; no elegir otro destino si falta el configurado.
+- **Motivo:** Evitar depender de letras Windows o modificar discos reales durante el desarrollo autorizado sólo en aislamiento.
+- **Estado:** Implementada; hardware real, carpeta privada, registro del servicio y activación requieren autorización y revisión previas.
+- **Consecuencias:** Sólo Administrador administra/verifica respaldos, sin permiso clínico añadido. La identidad de sistema para tareas internas no crea cuenta Identity ni simula un usuario web. WindowsServices 10.0.12 autorizado/agregado; servicio Windows no registrado.
+
+### D-49 — Recuperación aislada y cifrado sujeto a autorización
+
+- **Descripción:** Verificar/restaurar en directorio privado vacío, sin iniciar servidor, reemplazar base activa ni habilitar programador. Evaluar BitLocker/To Go y custodias de claves fuera de los respaldos; configuración exportada mediante lista permitida y sin secretos.
+- **Motivo:** Comprobar recuperabilidad sin poner en riesgo la instalación original ni confundir hashes con protección criptográfica contra manipulación deliberada.
+- **Estado:** Restauración ficticia implementada/probada; cifrado, recuperación de claves y pérdida física del equipo pendientes.
+- **Consecuencias:** No usar datos clínicos reales. La migración/restauración operativa requiere procedimiento y autorización específicos; no hay botón de reemplazo activo. El destino con acceso de administrador Windows requiere custodia y cifrado adicionales a los permisos de aplicación.
+
 Dirección de dependencias conservada: Aplicación depende de Dominio; Infraestructura implementa contratos de Aplicación; Web invoca Aplicación y compone Infraestructura. Las reglas no dependen de la interfaz ni de SQLite. No se requiere una API separada para los celulares en el alcance inicial.

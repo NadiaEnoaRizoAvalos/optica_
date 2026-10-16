@@ -99,7 +99,7 @@ Administrador, AtenciónVentas y Profesional pueden consultar, registrar/editar 
 
 Las operaciones importantes y las consultas se auditan mediante acciones e IDs, sin copiar datos de la ficha ni notas. No registrar contenido médico en motivos/observaciones administrativas.
 
-La actualización local contó con copia consistente de SQLite y adjuntos, reabierta y verificada, en `data/migration-backups/pre-fase3-2026-10-15-bfa993fad551434e9de75193a68c179f`. Se compararon las ocho tablas previas antes/después, sin cambios de registros. Es una copia local para esta migración; respaldos operativos y restauración integral siguen siendo fase 7. No se aplicaron reversiones ni borrados.
+La actualización local contó con copia consistente de SQLite y adjuntos, reabierta y verificada, en `data/migration-backups/pre-fase3-2026-10-15-bfa993fad551434e9de75193a68c179f`. Se compararon las ocho tablas previas antes/después, sin cambios de registros. Es una copia local para esa migración; el alcance vigente de respaldos operativos está en la subtarea 5.2 de PLANS.md. No se aplicaron reversiones ni borrados.
 
 ## Configuración del negocio — tarea previa a fase 4
 
@@ -121,7 +121,7 @@ El usuario aprobó expresamente la primera publicación del inventario en ARCHIV
 
 .gitignore excluye datos de cada instalación, bases/auxiliares, imágenes/documentos de usuarios, secretos, .env, respaldos, logs y binarios. Código, pruebas, migraciones y documentación técnica sí se versionan. Las credenciales GitHub permanecen en el gestor de credenciales de Windows; no se incorporan a configuración fuente ni documentación. Nunca compartir contraseñas o tokens en el chat.
 
-Licencias comerciales del producto, pruebas gratuitas y panel de ventas permanecen pospuestos. Fase 4 está implementada y verificada, pendiente de aceptación visual; fase 5 requiere aprobación posterior.
+Licencias comerciales del producto, pruebas gratuitas y panel de ventas permanecen pospuestos. Consultar aceptación y estado actual de fases/subtareas en PLANS.md.
 
 ## Recetas y antecedentes — módulo inicial de fase 4
 
@@ -159,7 +159,7 @@ Configuración técnica opcional en el servidor, sección `ClinicalFiles` de app
 
 El techo de solicitud incluye el formulario: los límites administrables de cada archivo deben ser menores que ese techo. MB de la interfaz significa 1024 × 1024 bytes. Los defaults y validaciones técnicas están centralizados en ClinicalFileOptions; tamaños de fotos/PDF en ClinicalFilePolicy. No hay cupos de cantidad. Las descargas usan streaming y no dependen del límite de cargas actual ni del anterior límite interno de 32 MB.
 
-**Crear copia local verificada**, en la misma página administrativa, genera una carpeta nueva `data/clinical-backups/<GUID>` con SQLite consistente y todos los adjuntos. Incluye históricos y retirados; verifica integridad SQLite, claves foráneas y hashes de originales. Sólo una carpeta con `complete.json` es una copia completa. Una copia fallida no sobrescribe la anterior. Esto no reemplaza la protección ante fallas del disco: cifrado, retención, programación y destino externo siguen en fase 7. La restauración se probó en un servidor de pruebas separado, sin sobrescribir datos activos.
+**Crear copia local verificada**, en la misma página administrativa, genera una carpeta nueva `data/clinical-backups/<GUID>` con SQLite consistente y todos los adjuntos. Incluye históricos y retirados; verifica integridad SQLite, claves foráneas y hashes de originales. Sólo una carpeta con `complete.json` y verificaciones satisfactorias es una copia completa. Una copia fallida no sobrescribe la anterior. Esto no reemplaza la protección ante fallas del disco: ver desarrollo y habilitación pendiente de 5.2 debajo. La restauración se probó en un servidor de pruebas separado, sin sobrescribir datos activos.
 
 ## Probar la fase 4.1 desde el navegador
 
@@ -172,4 +172,31 @@ Abrir [el sistema local](http://localhost:5080). Usar sólo datos ficticios dura
 5. Como **Atención/Ventas** o Profesional, completar y aprobar **Control previo a entrega**. Ventas no ve ni modifica el control técnico. Sólo ambas aprobaciones habilitan Registrar entrega. Consultar historial muestra responsables, roles, fechas, resultados y correcciones permitidos.
 6. Cambiar especificaciones o receta de un pedido no entregado exige nuevos controles. Rectificar un control aprobado requiere motivo y agrega un registro; no elimina el anterior. Administrador modifica obligatoriedad por tipo/etapa en Configuración y administración → Requisitos de calidad; un cambio efectivo reabre controles de los pedidos no entregados afectados.
 
-No hay precios, cobros ni movimientos de stock en este módulo mínimo: se incorporarán al aprobar sus fases. El Administrador conserva sus permisos originales, sin acceso clínico implícito. Diseño revisado en navegador de PC y tamaño móvil; la habilitación real por Wi-Fi continúa en fase 8.
+No hay precios, cobros ni movimientos de stock en este módulo mínimo: se incorporarán al aprobar sus fases. El Administrador conserva sus permisos originales, sin acceso clínico implícito. Diseño revisado en navegador de PC y tamaño móvil; la habilitación real por Wi-Fi corresponde ahora a fase 12.
+
+## Subtarea 5.2 — respaldos, revisión y habilitación pendiente
+
+Abrir [Respaldos](http://localhost:5080/admin/respaldos) como Administrador, desde Configuración y administración. La base operativa aún no tiene AutomaticBackups: la pantalla informa esta condición y no migra automáticamente. La copia manual local anterior continúa disponible. No ejecutar los comandos generales de inicialización contra la instalación de uso hasta autorizar su procedimiento de migración.
+
+Para revisar la pantalla con una base ficticia aislada, ejecutar estos comandos en PowerShell. El directorio debe ser exclusivo y nuevo; no apuntar a data/optica.db ni copiar pacientes reales. La cuenta de esta instancia se elige interactivamente en la terminal, usando un nombre ficticio; no hay contraseña predeterminada.
+
+```powershell
+$opticaProject = 'G:\WINDOWS\Desktop\optica\src\OpticaSosa.Web\OpticaSosa.Web.csproj'
+$opticaPreview = 'G:\WINDOWS\Desktop\optica\data\preview-backups'
+if (Test-Path -LiteralPath (Join-Path $opticaPreview 'optica.db')) { throw 'Ya existe una base de preview. No reinicializar ni reemplazarla.' }
+dotnet run --project $opticaProject --no-launch-profile --no-build -- --environment Development --Storage:DataDirectory $opticaPreview --initialize-database
+dotnet run --project $opticaProject --no-launch-profile --no-build -- --environment Development --Storage:DataDirectory $opticaPreview --create-admin
+dotnet run --project $opticaProject --no-launch-profile --no-build -- --environment Development --Storage:DataDirectory $opticaPreview --Backups:ExternalWritesAuthorized false --urls http://localhost:5081
+```
+
+Ingresar en [la instancia aislada](http://localhost:5081/cuenta/ingresar), luego /admin/respaldos. Antes de inspeccionar discos reales, revisar/autorizar esa operación de sólo lectura; muestra identidad, sistema de archivos, disco físico, capacidad y espacio. Guardar horario, frecuencia cada N días, zona y retención no escribe en el disco. No existe una hora obligatoria inicial. La interfaz mantiene el destino guardado por GUID y permite desactivar el cronograma aunque esté desconectado. La copia manual local es independiente de la programación.
+
+Escritura externa está bloqueada por Backups:ExternalWritesAuthorized=false (valor predeterminado), independiente del checkbox de programación. No cambiarlo en una instalación real sin revisar identidad del volumen, carpeta prevista OpticaSosaBackups/<InstallationId>, permisos y espacio, y aprobar explícitamente la preparación. La carpeta sólo se crea al ejecutar una copia autorizada; no se formatea ni se cifra el disco. Si falta el volumen no se utiliza otro destino. NTFS y separación física deben poder verificarse; unidades no verificables se rechazan.
+
+Tras autorizar migración y destino reales, el Administrador puede configurar destino, hora, zona, frecuencia y conservación, y activar la programación. “Encolar copia manual” funciona con cronograma desactivado y continúa al cerrar la pestaña; el servidor debe seguir activo. La pantalla registra última copia válida, próxima hora/reintento UTC, inicio/resultado/errores y períodos omitidos. La próxima ejecución se calcula con la zona elegida. Un reinicio genera una copia actual para recuperar vencimientos, nunca copias históricas inventadas. No se elimina la última copia válida para liberar espacio.
+
+“Verificar restauración aislada” verifica y copia a data/restore-tests/<GUID> de esa instancia, sin sobrescribir la base activa, arrancar otra aplicación ni habilitar tareas restauradas. Las pruebas automatizadas usan exclusivamente destinos y datos ficticios; el ensayo real de pérdida del equipo/claves sigue pendiente. Los directorios de ensayo se conservan privados para revisión y requieren limpieza controlada si se repiten.
+
+WindowsServices 10.0.12 está agregado con autorización, pero no se registró ningún servicio ni se cambiaron cuentas Windows. El despliegue como servicio requiere autorización, rutas absolutas, identidad/ACL y recuperación de claves revisadas; AddWindowsService no registra el servicio por sí mismo. Las pruebas del hospedado no equivalen a validar un servicio registrado en esta PC. El programador funciona dentro del mismo servidor, sin sesión de navegador, mientras PC/proceso estén activos.
+
+BitLocker/BitLocker To Go sólo están propuestos: antes de activarlos se requieren dos custodias separadas de recuperación, validación de claves y prueba en equipo independiente. No guardar recuperación con el mismo respaldo ni publicar claves. Administrar copias no concede lectura clínica en la aplicación; proteger además acceso físico y administrativo Windows. La subtarea 5.2 no habilita uso con datos clínicos reales; 5.1 y 5.3 continúan pendientes.

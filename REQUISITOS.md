@@ -63,13 +63,17 @@ Las fases 0–4.1 están completadas según las verificaciones históricas. Las 
 - Conservar logo JPG/PNG de hasta 2 MiB y 2048 píxeles, normalizado a PNG de hasta 512 píxeles, sin metadatos, almacenado privadamente con versión y auditoría.
 - Mantener la copia manual consistente de SQLite y documentos clínicos, manifiesto/hashes y restauración aislada existente. No presentarla como automatización ni protección completa ante pérdida del disco.
 
-## Funcionalidades aprobadas para planificar, todavía pendientes
+## Ampliaciones planificadas y estado de implementación
 
 ### RF-06. Multirrol y recuperación prioritaria — fase 5
 
 - Permitir múltiples roles explícitos por cuenta, preservando identificadores, contraseñas y asignaciones existentes. La relación Identity ya admite varios roles; revisar servicios e interfaz sin duplicar cuentas.
 - Aplicar permisos del servidor, mínimo privilegio, auditoría, protección del último administrador, concurrencia e invalidación de sesiones cuando corresponda. No otorgar acceso clínico por el mero rol administrativo.
 - Implementar respaldos automáticos y manuales consistentes de SQLite, documentos y configuración necesaria; verificar manifiesto, integridad, espacio, retención y alertas.
+- Programación administrativa activable/desactivable, hora local, zona, frecuencia cada N días y retención configurables. Iniciar desactivada y sin horario obligatorio. Mantener copia manual aunque el cronograma esté desactivado.
+- Identificar destino por volumen/dispositivo y verificar sistema de archivos, capacidad, permisos e independencia física, sin asumir una letra fija. No formatear, cifrar, preparar el disco ni cambiar su configuración sin autorización; ante ausencia, alertar sin sustituir destino.
+- Ejecutar desde el servidor/servicio sin navegador, serializando manuales y automáticas; recuperar vencimientos con una copia actual y registro de períodos perdidos, sin inventar copias históricas. Mostrar última copia válida, próxima ejecución/reintento, fechas, resultados y errores seguros.
+- Estado de 5.2: desarrollado/probado sólo con datos y destinos ficticios; migración aditiva no aplicada a la base operativa, programación y escritura externa desactivadas. 5.1 y 5.3 permanecen pendientes. No hay restauración web sobre la base activa.
 - Mantener una copia recuperable fuera del disco del servidor. Un destino desconectado o copia fallida debe informarse y conservar las copias buenas anteriores.
 - Probar restauración aislada, incluidos documentos/versiones, autorizaciones y recuperación ante pérdida del equipo y de claves.
 - Evaluar cifrado adecuado para el volumen real de datos y los respaldos, con custodia y recuperación de claves. No activar cifrado sin verificar compatibilidad y autorización; no confundir cifrado del disco con seguridad de una copia externa.

@@ -10,6 +10,8 @@ namespace OpticaSosa.Infrastructure.Persistence;
 
 public sealed class OpticaDbContext(DbContextOptions<OpticaDbContext> options) : IdentityDbContext<ApplicationUser>(options)
 {
+    public DbSet<OpticaSosa.Domain.Backups.BackupSettings> BackupSettings => Set<OpticaSosa.Domain.Backups.BackupSettings>();
+    public DbSet<OpticaSosa.Domain.Backups.BackupRun> BackupRuns => Set<OpticaSosa.Domain.Backups.BackupRun>();
     public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
     public DbSet<Customer> Customers => Set<Customer>();
     public DbSet<Visit> Visits => Set<Visit>();

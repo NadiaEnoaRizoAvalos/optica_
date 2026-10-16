@@ -11,6 +11,8 @@ public static class Roles
 public static class Permissions
 {
     public const string ManageUsers = "users.manage";
+    public const string ManageBackups = "backups.manage";
+    public const string VerifyBackups = "backups.verify";
     public const string ReadAudit = "audit.read";
     public const string ReadClinical = "clinical.read";
     public const string WriteClinical = "clinical.write";
@@ -29,7 +31,7 @@ public static class Permissions
 
     public static bool Grants(string role, string permission) => (role, permission) switch
     {
-        (Roles.Administrator, ManageUsers or ReadAudit or ManageBusiness) => true,
+        (Roles.Administrator, ManageUsers or ReadAudit or ManageBusiness or ManageBackups or VerifyBackups) => true,
         (Roles.Professional, ReadClinical or WriteClinical) => true,
         (Roles.Professional, TechnicalControl or ApproveTechnical) => true,
         (Roles.Professional or Roles.Sales, ReadOrders or WriteOrders or DeliveryControl or ApproveDelivery or DeliverOrders) => true,

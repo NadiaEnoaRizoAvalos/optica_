@@ -21,9 +21,9 @@ internal sealed class ClinicalScenario : IDisposable
     public ICurrentUser Actor { get; }
     public IClinicalFilePolicyService Policy { get; }
     public IClinicalAttachmentService Attachments => AttachmentsWith();
-    public IClinicalSnapshotService Snapshots => new ClinicalSnapshotService(Factory, Actor,
-        scope.ServiceProvider.GetRequiredService<StoragePaths>(), scope.ServiceProvider.GetRequiredService<IStorageCapacity>(),
-        scope.ServiceProvider.GetRequiredService<IOptions<ClinicalFileOptions>>(), scope.ServiceProvider.GetRequiredService<ClinicalFileGate>());
+    public IClinicalSnapshotService Snapshots => new ClinicalSnapshotService(
+        scope.ServiceProvider.GetRequiredService<ClinicalSnapshotWriter>(), Actor,
+        scope.ServiceProvider.GetRequiredService<StoragePaths>(), Factory);
     public ClinicalAttachmentService AttachmentsWith(IPrivateAttachmentStore? store = null, IStorageCapacity? capacity = null) => new(Factory, Actor,
         store ?? scope.ServiceProvider.GetRequiredService<IPrivateAttachmentStore>(), Policy,
         scope.ServiceProvider.GetRequiredService<ClinicalFileValidation>(), capacity ?? scope.ServiceProvider.GetRequiredService<IStorageCapacity>(),

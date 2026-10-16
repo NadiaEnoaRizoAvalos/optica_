@@ -70,3 +70,13 @@ logs/
 *.exe
 *.pdb
 *Secrets*.json
+
+# Codigo del modulo de respaldos; los datos backups/ siguen excluidos.
+!src/OpticaSosa.Application/Backups/
+!src/OpticaSosa.Application/Backups/*.cs
+!src/OpticaSosa.Domain/Backups/
+!src/OpticaSosa.Domain/Backups/*.cs
+!src/OpticaSosa.Infrastructure/Backups/
+!src/OpticaSosa.Infrastructure/Backups/*.cs
+!src/OpticaSosa.Web/Backups/
+!src/OpticaSosa.Web/Backups/*.cs

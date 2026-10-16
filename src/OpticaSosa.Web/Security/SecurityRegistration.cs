@@ -55,7 +55,7 @@ public static class SecurityRegistration
         services.AddAuthorization(options =>
         {
             options.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
-            foreach (var permission in new[] { Permissions.ManageUsers, Permissions.ReadAudit, Permissions.ReadClinical,
+            foreach (var permission in new[] { Permissions.ManageBackups, Permissions.VerifyBackups, Permissions.ManageUsers, Permissions.ReadAudit, Permissions.ReadClinical,
                          Permissions.WriteClinical, Permissions.ReadCustomers, Permissions.WriteCustomers,
                          Permissions.DeactivateCustomers, Permissions.ManageBusiness, Permissions.ReadOrders, Permissions.WriteOrders,
                          Permissions.TechnicalControl, Permissions.ApproveTechnical, Permissions.DeliveryControl,

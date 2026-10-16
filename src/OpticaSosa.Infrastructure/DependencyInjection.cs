@@ -59,6 +59,12 @@ public static class DependencyInjection
         services.AddScoped<IClinicalAttachmentService, ClinicalAttachmentService>();
         services.AddScoped<ClinicalFileValidation>();
         services.AddScoped<IClinicalSnapshotService, ClinicalSnapshotService>();
+        services.AddSingleton<ClinicalSnapshotWriter>();
+        services.AddSingleton<OpticaSosa.Infrastructure.Backups.BackupExecutionGate>();
+        services.AddSingleton<OpticaSosa.Infrastructure.Backups.IBackupTargets, OpticaSosa.Infrastructure.Backups.WindowsBackupTargets>();
+        services.AddSingleton<OpticaSosa.Infrastructure.Backups.BackupVerifier>();
+        services.AddSingleton<OpticaSosa.Infrastructure.Backups.BackupCoordinator>();
+        services.AddScoped<OpticaSosa.Application.Backups.IBackupService, OpticaSosa.Infrastructure.Backups.BackupService>();
         services.AddScoped<OpticaSosa.Application.Work.IWorkService, OpticaSosa.Infrastructure.Work.WorkService>();
         return services;
     }

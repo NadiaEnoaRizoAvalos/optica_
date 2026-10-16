@@ -14,8 +14,9 @@ public sealed class SecurityApp : WebApplicationFactory<Program>
     internal const string TestPassword = "Ficticia-Para-Pruebas-938!";
     internal string Root { get; }
     private readonly bool preserveData;
+    private readonly Action<IServiceCollection>? configureServices;
 
-    public SecurityApp(string? root = null, bool preserveData = false)
+    public SecurityApp(string? root = null, bool preserveData = false, Action<IServiceCollection>? configureServices = null)
     {
         Root = Path.GetFullPath(root ?? Path.Combine(Path.GetTempPath(), "OpticaSosa.WebTests", Guid.NewGuid().ToString("N")));
         var target = new DirectoryInfo(Root);
@@ -23,12 +24,14 @@ public sealed class SecurityApp : WebApplicationFactory<Program>
         if (!string.Equals(target.Parent?.FullName, parent, StringComparison.OrdinalIgnoreCase) ||
             !Guid.TryParseExact(target.Name, "N", out _)) throw new InvalidOperationException("Directorio de pruebas inválido.");
         this.preserveData = preserveData;
+        this.configureServices = configureServices;
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Development");
         builder.UseSetting("Storage:DataDirectory", Path.Combine(Root, "private"));
+        builder.ConfigureServices(services => configureServices?.Invoke(services));
     }
 
     public async Task InitializeAsync()

@@ -2,6 +2,19 @@
 
 Registro de entregas, cambios, verificaciones e incidentes. El estado vigente está en [PLANS.md](PLANS.md); los requisitos en [REQUISITOS.md](REQUISITOS.md) y las decisiones en [DECISIONES.md](DECISIONES.md).
 
+## Subtarea 5.2 — implementación aislada verificada — 2026-10-16
+
+- Autorizada exclusivamente 5.2, conservando 5.1/5.3 pendientes. El usuario confirmó disco disponible, configuración sin hora fija y programación desactivada; autorizó Microsoft.Extensions.Hosting.WindowsServices 10.0.12 y dependencias del paquete, sin registrar servicio ni cambiar cuentas Windows.
+- Reutilizado el respaldo manual mediante ClinicalSnapshotWriter. Agregados configuración/pantalla administrativa, cola manual independiente del navegador, programador hospedado, validación de destinos Windows por GUID/disco físico/NTFS/ACL/espacio, retención segura, integridad y recuperación aislada. Excepciones de .gitignore sólo para código C# del módulo Backups; los archivos de respaldo y datos privados siguen excluidos.
+- AutomaticBackups sólo crea BackupSettings, BackupRuns, restricciones e índice en Up. Generada y revisada; no aplicada a la instalación de uso ni ejecutado Down. Una prueba de avance desde QualityWorkflow verificó hashes de todas las tablas anteriores y conservación del original ficticio. Inspección de sólo lectura de la base operativa: última migración QualityWorkflow, 0 tablas nuevas de respaldo.
+- Compilación final: dotnet build OpticaSosa.sln --no-restore -m:1 -nr:false -p:UseSharedCompilation=false: 0 errores y 0 advertencias.
+- Suite final: dotnet test OpticaSosa.sln --no-build --no-restore --verbosity minimal -m:1 -nr:false: 141 ejecutadas, 141 aprobadas, 0 fallidas y 0 omitidas (40 Infraestructura, 101 Web). 28 casos adicionales respecto de los 113 anteriores; no sumar reejecuciones. Modelo y migración sin diferencias según dotnet ef migrations has-pending-model-changes --no-build con proyectos explícitos.
+- Incluye programación sin navegador, zona/DST, frecuencia, días perdidos, reinicios, copia simultánea, destino ausente, espacio en destino/restauración, manifiestos corruptos, retención, CSRF/permisos y formulario HTTP, además de recuperación de recetas, profesionales, adjuntos y calidad existente. No representa prueba del disco externo físico, BitLocker, servicio registrado o recuperación de claves en otro equipo.
+- Incidentes corregidos antes del cierre: ajuste del fixture al motor extraído y reglas del analizador xUnit; una ejecución intermedia usó binarios anteriores tras una compilación fallida y no se tomó como validación. Las pruebas nuevas detectaron manejo incompleto de InvalidDataException y un duplicado en los datos ficticios del caso de calidad; ambos corregidos antes de la suite final.
+- Escritura externa bloqueada por configuración de instalación (false por defecto); programación desactivada y sin hora obligatoria. No se inspeccionó/preparó el disco real ni se cambiaron base operativa, cuentas, contraseñas o cifrado. Copia manual local previa conservada. Cifrado, claves, ACL y recuperación real pendientes antes de usar datos clínicos reales.
+- Instancia habitual restablecida en localhost:5080 sin inicialización ni migraciones; ingreso HTTP 200, acceso anónimo a Respaldos redirige al ingreso y stderr vacío. README incluye procedimiento de preview ficticia en localhost:5081, con directorio exclusivo y administrador elegido por el usuario en terminal; no se creó esa cuenta ni se inicializó esa preview automáticamente.
+- GitHub confirmó destino privado y main sincronizada antes de preparar entrega. Revisar diff/secretos y verificar SHA remoto tras push; identificador se informa al cierre sin commit autorreferencial. Aceptación y habilitación operativa pendientes.
+
 ## Reorganización documental aprobada — 2026-10-16
 
 - El usuario aprobó conservar las dos áreas, clínica y comercial, con igual importancia e independencia; la atención clínica no requiere compra.

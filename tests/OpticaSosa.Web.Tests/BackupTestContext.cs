@@ -1,0 +1,62 @@
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using OpticaSosa.Application.Backups;
+using OpticaSosa.Infrastructure.Backups;
+
+namespace OpticaSosa.Web.Tests;
+
+internal sealed class BackupClock : TimeProvider
+{
+    public DateTimeOffset Now { get; set; } = new(2026, 10, 20, 12, 0, 0, TimeSpan.Zero);
+    public override DateTimeOffset GetUtcNow() => Now;
+}
+
+internal sealed class FakeBackupTargets : IBackupTargets
+{
+    public string Root { get; set; } = "";
+    public bool Connected { get; set; } = true;
+    public long FreeBytes { get; set; } = long.MaxValue;
+    public int Preparations { get; private set; }
+    public const string Volume = "ficticio-volume-guid";
+    public IReadOnlyList<BackupTarget> Inspect() => Connected ? [new(Volume, "Disco ficticio", "NTFS", "Disco ficticio independiente",
+        long.MaxValue, FreeBytes, true, true, "Sólo prueba aislada; no representa hardware real")] : [];
+    public ResolvedBackupTarget Resolve(string volumeId, Guid installationId, bool prepare)
+    {
+        if (!Connected || volumeId != Volume) throw new IOException("Disco ficticio desconectado.");
+        var root = Path.Combine(Root, installationId.ToString("N"));
+        if (prepare) { Preparations++; Directory.CreateDirectory(root); }
+        return new(root, FreeBytes);
+    }
+}
+
+internal sealed class BackupTestContext : IAsyncDisposable
+{
+    public SecurityApp App { get; }
+    public FakeBackupTargets Targets { get; } = new();
+    public BackupClock Clock { get; } = new();
+    public BackupCoordinator Coordinator => App.Services.GetRequiredService<BackupCoordinator>();
+    public BackupTestContext(bool authorized = true)
+    {
+        App = new SecurityApp(configureServices: services =>
+        {
+            services.AddSingleton<IBackupTargets>(Targets);
+            services.AddSingleton<TimeProvider>(Clock);
+            services.Configure<BackupRuntimeOptions>(o => { o.ExternalWritesAuthorized = authorized; o.WorkerEnabled = false; });
+        });
+        Targets.Root = Path.Combine(App.Root, "external-ficticio");
+    }
+    public async Task InitializeAsync() => await App.InitializeAsync();
+    public async Task<BackupAction> ConfigureAsync(bool enabled = false, int keep = 30, int days = 1)
+    {
+        var view = await Coordinator.OverviewAsync(default);
+        return await Coordinator.ConfigureAsync(new(enabled, days, "13:00", "UTC", FakeBackupTargets.Volume, keep,
+            view.Configuration.Version), "admin.ficticio", default);
+    }
+    public async Task<BackupRunView> CopyAsync()
+    {
+        Xunit.Assert.True((await Coordinator.RequestAsync("admin.ficticio", default)).Succeeded);
+        await Coordinator.TickAsync();
+        return (await Coordinator.OverviewAsync(default)).Runs.First();
+    }
+    public ValueTask DisposeAsync() => App.DisposeAsync();
+}

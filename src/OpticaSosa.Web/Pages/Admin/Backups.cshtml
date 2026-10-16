@@ -1,0 +1,54 @@
+@page "/admin/respaldos"
+@model OpticaSosa.Web.Pages.Admin.BackupsModel
+@{ ViewData["Title"] = "Respaldos y recuperación"; }
+<h1>Respaldos y recuperación</h1>
+<p>La programación funciona sin navegador mientras el servidor esté activo. No se recuperan estados de días en que estuvo apagado.</p>
+<p role="note">Uso clínico real pendiente de verificar seguridad, cifrado y recuperación completa. Esta pantalla no concede acceso a historias clínicas.</p>
+@if (Model.Message is not null) { <p role="status">@Model.Message</p> }
+@if (Model.Overview.Alert is not null) { <p role="alert">@Model.Overview.Alert</p> }
+<p>Última copia válida registrada (UTC): @(Model.Overview.LastValidUtc?.ToString("yyyy-MM-dd HH:mm") ?? "Sin copias registradas")</p>
+<p>Próxima ejecución (UTC): @(Model.Overview.NextUtc?.ToString("yyyy-MM-dd HH:mm") ?? "Programación desactivada")</p>
+@if (Model.Overview.NextRetryUtc is { } retry) { <p>Próximo reintento (UTC): @retry.ToString("yyyy-MM-dd HH:mm")</p> }
+<p>Zona del horario configurado: @Model.Overview.Configuration.TimeZoneId</p>
+<p><a href="/admin/archivos-clinicos">Crear copia manual local existente</a></p>
+@if (Model.Overview.SchemaReady)
+{
+    <section><h2>Destino y configuración</h2>
+    <p>Inspeccionar sólo consulta identidad y capacidad. Guardar no modifica el disco. Se identifica por GUID de volumen, no por letra.</p>
+    <form method="post" asp-page-handler="Inspect"><button type="submit">Inspeccionar discos (sólo lectura)</button></form>
+    @foreach (var disk in Model.Targets)
+    {
+        <article><h3>@disk.DisplayName</h3><p>Identidad: @disk.VolumeId</p><p>@disk.PhysicalDisks · @disk.FileSystem</p>
+        <p>Total: @(disk.TotalBytes / 1024 / 1024) MiB · Libres: @(disk.FreeBytes / 1024 / 1024) MiB · Independiente: @(disk.Independent ? "Sí" : "No")</p>
+        <p>@disk.Protection</p><p>Compatible: @(disk.Compatible ? "Sí" : "No")</p></article>
+    }
+    <form method="post" asp-page-handler="Save">
+        <div asp-validation-summary="All" role="alert"></div><input asp-for="Version" type="hidden" />
+        <label asp-for="VolumeId">Disco de destino</label>
+        <select asp-for="VolumeId"><option value="">Sin destino</option>
+            @if (Model.VolumeId is not null && !Model.Targets.Any(x => x.VolumeId == Model.VolumeId))
+            { <option value="@Model.VolumeId">Destino guardado: @Model.VolumeId</option> }
+            @foreach (var disk in Model.Targets.Where(x => x.Compatible)) { <option value="@disk.VolumeId">@disk.DisplayName — @disk.VolumeId</option> }
+        </select>
+        <label asp-for="LocalTime">Hora local (sin valor obligatorio inicial)</label><input asp-for="LocalTime" type="time" />
+        <label asp-for="EveryDays">Frecuencia: cada cuántos días</label><input asp-for="EveryDays" type="number" min="1" max="365" />
+        <label asp-for="TimeZoneId">Zona horaria del servidor</label><select asp-for="TimeZoneId">
+            @foreach (var zone in TimeZoneInfo.GetSystemTimeZones()) { <option value="@zone.Id">@zone.DisplayName</option> }
+        </select>
+        <label asp-for="KeepCopies">Cantidad de copias válidas a conservar</label><input asp-for="KeepCopies" type="number" min="1" max="3650" />
+        <label><input asp-for="Enabled" /> Activar programación (requiere autorización de escritura de instalación)</label>
+        <p>Antes de autorizar uso real: se creará sólo OpticaSosaBackups y una subcarpeta de esta instalación, con permisos privados. No se formatea, cifra ni cambia la configuración del volumen.</p>
+        <button type="submit">Guardar configuración</button>
+    </form>
+    <form method="post" asp-page-handler="Manual"><button type="submit">Encolar copia manual al destino configurado</button></form></section>
+    <section><h2>Últimas ejecuciones</h2><p>Se muestran las últimas 50. El historial guardado no se elimina por este límite.</p>
+    @foreach (var run in Model.Overview.Runs)
+    {
+        <article><h3>@run.StartedUtc.ToString("yyyy-MM-dd HH:mm") UTC — @run.Status</h3>
+        <p>@run.Trigger · Archivos: @run.Files · Períodos adicionales perdidos: @run.MissedPeriods</p>
+        @if (run.Error is not null) { <p role="alert">@run.Error</p> }
+        @if (run.Status == "Complete") { <form method="post" asp-page-handler="Verify"><input type="hidden" name="runId" value="@run.Id" /><button type="submit">Verificar restauración aislada</button></form> }
+        </article>
+    }
+    </section>
+}

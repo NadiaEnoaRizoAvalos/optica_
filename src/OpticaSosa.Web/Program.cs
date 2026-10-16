@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.Http.Features;
 
 var hostArgs = args.Where(arg => arg is not ("--initialize-database" or "--create-admin" or "--recover-admin")).ToArray();
 var builder = WebApplication.CreateBuilder(hostArgs);
+builder.Services.AddWindowsService(options => options.ServiceName = "OpticaSosa");
+builder.Services.Configure<OpticaSosa.Infrastructure.Backups.BackupRuntimeOptions>(builder.Configuration.GetSection("Backups"));
+builder.Services.AddHostedService<OpticaSosa.Web.Backups.BackupWorker>();
 
 var dataDirectory = builder.Configuration["Storage:DataDirectory"];
 if (builder.Environment.IsDevelopment())
