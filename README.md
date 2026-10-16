@@ -121,7 +121,7 @@ El usuario aprobó expresamente la primera publicación del inventario en ARCHIV
 
 .gitignore excluye datos de cada instalación, bases/auxiliares, imágenes/documentos de usuarios, secretos, .env, respaldos, logs y binarios. Código, pruebas, migraciones y documentación técnica sí se versionan. Las credenciales GitHub permanecen en el gestor de credenciales de Windows; no se incorporan a configuración fuente ni documentación. Nunca compartir contraseñas o tokens en el chat.
 
-Licencias comerciales del producto, pruebas gratuitas y panel de ventas permanecen pospuestos. Fase 4 fue autorizada y está en desarrollo; fase 5 requiere aprobación posterior.
+Licencias comerciales del producto, pruebas gratuitas y panel de ventas permanecen pospuestos. Fase 4 está implementada y verificada, pendiente de aceptación visual; fase 5 requiere aprobación posterior.
 
 ## Recetas y antecedentes — módulo inicial de fase 4
 
@@ -131,6 +131,32 @@ Licencias comerciales del producto, pruebas gratuitas y panel de ventas permanec
 4. En recetas, transcribir OD/OI por separado: esfera, cilindro, adición y prisma hasta 3 decimales; eje entero de 0 a 180° y base textual. Distancia pupilar binocular en mm con 2 decimales. Todos estos valores son opcionales: vacío y cero son distintos. Para antecedentes, escribir lo informado por el profesional y dejar vacías las graduaciones.
 5. Consultar el registro y usar **Crear corrección desde la última versión**, con motivo obligatorio. Se conservan las versiones anteriores, usuario, fecha de registro y datos del profesional que constaban en cada versión. Ante un conflicto, recargar antes de corregir; no se sobrescribe silenciosamente.
 
-La aplicación no genera diagnósticos ni recetas automáticamente. Las consultas y cambios se auditan sin copiar el contenido clínico. El módulo conserva las capas y SQLite, con referencias restrictivas y sin borrar historial. La suite actual tiene 74 pruebas: 26 Infraestructura y 48 Web; los informes de próximas entregas separarán errores/advertencias de compilación y pruebas ejecutadas/aprobadas/fallidas/omitidas.
+La aplicación no genera diagnósticos ni recetas automáticamente. Las consultas y cambios se auditan sin copiar el contenido clínico. El módulo conserva las capas y SQLite, con referencias restrictivas y sin borrar historial. La suite actual tiene 94 pruebas: 26 Infraestructura y 68 Web; los informes separan errores/advertencias de compilación y pruebas ejecutadas/aprobadas/fallidas/omitidas.
 
-**Adjuntos todavía pendientes:** su almacenamiento interno ya tiene escritura atómica privada probada, pero no se habilitaron formularios ni descargas. Se envió una consulta para acordar PNG/JPEG/PDF, hasta 10 MB y 10 por registro, y mantener acceso sólo Profesional. Esta entrega no cierra la fase 4 ni inicia inventario.
+## Documentos clínicos y conservación del historial
+
+El historial no tiene cupos fijos de recetas, consultas, controles, antecedentes o adjuntos. Las listas se consultan de a 25 elementos para evitar cargar todo el historial; esto no reduce los registros almacenados. Cada nueva receta se crea desde el historial como un nuevo documento. Las correcciones crean versiones y conservan sus graduaciones, informante y documentos anteriores.
+
+Con rol **Profesional**, abrir una receta o antecedente y seleccionar **Consultar o adjuntar documentos de esta versión**. Elegir JPG/JPEG, PNG o PDF y pulsar **Guardar original**. Se carga de a un archivo y se pueden repetir cargas tantas veces como sea necesario, sin límite fijo por receta o cliente. Los valores iniciales son 25 MB para fotos y 50 MB para PDF. Las descargas requieren permiso clínico y verifican los bytes originales mediante SHA-256; se entregan como adjuntos privados sin caché.
+
+Si el archivo es demasiado grande, la pantalla indica el límite. Para PNG ofrece una copia optimizada sin pérdida, descargable para revisar y seleccionar; no la adjunta ni reemplaza automáticamente. Conserva píxeles filtrados, dimensiones y metadatos; no reduce resolución. El archivo seleccionado en la PC/celular no se modifica. Si se quiere archivar ese original por encima del límite, solicitar un aumento administrativo. JPEG y PDF no se recomprimen automáticamente. Si la optimización no reduce el tamaño o no es viable, elegir otra copia o ajustar el límite.
+
+HEIC/HEIF se evaluó y no está habilitado: la existencia del identificador HEIF en una biblioteca no demuestra que el decodificador/conversor esté disponible y verificado en este Windows. Hasta validar un conversor que preserve el original y su orientación/color, exportar una copia JPG/PNG desde el celular sin borrar el HEIC original. No se instalaron codecs de conversión adicionales.
+
+Una carga interrumpida aparece como pendiente/fallida. **Verificar y recuperar carga interrumpida** publica el documento únicamente si el archivo completo coincide con su hash; de lo contrario debe volver a adjuntarse. Marcar como retirado exige motivo y conserva el original para consulta histórica. Ni retiradas ni correcciones borran archivos.
+
+Con rol **Administrador**, abrir [Almacenamiento clínico](http://localhost:5080/admin/archivos-clinicos) para consultar espacio libre/reserva y modificar tamaños. Los cambios requieren sesión, CSRF y versión vigente; se auditan. Disminuir un límite no impide descargar documentos anteriores. Este permiso no habilita al Administrador a leer documentos clínicos por navegador.
+
+Configuración técnica opcional en el servidor, sección `ClinicalFiles` de appsettings o variables de entorno equivalentes (requiere reiniciar el servidor al cambiarla):
+
+```json
+"ClinicalFiles": {
+  "RequestMaxMiB": 128,
+  "MaximumImagePixels": 40000000,
+  "ReserveDiskMiB": 512
+}
+```
+
+El techo de solicitud incluye el formulario: los límites administrables de cada archivo deben ser menores que ese techo. MB de la interfaz significa 1024 × 1024 bytes. Los defaults y validaciones técnicas están centralizados en ClinicalFileOptions; tamaños de fotos/PDF en ClinicalFilePolicy. No hay cupos de cantidad. Las descargas usan streaming y no dependen del límite de cargas actual ni del anterior límite interno de 32 MB.
+
+**Crear copia local verificada**, en la misma página administrativa, genera una carpeta nueva `data/clinical-backups/<GUID>` con SQLite consistente y todos los adjuntos. Incluye históricos y retirados; verifica integridad SQLite, claves foráneas y hashes de originales. Sólo una carpeta con `complete.json` es una copia completa. Una copia fallida no sobrescribe la anterior. Esto no reemplaza la protección ante fallas del disco: cifrado, retención, programación y destino externo siguen en fase 7. La restauración se probó en un servidor de pruebas separado, sin sobrescribir datos activos.

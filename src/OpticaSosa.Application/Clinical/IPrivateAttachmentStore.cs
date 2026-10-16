@@ -6,4 +6,5 @@ public interface IPrivateAttachmentStore
 {
     Task WriteAsync(Guid id, byte[] bytes, CancellationToken ct = default);
     Task<byte[]?> ReadAsync(Guid id, CancellationToken ct = default);
+    Task<Stream?> OpenReadAsync(Guid id, CancellationToken ct = default);
 }

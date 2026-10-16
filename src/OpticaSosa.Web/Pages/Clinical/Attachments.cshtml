@@ -1,0 +1,56 @@
+@page "/clientes/{customerId:guid}/clinica/{id:guid}/adjuntos"
+@using OpticaSosa.Domain.Clinical
+@model OpticaSosa.Web.Pages.Clinical.AttachmentsModel
+@{ var d = Model.Details; ViewData["Title"] = "Documentos clínicos"; }
+<p class="eyebrow">Acceso profesional</p><h1>Documentos clínicos</h1>
+<p>Versión @d.Number del registro. Cada documento conserva su original; no hay límite fijo de cantidad.</p>
+<nav><a href="/clientes/@d.CustomerId/clinica/@d.Id?revision=@d.Number">Volver al registro</a></nav>
+@if (Model.Message is not null) { <p class="saved-message" role="status">@Model.Message</p> }
+<form method="post" enctype="multipart/form-data">
+    <div asp-validation-summary="All" role="alert"></div>
+    <input asp-for="SubmissionId" type="hidden" /><input asp-for="RecordVersion" type="hidden" /><input asp-for="RevisionId" type="hidden" />
+    <label asp-for="Document">Fotografía o documento original</label>
+    <input asp-for="Document" type="file" accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf" />
+    <p>JPG/JPEG y PNG: hasta @Model.Limits.PhotoMiB MB por archivo. PDF: hasta @Model.Limits.PdfMiB MB. Podés agregar tantos documentos como necesites, de a uno por carga.</p>
+    <p class="field-help">HEIC/HEIF todavía no está habilitado. Exportá una copia JPG/PNG desde el celular, conservando el original.</p>
+    <button type="submit">Guardar original</button>
+    <button type="submit" asp-page-handler="Optimize">Descargar copia PNG optimizada sin pérdida</button>
+    <p class="field-help">La optimización es opcional: conserva píxeles y metadatos del PNG, sin reescalar. No guarda ni reemplaza documentos. Conservá el original, revisá la copia descargada y seleccionála si querés adjuntarla. No se recomprimen JPEG ni PDF. Si no alcanza, elegí otro archivo o solicitá ajustar el límite al administrador.</p>
+</form>
+<section><h2>Documentos de esta versión</h2>
+@foreach (var file in Model.Files.Items)
+{
+    <article class="visit">
+        <h3>@file.OriginalName</h3><p>@file.CreatedAtUtc.ToLocalTime().ToString("dd/MM/yyyy HH:mm") · @file.Length.ToString("N0") bytes</p>
+        @if (file.State is AttachmentState.Available or AttachmentState.Retired)
+        {
+            <p><a href="/clientes/@d.CustomerId/clinica/@d.Id/adjuntos/@file.Id/descargar">Descargar original verificado</a></p>
+            <details><summary>Integridad SHA-256</summary><p class="file-hash">@file.Sha256</p></details>
+        }
+        @if (file.State == AttachmentState.Retired) { <p>Retirado del uso activo: @file.RetirementReason. Se conserva para consulta histórica.</p> }
+        @if (file.State is AttachmentState.Pending or AttachmentState.Failed)
+        {
+            <p role="status">Carga pendiente o fallida. No se publica un archivo parcial. Podés verificar si el original llegó completo o volver a adjuntar el archivo.</p>
+            <form method="post" asp-page-handler="Recover">
+                <input type="hidden" name="AttachmentId" value="@file.Id" /><input type="hidden" name="AttachmentVersion" value="@file.Version" />
+                <button type="submit">Verificar y recuperar carga interrumpida</button>
+            </form>
+        }
+        @if (file.State == AttachmentState.Available)
+        {
+            <details><summary>Marcar como retirado (conservando original)</summary>
+                <form method="post" asp-page-handler="Retire">
+                    <input type="hidden" name="AttachmentId" value="@file.Id" /><input type="hidden" name="AttachmentVersion" value="@file.Version" />
+                    <label for="reason-@file.Id">Motivo de retiro</label><input id="reason-@file.Id" name="RetirementReason" maxlength="500" required />
+                    <button type="submit">Retirar del uso activo</button>
+                </form>
+            </details>
+        }
+    </article>
+}
+@if (Model.Files.Items.Count == 0) { <p>No hay documentos en esta página.</p> }
+<nav aria-label="Páginas de documentos">
+    @if (Model.Files.Page > 1) { <a href="?revision=@d.Number&pagina=@(Model.Files.Page - 1)">Más recientes</a> }
+    @if (Model.Files.HasMore) { <a href="?revision=@d.Number&pagina=@(Model.Files.Page + 1)">Más antiguos</a> }
+</nav>
+</section>

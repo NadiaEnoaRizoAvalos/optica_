@@ -3,6 +3,8 @@ using OpticaSosa.Infrastructure;
 using OpticaSosa.Infrastructure.Persistence;
 using OpticaSosa.Web.Security;
 using OpticaSosa.Application.Business;
+using OpticaSosa.Application.Clinical;
+using Microsoft.AspNetCore.Http.Features;
 
 var hostArgs = args.Where(arg => arg is not ("--initialize-database" or "--create-admin" or "--recover-admin")).ToArray();
 var builder = WebApplication.CreateBuilder(hostArgs);
@@ -20,6 +22,11 @@ else if (string.IsNullOrWhiteSpace(dataDirectory))
 
 builder.Services.AddPersistence(new StoragePaths(
     dataDirectory!, builder.Environment.WebRootPath ?? Path.Combine(builder.Environment.ContentRootPath, "wwwroot")));
+builder.Services.Configure<ClinicalFileOptions>(builder.Configuration.GetSection(ClinicalFileOptions.Section));
+var fileOptions = builder.Configuration.GetSection(ClinicalFileOptions.Section).Get<ClinicalFileOptions>() ?? new();
+if (!fileOptions.Valid()) throw new InvalidOperationException("Configuración técnica de archivos clínicos inválida.");
+builder.WebHost.ConfigureKestrel(server => server.Limits.MaxRequestBodySize = fileOptions.RequestMaxBytes);
+builder.Services.Configure<FormOptions>(form => form.MultipartBodyLengthLimit = fileOptions.RequestMaxBytes);
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
@@ -44,6 +51,11 @@ app.Use(async (context, next) =>
     await next();
 });
 app.UseAuthentication();
+app.UseStatusCodePages(async status =>
+{
+    if (status.HttpContext.Response.StatusCode == StatusCodes.Status413PayloadTooLarge)
+        await status.HttpContext.Response.WriteAsync("El archivo supera la capacidad técnica de carga. Conservá el original y solicitá al administrador revisar los límites del servidor.");
+});
 app.UseAuthorization();
 app.UseAntiforgery();
 app.MapStaticAssets().AllowAnonymous();

@@ -41,5 +41,6 @@ main > .business-header, .brand-preview .business-header { padding: 0; }
 .settings-actions { display: flex; gap: 1rem; align-items: center; margin-top: 1.5rem; flex-wrap: wrap; }
 .saved-message { padding: 1rem; background: #e1f3e8; color: #175634; border-radius: .5rem; }
 .clinical-notes { white-space: pre-wrap; }
+.file-hash { overflow-wrap: anywhere; }
 fieldset { min-width: 0; border: 1px solid #ccd7dd; border-radius: .5rem; padding: 1rem; }
 @media (max-width: 560px) { .settings-grid { grid-template-columns: 1fr; gap: 0; } }

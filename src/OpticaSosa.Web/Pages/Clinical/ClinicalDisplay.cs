@@ -9,7 +9,7 @@ public static class ClinicalDisplay
     {
         ClinicalKind.MedicalPrescription => "Receta médica",
         ClinicalKind.OpticalPrescription => "Registro de la óptica",
-        _ => "Antecedente visual informado"
+        _ => "Antecedente, consulta o control informado"
     };
     public static string Number(decimal? value, int digits = 3) => value?.ToString("F" + digits, CultureInfo.GetCultureInfo("es-AR")) ?? "Sin informar";
 }

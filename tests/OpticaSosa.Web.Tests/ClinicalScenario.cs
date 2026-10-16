@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using OpticaSosa.Application.Clinical;
 using OpticaSosa.Application.Security;
 using OpticaSosa.Domain.Clinical;
@@ -18,6 +19,15 @@ internal sealed class ClinicalScenario : IDisposable
     public OpticaDbContext Db => scope.ServiceProvider.GetRequiredService<OpticaDbContext>();
     public IDbContextFactory<OpticaDbContext> Factory => scope.ServiceProvider.GetRequiredService<IDbContextFactory<OpticaDbContext>>();
     public ICurrentUser Actor { get; }
+    public IClinicalFilePolicyService Policy { get; }
+    public IClinicalAttachmentService Attachments => AttachmentsWith();
+    public IClinicalSnapshotService Snapshots => new ClinicalSnapshotService(Factory, Actor,
+        scope.ServiceProvider.GetRequiredService<StoragePaths>(), scope.ServiceProvider.GetRequiredService<IStorageCapacity>(),
+        scope.ServiceProvider.GetRequiredService<IOptions<ClinicalFileOptions>>(), scope.ServiceProvider.GetRequiredService<ClinicalFileGate>());
+    public ClinicalAttachmentService AttachmentsWith(IPrivateAttachmentStore? store = null, IStorageCapacity? capacity = null) => new(Factory, Actor,
+        store ?? scope.ServiceProvider.GetRequiredService<IPrivateAttachmentStore>(), Policy,
+        scope.ServiceProvider.GetRequiredService<ClinicalFileValidation>(), capacity ?? scope.ServiceProvider.GetRequiredService<IStorageCapacity>(),
+        scope.ServiceProvider.GetRequiredService<IOptions<ClinicalFileOptions>>(), scope.ServiceProvider.GetRequiredService<ClinicalFileGate>(), TimeProvider.System);
 
     private ClinicalScenario(IServiceScope scope, ICurrentUser actor)
     {
@@ -25,6 +35,7 @@ internal sealed class ClinicalScenario : IDisposable
         Actor = actor;
         Professionals = new ProfessionalService(Factory, actor, TimeProvider.System);
         Clinical = new ClinicalService(Factory, actor, TimeProvider.System);
+        Policy = new ClinicalFilePolicyService(Factory, actor, scope.ServiceProvider.GetRequiredService<IOptions<ClinicalFileOptions>>(), scope.ServiceProvider.GetRequiredService<ClinicalFileGate>());
     }
     public static async Task<ClinicalScenario> OpenAsync(SecurityApp app, string name = "profesional.ficticio")
     {

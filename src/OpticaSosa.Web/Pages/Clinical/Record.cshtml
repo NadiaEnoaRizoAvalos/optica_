@@ -8,6 +8,8 @@
 <h1>@ClinicalDisplay.Kind(d.Kind)</h1>
 <nav><a href="/clientes/@d.CustomerId/clinica">Historial del cliente</a><a href="/clientes/@d.CustomerId/clinica/nuevo/@d.Id">Crear corrección desde la última versión</a></nav>
 <p>Versión @d.Number de @d.LatestNumber. @(d.Number == d.LatestNumber ? "Versión actual." : "Versión histórica conservada.")</p>
+<p><a href="/clientes/@d.CustomerId/clinica/@d.Id/adjuntos?revision=@d.Number">Consultar o adjuntar documentos de esta versión</a></p>
+<p class="field-help">Cada nueva receta se registra por separado desde el historial del cliente. Las correcciones conservan sus documentos anteriores en la versión correspondiente.</p>
 <dl>
     <dt>Fecha informada</dt><dd>@d.Data.Date.ToString("dd/MM/yyyy")</dd>
     <dt>Profesional informante</dt><dd>@d.ProfessionalName · @(d.ProfessionalRegistration ?? "Sin matrícula informada") · @(d.ProfessionalJurisdiction ?? "Sin ámbito informado")</dd>

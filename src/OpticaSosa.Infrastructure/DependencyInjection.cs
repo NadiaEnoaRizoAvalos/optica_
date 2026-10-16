@@ -30,6 +30,9 @@ public static class DependencyInjection
         }.ToString();
 
         services.AddSingleton(paths);
+        services.AddOptions<ClinicalFileOptions>().Validate(x => x.Valid(), "Configuración de archivos clínicos inválida.");
+        services.AddSingleton<ClinicalFileGate>();
+        services.AddSingleton<IStorageCapacity, StorageCapacity>();
         services.AddDbContextFactory<OpticaDbContext>(options => options.UseSqlite(connectionString));
         services.AddIdentityCore<ApplicationUser>(options =>
         {
@@ -51,6 +54,10 @@ public static class DependencyInjection
         services.AddScoped<IProfessionalService, ProfessionalService>();
         services.AddScoped<IClinicalService, ClinicalService>();
         services.AddScoped<IPrivateAttachmentStore, PrivateAttachmentStore>();
+        services.AddScoped<IClinicalFilePolicyService, ClinicalFilePolicyService>();
+        services.AddScoped<IClinicalAttachmentService, ClinicalAttachmentService>();
+        services.AddScoped<ClinicalFileValidation>();
+        services.AddScoped<IClinicalSnapshotService, ClinicalSnapshotService>();
         return services;
     }
 }

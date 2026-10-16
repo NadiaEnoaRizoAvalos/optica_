@@ -46,6 +46,8 @@
 - Usar contextos de datos de vida corta por operación; no compartir DbContext entre usuarios o durante toda la sesión de Blazor.
 - Aplicar transacciones a operaciones que cambien ventas, pedidos y stock. Manejar concurrencia y reintentos de envío sin duplicar operaciones.
 - Evitar borrados en cascada que eliminen historial clínico o comercial. Definir anulación, inactivación y retención de cada entidad.
+- Conservar el historial clínico durante años: no imponer cupos fijos de recetas, visitas, controles, antecedentes, versiones ni adjuntos por cliente o registro. Paginar consultas sin recortar lo almacenado; una nueva receta es un documento independiente.
+- Conservar los originales clínicos inmutables, con metadatos y SHA-256. Los tamaños de carga se administran de forma centralizada y autorizada; reducirlos no debe bloquear la descarga de originales anteriores. No comprimir PDF ni aplicar transformaciones con pérdida automáticamente. Cualquier optimización debe ser explícita, sin sobrescribir el original y con garantías verificables de conservación.
 - No inventar datos ausentes ni interpretar un valor no informado como cero. Guardar dinero con precisión explícita y conservar importes históricos de ventas.
 - No generar diagnósticos, graduaciones, recetas ni recomendaciones médicas automáticamente. Registrar únicamente lo informado por profesionales, con autoría y procedencia.
 

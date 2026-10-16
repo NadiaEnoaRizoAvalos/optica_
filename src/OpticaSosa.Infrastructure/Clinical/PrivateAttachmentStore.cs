@@ -1,14 +1,15 @@
 using OpticaSosa.Application.Clinical;
 using OpticaSosa.Infrastructure.Persistence;
+using Microsoft.Extensions.Options;
 
 namespace OpticaSosa.Infrastructure.Clinical;
 
-public sealed class PrivateAttachmentStore(StoragePaths paths) : IPrivateAttachmentStore
+public sealed class PrivateAttachmentStore(StoragePaths paths, IOptions<ClinicalFileOptions> options) : IPrivateAttachmentStore
 {
     public async Task WriteAsync(Guid id, byte[] bytes, CancellationToken ct = default)
     {
         var final = FilePath(id);
-        var temporary = Path.Combine(DirectoryPath(), Guid.NewGuid().ToString("N") + ".pending");
+        var temporary = Path.Combine(DirectoryPath(), id.ToString("N") + "-" + Guid.NewGuid().ToString("N") + ".pending");
         try
         {
             // CreateNew y Move sin overwrite preservan un archivo ya publicado.
@@ -18,6 +19,7 @@ public sealed class PrivateAttachmentStore(StoragePaths paths) : IPrivateAttachm
                 await output.WriteAsync(bytes, ct);
                 await output.FlushAsync(ct);
             }
+            ct.ThrowIfCancellationRequested();
             File.Move(temporary, final, overwrite: false);
         }
         finally
@@ -29,12 +31,22 @@ public sealed class PrivateAttachmentStore(StoragePaths paths) : IPrivateAttachm
 
     public async Task<byte[]?> ReadAsync(Guid id, CancellationToken ct = default)
     {
+        await using var input = await OpenReadAsync(id, ct);
+        if (input is null) return null;
+        if (input.Length > options.Value.RequestMaxBytes) throw new IOException("Archivo fuera del límite de lectura en memoria; usar descarga por streaming.");
+        using var buffer = new MemoryStream();
+        await input.CopyToAsync(buffer, ct);
+        return buffer.ToArray();
+    }
+
+    public Task<Stream?> OpenReadAsync(Guid id, CancellationToken ct = default)
+    {
+        ct.ThrowIfCancellationRequested();
         var file = FilePath(id);
-        if (!File.Exists(file)) return null;
+        if (!File.Exists(file)) return Task.FromResult<Stream?>(null);
         RejectLink(file);
-        // Límite defensivo de almacenamiento, independiente del límite funcional de la carga.
-        if (new FileInfo(file).Length > 32 * 1024 * 1024) throw new IOException("Archivo privado fuera del límite de almacenamiento.");
-        return await File.ReadAllBytesAsync(file, ct);
+        return Task.FromResult<Stream?>(new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read,
+            81920, FileOptions.Asynchronous | FileOptions.SequentialScan));
     }
 
     private string FilePath(Guid id)

@@ -17,6 +17,8 @@ public sealed class OpticaDbContext(DbContextOptions<OpticaDbContext> options) :
     public DbSet<ClinicalRecord> ClinicalRecords => Set<ClinicalRecord>();
     public DbSet<ClinicalRevision> ClinicalRevisions => Set<ClinicalRevision>();
     public DbSet<EyeMeasurement> EyeMeasurements => Set<EyeMeasurement>();
+    public DbSet<ClinicalAttachment> ClinicalAttachments => Set<ClinicalAttachment>();
+    public DbSet<ClinicalFilePolicy> ClinicalFilePolicies => Set<ClinicalFilePolicy>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

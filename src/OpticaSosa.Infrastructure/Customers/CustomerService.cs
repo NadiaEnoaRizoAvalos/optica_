@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using OpticaSosa.Application.Customers;
 using OpticaSosa.Application.Security;
+using OpticaSosa.Application.Clinical;
 using OpticaSosa.Domain.Customers;
 using OpticaSosa.Infrastructure.Persistence;
 
@@ -42,9 +43,10 @@ public sealed partial class CustomerService(IDbContextFactory<OpticaDbContext> f
         var customer = await db.Customers.AsNoTracking().SingleOrDefaultAsync(c => c.Id == customerId, ct);
         if (customer is null) return null;
         var summary = await db.Customers.Where(c => c.Id == customerId).Summaries(db).SingleAsync(ct);
-        var page = Math.Clamp(historyPage, 1, 10000);
+        var page = Math.Max(historyPage, 1);
+        if (!HistoryPaging.IsValid(page)) throw new ArgumentException("Página fuera de la capacidad técnica de consulta.");
         var history = await db.Visits.AsNoTracking().Where(v => v.CustomerId == customerId)
-            .OrderByDescending(v => v.StartedAtUtc).ThenByDescending(v => v.Id).Skip((page - 1) * 25).Take(26)
+            .OrderByDescending(v => v.StartedAtUtc).ThenByDescending(v => v.Id).Skip(HistoryPaging.Offset(page)).Take(HistoryPaging.Size + 1)
             .Select(v => new VisitSummary(v.Id, v.Reason, v.AdministrativeNotes, v.StartedAtUtc,
                 v.EndedAtUtc, v.Status, v.WasRecurrent, v.Version)).ToListAsync(ct);
         CustomerOperations.Audit(db, actor, "customer.viewed", customerId);

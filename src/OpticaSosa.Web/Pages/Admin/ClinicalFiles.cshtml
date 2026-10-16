@@ -1,0 +1,21 @@
+@page "/admin/archivos-clinicos"
+@model OpticaSosa.Web.Pages.Admin.ClinicalFilesModel
+@{ ViewData["Title"] = "Almacenamiento clínico"; }
+<p class="eyebrow">Administración</p><h1>Almacenamiento clínico</h1>
+<p>Espacio disponible en el disco del servidor: @Model.AvailableMiB.ToString("N0") MB. Reserva de seguridad configurada: @Model.ReserveMiB MB.</p>
+@if (Model.Message is not null) { <p role="status" class="saved-message">@Model.Message</p> }
+<form method="post">
+    <div asp-validation-summary="All" role="alert"></div>
+    <input asp-for="Version" type="hidden" />
+    <label asp-for="PhotoMiB">Máximo por fotografía (MB)</label><input asp-for="PhotoMiB" type="number" min="1" required />
+    <label asp-for="PdfMiB">Máximo por PDF (MB)</label><input asp-for="PdfMiB" type="number" min="1" required />
+    <p>No existe límite fijo de cantidad de registros ni de documentos. Las páginas muestran grupos de 25 sin recortar el historial almacenado.</p>
+    <p class="field-help">MB expresados como 1024 × 1024 bytes. Los límites deben ser menores que el techo técnico de @Model.TechnicalRequestMiB MB por solicitud, dejando espacio al formulario. Ese techo y la reserva de disco se configuran en el servidor. Cambiar límites no modifica documentos previos.</p>
+    <button type="submit">Guardar límites autorizados</button>
+</form>
+<section>
+    <h2>Copia local con documentos</h2>
+    <p>Incluye una copia consistente de SQLite y todos los archivos privados, también documentos históricos y retirados. Se verifica integridad y correspondencia de los originales.</p>
+    <form method="post" asp-page-handler="Backup"><button type="submit">Crear copia local verificada</button></form>
+    <p class="field-help">Se guarda en el directorio privado del servidor. Una copia en el mismo disco no cubre su rotura. La programación, cifrado, retención y recuperación operativa se completarán en fase 7.</p>
+</section>

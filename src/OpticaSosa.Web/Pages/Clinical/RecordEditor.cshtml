@@ -7,7 +7,7 @@
 <p class="eyebrow">Acceso profesional</p>
 <h1>@ViewData["Title"]</h1>
 <p>@Model.Customer.LastName, @Model.Customer.FirstName</p>
-<p>Transcribí únicamente información aportada por el profesional. Un campo vacío significa que no fue informado.</p>
+<p>Transcribí únicamente información aportada por el profesional. Un campo vacío significa que no fue informado. Para una consulta o control, registrá un nuevo antecedente informado y asociá la visita si corresponde; no reemplaces una receta previa.</p>
 @if (Model.Correcting) { <p>Se creará una versión nueva con motivo obligatorio; la versión anterior se conserva.</p> }
 <form method="post">
     <div asp-validation-summary="All" role="alert"></div>

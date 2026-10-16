@@ -1,6 +1,6 @@
 # Requisitos — Sistema de Gestión para Ópticas
 
-Estado: fases 1–3 implementadas y fase 4 autorizada y en desarrollo. Clientes, cuentas, configuración del negocio, recetas y antecedentes disponibles. Adjuntos pendientes de confirmar límites y completar el circuito privado.
+Estado: fases 1–3 implementadas y fase 4 con recetas, antecedentes y adjuntos implementados, verificados y actualizados localmente. Pendiente revisión y aceptación del usuario. Fase 5 no iniciada.
 
 ## 1. Objetivo y alcance
 
@@ -43,6 +43,7 @@ En fase 3 se implementan únicamente visitas administrativas con motivo y observ
 - Registrar por separado ojo derecho e izquierdo y los campos que correspondan: esfera, cilindro, eje, adición, prisma/base y distancia pupilar, según definición validada con la óptica.
 - Definir unidades, precisión, campos opcionales y validaciones con el usuario antes de programarlos. Diferenciar dato ausente de cero.
 - Permitir varias recetas por cliente y consulta histórica; una nueva no reemplaza la anterior.
+- No limitar la cantidad de recetas, antecedentes, consultas, controles ni documentos por cliente, por rol o por receta. Conservar fechas, profesionales y graduaciones durante años, sujetos a la capacidad real del servidor. Paginar el historial cronológico sin truncarlo. Consultas y controles pueden registrarse como nuevos antecedentes informados, asociados opcionalmente a visitas; los campos administrativos no deben contener datos clínicos.
 - No producir diagnósticos, prescripciones ni recomendaciones clínicas automáticamente.
 
 Definición confirmada por el usuario durante fase 4: esfera, cilindro, adición y prisma con hasta **3 decimales**; dioptrías para los primeros tres y dioptrías prismáticas para prisma. Eje entero entre 0 y 180 grados y base como texto informado. Distancia pupilar **binocular**, en milímetros con hasta **2 decimales**. Todos estos campos son opcionales, sin exigir saltos de 0,25 y distinguiendo vacío de cero. No se implementan valores calculados ni conversiones clínicas. La capacidad técnica inicial de los campos numéricos es hasta 9999 en valor absoluto; no constituye un rango clínico de normalidad. Distancia pupilar no negativa.
@@ -53,10 +54,18 @@ Profesionales informantes: nombre obligatorio; matrícula y ámbito/jurisdicció
 
 ### RF-04. Fotografías y documentos
 
-- Adjuntar imágenes y PDF a recetas o registros autorizados; permitir consulta y descarga según permisos.
-- Acordar límites de tamaño y formatos; verificar contenido, asignar identificadores internos y conservar nombre original como metadato seguro.
-- Guardar archivos fuera de la carpeta pública, asociados por metadatos en la base. Evitar archivos huérfanos ante fallos y registrar retiradas autorizadas.
-- Respaldar y restaurar adjuntos junto con sus relaciones.
+- Adjuntar tantos documentos como sean necesarios a cada versión de una receta o antecedente, sin máximo fijo de cantidad. La carga inicial se realiza de a un archivo por operación; no limita el total de documentos del registro.
+- Formatos iniciales: JPG/JPEG, PNG y PDF. Validar extensión, tipo y contenido real; decodificar imágenes estáticas y verificar estructura PDF sin reescribirlo. HEIC/HEIF se evalúa por viabilidad de conversión y conservación del original; no se habilita hasta disponer de un conversor verificado en esta instalación.
+- Límites iniciales centralizados: fotografías 25 MB por archivo y PDF 50 MB por archivo (MB operativos de 1024 × 1024 bytes, explicitados en la interfaz). Administrador puede modificarlos en Almacenamiento clínico; usuarios Profesional no pueden elevarlos. Guardar cambios y versiones de concurrencia en SQLite y auditarlos. No dependen de cantidades de recetas ni de roles del paciente.
+- Mantener configurables los límites técnicos del servidor en ClinicalFiles: envolvente máxima por solicitud, píxeles a decodificar y reserva de espacio. Un límite de consulta o solicitud protege recursos y no es un límite del historial almacenado.
+- Si el archivo excede el límite, mostrar el tamaño permitido y ofrecer otra selección, optimización compatible explícita o ajuste administrativo. La opción sin pérdida inicial recomprime sólo datos IDAT de PNG, conservando dimensiones, bytes de píxeles filtrados, profundidad, orientación, perfiles de color y demás chunks. Entregar una copia descargable para revisión; no adjuntarla, reemplazar ni borrar originales silenciosamente. La selección original en el dispositivo se conserva. Si se desea archivar además ese original y excede el límite, el administrador debe autorizar elevarlo.
+- No recomprimir JPEG ni PDF clínicos cuando no existe una transformación sin pérdida verificada. No reducir resolución ni inferir legibilidad por OCR. Si una optimización no mejora el tamaño o no es viable, informar y conservar la selección original.
+- Guardar archivos originales, sin reencodificar, fuera de wwwroot en el almacenamiento privado Windows. Metadatos por documento: versión clínica, nombre original seguro, tamaño, tipo, SHA-256, fecha, autor y estado. Nombres físicos generados por GUID, sin rutas proporcionadas por el navegador. Verificar integridad antes de descargar y no entregar contenido incompleto o alterado.
+- Sólo Profesional puede cargar, listar, recuperar, consultar y descargar documentos clínicos. Las descargas requieren sesión, no son enlaces públicos, se envían como archivos adjuntos sin caché y no se ejecutan/previsualizan dentro de la aplicación. Administrador configura tamaños y genera copias privadas sin acceso clínico por navegador.
+- Cargas con metadatos Pending durables antes de publicar bytes, escritura temporal y movimiento atómico sin sobrescritura. Fallos no publican archivos parciales; reenvíos idempotentes y recuperación explícita verifican el original mediante hash. No eliminar originales automáticamente. Retiro con motivo/autor/fecha, conservando archivo y consulta histórica autorizada.
+- Comprobar espacio libre y mantener reserva antes de cargas y copias. Mostrar espacio/reserva al administrador, y mensajes controlados si una operación no puede completarse.
+- Paginar adjuntos y versiones en grupos de 25, sin cupos totales. Una corrección conserva sus documentos en la versión anterior y permite adjuntar otros a la nueva; una receta nueva crea un registro diferente.
+- Incluir SQLite y todos los archivos privados, históricos y retirados, en las copias. La copia manual de fase 4 usa respaldo consistente de SQLite, hashes, verificación de relaciones y documentos y manifiesto complete.json final; ninguna copia fallida sobrescribe la anterior. Verificar restauración en un directorio aislado con documentos ficticios. Programación, retención, cifrado, copia externa y recuperación operativa integral permanecen en fase 7.
 
 ### RF-05. Inventario
 
