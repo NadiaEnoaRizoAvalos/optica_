@@ -8,7 +8,8 @@
 - Fase 3 y tarea adicional de configuración/GitHub: aceptadas al pedir expresamente continuar con fase 4. Primer push realizado y verificado en main, commit 2c4d495.
 - Fase 4: recetas, antecedentes y adjuntos implementados con conservación de originales, sin cupos de cantidad y con tamaños administrables. Verificación automatizada y actualización local completadas; pendiente aceptación visual del usuario. Fase 5 no iniciada.
 - Fase 4.1 autorizada: navegación y ficha integrada, registro clínico guiado y control de calidad por pedido implementados y verificados. Fase 5 sigue pendiente de aprobación.
-- Última suite: 94 pruebas ejecutadas y aprobadas (26 Infraestructura y 68 Web), 0 fallidas, 0 omitidas; 20 pruebas nuevas respecto de la entrega de 74. Compilación: 0 errores y 0 advertencias. Todos los datos de pruebas son ficticios y están aislados de la base local.
+- Última entrega funcional (4.1): 113 pruebas ejecutadas y aprobadas (33 Infraestructura y 80 Web), 0 fallidas, 0 omitidas; compilación con 0 errores y 0 advertencias. Todos los datos de pruebas son ficticios y están aislados de la base local. Las 94 pruebas corresponden a la entrega anterior de adjuntos, no a la suite actual.
+- Ampliación comercial: esta tarea autoriza únicamente revisión, modelo y documentación. Etapas A–G propuestas dentro de fases 5 y 6; ninguna iniciada. Mantener exclusivamente acceso interno de empleados. Se espera aprobación para **5.A / Etapa A**.
 - Trabajar una funcionalidad por tarea; marcar cada tarea y registrar su validación al terminar.
 - El cierre de cada fase requiere cumplir sus criterios y aprobación explícita para avanzar. No encadenar fases automáticamente.
 - Solicitar autorización específica para instalaciones y cambios destructivos.
@@ -144,23 +145,109 @@ Criterios de aceptación: historial clínico trazable sin generación automátic
 
 ## Fase 5 — Inventario
 
-- [ ] Validar catálogo, variantes, cristales por encargo y regla de reservas.
-- [ ] Implementar productos, entradas, salidas y ajustes con motivos.
-- [ ] Implementar control de existencias y concurrencia.
-- [ ] Probar movimientos, compensaciones y prevención de stock negativo.
+Se conserva el número y objetivo de la fase; se organiza en dos entregas aprobables. Modelo, permisos, unidades y fuentes técnicas propuestos en REQUISITOS.md, secciones 3–4. No generar tablas vacías para etapas posteriores.
 
-Criterios de aceptación: existencias reproducibles desde movimientos; cambios simultáneos no producen stock inválido; ajustes auditados. Aprobar antes de fase 6.
+### 5.A / Etapa A — Productos, categorías, variantes y proveedores
+
+**Estado:** diseñada, no implementada; requiere aprobación antes de comenzar.
+
+- **Objetivo:** catálogo reutilizable y normalizado, sin cantidades de stock manuales ni cuentas externas.
+- **Funcionalidades/tareas:** A.1 acordar campos obligatorios, unidades, moneda/precisión e identidad de SKU; A.2 categorías/productos y variantes; A.3 perfiles separados de cristal, contacto y armazón y presentaciones; A.4 proveedores/ofertas múltiples; A.5 precios vigentes, costos restringidos, inactivación, auditoría y pantallas mínimas. Ejecutar una funcionalidad por tarea, sin rediseño visual integral.
+- **Entidades:** ProductCategory, Product, ProductVariant, ProductPresentation, perfiles tipados y tratamientos, Supplier y SupplierOffering; precios por variante/presentación. Lotes y cantidades físicas se incorporan en B, no en la ficha global. Crear sólo catálogos auxiliares con necesidad real.
+- **Dependencias:** base 4.1, permisos internos existentes, validación de muestras de catálogo/proveedores por la óptica. Referencias oficiales consultadas y citadas en REQUISITOS.md; no copiar catálogos ni presuponer ofertas locales.
+- **Pruebas previstas:** SKU/código duplicado y normalizado; persistencia; varias variantes por producto y proveedores por variante sin duplicar stock; diferencias entre familias y presentaciones; SPH/CYL/AXIS/ADD/BC/DIA tipados sin confundir OD/OI con catálogo; cero/ausente; conversión exacta de unidad; costos no visibles para Ventas/Profesional; inactivación, CSRF, concurrencia y regresión de clínica/calidad.
+- **Aceptación:** altas/ediciones/consultas desde navegador con datos ficticios; especificaciones estructuradas; proveedores múltiples; precios/unidades inequívocos; permisos en servidor; sin movimiento de stock ni cambios de calidad anticipados. Build y pruebas satisfactorios, actualización del plan y entrega versionada. Pedir aprobación antes de 5.B.
+
+### 5.B / Etapa B — Inventario, movimientos y disponibilidad
+
+**Estado:** diseñada, pendiente de A y aprobación propia.
+
+- **Objetivo:** existencias auditables y reproducibles, con lotes y vencimiento.
+- **Funcionalidades/tareas:** B.1 posiciones/saldos e ingreso inicial documentado; B.2 entradas/salidas, consumo, ajustes y bajas compensatorias; B.3 condiciones utilizable/no utilizable y cambios de presentación; B.4 lotes/vencimiento, alertas y consulta de disponibilidad. Reservas se diseñan aquí y se materializan en D al existir necesidades de pedidos; no crear reservas sin origen. Compras/recepciones se conectan en E/F.
+- **Entidades:** StockLot, StockMovement/líneas y StockBalance versionado, referidos a variante/presentación/lote/condición. Eventos de inventario con responsable, fecha, motivo, unidad y origen. No implementar una segunda entrada por compra al integrar F.
+- **Dependencias:** A, reglas confirmadas de unidades/conversión, vencimiento según etiqueta, fecha de negocio y stock mínimo/alertas. La compra pendiente no se muestra como existencia disponible; si aún no existe su módulo, indicarlo sin inventar cantidades.
+- **Pruebas previstas:** entradas/salidas y compensación; equivalencia de saldo e historial; negativos rechazados; dos salidas simultáneas sobre la última unidad; reenvíos; fallos a mitad de transacción; envase y contenido no duplicados; lotes separados; cuarentena/dañados/vencidos excluidos; cambios de día; devolución no disponible sin revisión; permisos y datos anteriores intactos.
+- **Aceptación:** existencias reconstruibles, ninguna salida inconsistente, movimientos trazables e idempotentes, alertas configurables y vista mínima por rol. Build/suite aprobados y aceptación expresa antes de fase 6.
 
 ## Fase 6 — Pedidos y ventas
 
-- [ ] Acordar estados, precios, descuentos y alcance de pagos/señas.
-- [ ] Implementar pedidos y transiciones permitidas.
-- [ ] Implementar ventas con detalles e importes históricos.
-- [ ] Integrar stock mediante transacciones y prevención de duplicados.
-- [ ] Implementar cancelaciones/anulaciones con compensación y motivo.
-- [ ] Probar totales, transacciones fallidas, doble envío, concurrencia y permisos.
+Se conserva el número. C–G son entregas incrementales de esta fase ampliada, cada una sujeta a aprobación; no equivalen a una autorización para ejecutarlas juntas. El trabajo mínimo de fase 4.1 ya existe y se reutiliza.
 
-Criterios de aceptación: circuito de pedido a entrega/venta verificable, sin duplicación de movimientos ni pérdida de importes históricos; anulaciones trazables. Aprobar antes de fase 7.
+### 6.C / Etapa C — Presupuestos, ventas y pedidos de clientes
+
+**Estado:** diseñada, no implementada; depende de A/B y aprobación.
+
+- **Objetivo:** documentos comerciales distintos con líneas y precios históricos.
+- **Funcionalidades/tareas:** C.1 presupuestos/versiones/aceptación; C.2 pedido comercial, líneas y referencias técnicas autorizadas; C.3 venta, anulación y acuerdos económicos; C.4 señas/pagos/saldos únicamente después de definir moneda, descuentos, redondeo, medios y permisos. No agregar facturación fiscal. Registrar necesidades/revisión técnica pendiente sin prometer disponibilidad ni entrega completa antes de D/G.
+- **Entidades:** Quote/QuoteLine, CustomerOrder/OrderLine, Sale/SaleLine y snapshots comerciales; pagos/asignaciones sólo en su subtarea validada. Vínculo opcional del trabajo OpticalWork con pedido y líneas, sin crear ventas retroactivas para los trabajos anteriores.
+- **Dependencias:** A/B, estados comerciales y momento de venta/consumo acordados. Caso de uso nuevo para que Ventas seleccione referencia habilitada por Profesional sin usar lectura clínica completa; aprobación técnica versionada distinta de la aceptación comercial.
+- **Pruebas previstas:** cantidades/precios/totales exactos y redondeo; snapshots tras cambiar catálogo/precio; conversiones de documentos y reenvíos; referencia de otro cliente rechazada; permisos comerciales frente a clínicos; anulaciones sin borrar historia y sin reingreso de stock inventado; pedidos antiguos y controles intactos.
+- **Aceptación:** presupuesto, venta y pedido son identificables y no se confunden con compra/trabajo; cuentas sin nuevos privilegios clínicos; documentos confirmados no se reescriben. Las pantallas explican los pasos aún pendientes; no habilitar entrega del nuevo circuito hasta G. Verificar y pedir aprobación antes de D.
+
+### 6.D / Etapa D — Materiales, verificación automática y reservas
+
+**Estado:** diseñada, pendiente de C y aprobación.
+
+- **Objetivo:** calcular disponibilidad exacta y faltantes desde necesidades técnicamente aprobadas.
+- **Funcionalidades/tareas:** D.1 especificaciones por ojo y medidas de montaje revisadas por Profesional; D.2 MaterialRequirement por trabajo y sus versiones; D.3 comprobación automática de variantes/presentaciones/cantidades/lotes; D.4 reservar, liberar y consumir con transacciones; D.5 faltantes y fabricación personalizada, sin sustitución automática ni stock pendiente contado como disponible.
+- **Entidades:** TechnicalSpecificationVersion, EyeSpecification/MountingMeasurement como datos tipados, MaterialRequirement, StockReservation y eventos/asignaciones. Separar cantidades reservadas, consumidas y faltantes; solicitud de abastecimiento se conecta con E.
+- **Dependencias:** B/C, contrato del inventario y permisos técnicos. No convertir una receta de anteojos en adaptación de contacto; BC/DIA y parámetros no existentes requieren registro/procedencia profesional validada. Confirmar reglas de prioridad y duración de reservas.
+- **Pruebas previstas:** OD/OI con variantes distintas; coincidencia exacta de tratamientos/BC/DIA/modelo; completo/faltante/encargo; reserva simultánea de última unidad; vencido/dañado rechazado; reintento/cancelación/cambio de especificación; consumidor no descuenta dos veces; faltantes comerciales no revelan valores clínicos.
+- **Aceptación:** reservas no superan existencias utilizables, disponibilidad y faltantes reproducibles, fabricación personalizada no crea existencias ficticias; interfaces separadas por rol y cambios obsoletos rechazados. Aprobar antes de E.
+
+### 6.E / Etapa E — Solicitudes y compras a proveedores
+
+**Estado:** diseñada, pendiente de D y aprobación.
+
+- **Objetivo:** abastecer faltantes con revisión técnica y autorización comercial independientes.
+- **Funcionalidades/tareas:** E.1 solicitud idempotente por necesidad/faltante; E.2 revisión técnica; E.3 agrupación y distribución de cantidades; E.4 autorización y orden separada por proveedor; E.5 PDF descargable y registro autorizado de emisión/envío, sin mensajería automática.
+- **Entidades:** SupplyRequest/líneas, PurchaseOrder/líneas y PurchaseAllocation hacia necesidades/pedidos. Usuario, fecha, número único, estimaciones y snapshots de costo/moneda/presentación/especificaciones necesarias.
+- **Dependencias:** A/D, condiciones de compra y responsables confirmados; selección y autorización previa de cualquier dependencia nueva para generar PDF. Catálogo del proveedor no prueba stock local ni viabilidad de fabricar una combinación no confirmada.
+- **Pruebas previstas:** varios pedidos agrupados sin duplicar cantidades, separación por proveedor, solicitudes repetidas, cambio de cantidad/costo tras autorización, rechazo de compra por Ventas/Profesional, revisión comercial sin historial clínico, PDF comercial separado del anexo técnico protegido y ninguna transmisión automática.
+- **Aceptación:** trazabilidad del faltante hasta línea de compra; Profesional prepara sin autorizar gasto; Administrador autoriza y emite sin obtener acceso clínico; documentos guardados con versiones y descarga autorizada por tipo. Verificar y pedir aprobación antes de F.
+
+### 6.F / Etapa F — Recepciones y actualización de inventario
+
+**Estado:** diseñada, pendiente de E y aprobación.
+
+- **Objetivo:** incorporar sólo materiales recibidos y aceptados, con seguimiento por necesidad.
+- **Funcionalidades/tareas:** F.1 recepción parcial/total por línea; F.2 diferencias, rechazos, daño y sobreentrega con autorización; F.3 lotes/vencimientos y devolución; F.4 entrada transaccional mediante el servicio de inventario existente y asignación a pedidos pendientes; F.5 pendientes y plazos en ficha del proveedor.
+- **Entidades:** GoodsReceipt/líneas, referencias a PurchaseOrderLine, lotes, movimientos y documentos de devolución/compensación. No duplicar el libro de inventario ni cambiar directamente un saldo.
+- **Dependencias:** B/D/E, política de recepción inicial por Administrador y procedimiento de devolución. No habilitar delegación a otros roles automáticamente; cantidades aceptadas/rechazadas/devueltas y reposición pendiente requieren reglas claras.
+- **Pruebas previstas:** recepción parcial sucesiva; reenvío idempotente; compra ajena/proveedor incorrecto; cantidades excedidas; sustitución sin autorización; cuarentena, lote y vencimiento; devolución; caída entre recepción y movimiento con rollback; asignación correcta a pedidos y ningún salto a entrega.
+- **Aceptación:** inventario y recepción consistentes, lo no aceptado no disponible, faltantes actualizados sin reaprovisionamiento doble, compra y documentos previos conservados. Aprobar antes de G.
+
+### 6.G / Etapa G — Integración con trabajos, calidad y entregas
+
+**Estado:** diseñada; controles existentes operativos, integración comercial nueva pendiente de C–F y aprobación.
+
+- **Objetivo:** cerrar pedido comercial → materiales → preparación → controles → entrega con las invariantes de fase 4.1.
+- **Funcionalidades/tareas:** G.1 enlazar trabajos y líneas/materiales con coherencia de cliente y receta fijada; G.2 adaptar checklists a nuevas categorías mediante diseño aprobado; G.3 invalidar aprobaciones afectadas por cambios de especificación/material y revisar reservas; G.4 entrega documentada y segura, inicialmente total; G.5 recorrido integral y regresiones. Entregas parciales requieren acuerdo previo, no se habilitan implícitamente.
+- **Entidades:** reutilizar OpticalWork, QualityControl/ítems/plantillas e historial; añadir sólo vínculo comercial, referencias a versión/material y Delivery/líneas/asignaciones cuando se implemente. No crear otro motor de calidad ni convertir los pedidos históricos en ventas.
+- **Dependencias:** C/D/E/F y reglas de entrega/categorías confirmadas. Para contacto y artículos sin montaje, definir tipo de trabajo y verificaciones pertinentes sin usar Repair como atajo ni desactivar las dos etapas existentes arbitrariamente.
+- **Pruebas previstas:** materiales recibidos no habilitan entrega; pedidos con varios trabajos sólo entregables cuando todos cumplen; técnico/previo pendientes u observados bloquean; cambios y concurrencia invalidan; lote reservado vence antes de entrega; doble entrega/doble consumo; anulaciones y trabajos históricos; ventas sin lectura clínica y Administración sin privilegios técnicos.
+- **Aceptación:** recorrido completo con datos ficticios desde presupuesto a entrega, documentos de compra/recepción enlazados, inventario conciliado y ninguna ruta directa que evite calidad. Compilación/suite y comprobación funcional en navegador, documentación, commit/push verificados; aprobación antes de fase 7.
+
+### Riesgos y decisiones por confirmar antes de implementar
+
+| Riesgo o dependencia | Tratamiento / momento de decisión |
+| --- | --- |
+| Confundir pedido actual con venta o pedido comercial | OpticalWork permanece; vínculo opcional para nuevos pedidos. Sin datos ni precios retrospectivos; pruebas de preservación en C/G. |
+| Catálogo óptico combinatorio y diferencias regionales | Perfiles tipados; registrar sólo variantes ofrecidas/necesarias. No inferir un producto válido del producto cartesiano de rangos; validar proveedor en A/D/E. |
+| Datos de contacto no cubiertos por receta actual | Perfil técnico protegido para BC/DIA y procedencia; evaluar extensión tipada por versión clínica, sin reinterpretar DP ni agregar enums que violen restricciones existentes sin migración revisada. |
+| Unidades/presentaciones y lotes | Factores exactos e históricos; apertura/transferencia sin duplicación; acordar venta por caja/blíster/unidad y política de vencimiento/etiquetas incompletas en A/B. |
+| Dinero y SQLite | Escalas enteras, moneda y redondeo validados; costo de referencia separado de histórico. Decidir reglas antes de A/C; sin cálculo tributario/facturación fiscal. |
+| Filtración al seleccionar receta o solicitar materiales | Referencia habilitada y proyecciones por rol; sin datos clínicos en nombres/especificaciones comerciales o PDF completo para proveedor. Pruebas negativas C–G. |
+| Doble reserva, consumo o recepción | Transacción, token de saldo/documento e idempotencia; pruebas con operaciones concurrentes y fallos de escritura. Reservar no descuenta físico y vender no duplica consumo. |
+| Estados y cancelaciones entre módulos | Estados separados y transiciones coordinadas; consumidos no se liberan como reserva. Nueva recepción no aprueba control; entrega revalida vencimiento. |
+| Contención SQLite y crecimiento del historial | Contextos cortos, índices, paginación y transacciones breves. Medir con datos ficticios y cuatro sesiones; cualquier cambio de motor requiere justificación/aprobación. |
+| Pérdida de datos en actualización | Copia consistente previa, inspección de Up, pruebas desde esquema anterior y comparación de registros/archivos. No aplicar migraciones en esta planificación ni reconstruir tablas por iniciativa propia. |
+| Dependencias y PDF / integraciones externas | No instalar ahora. Seleccionar herramienta en E y pedir autorización; PDF descargable no significa autorización de enviar una compra. |
+| Acumulación de alcance | Una funcionalidad por tarea y aprobación entre etapas. Fases 7 y 8 conservan numeración; rediseño UX/UI definitivo se planificará aparte, sin implementarlo en A–G. |
+
+### Decisiones propuestas para aceptación
+
+Confirmar al aprobar la etapa pertinente: campos obligatorios de producto/proveedor y claves SKU; unidades/presentaciones; moneda, escalas/redondeo y costo de referencia; catálogo local/encargos; rol receptor de mercadería (propuesta: Administrador); duración/prioridad de reservas; aprobación de sustituciones; señas/pagos/descuentos; política de entregas parciales. Estas preguntas no bloquean la documentación actual ni autorizan reglas todavía no acordadas.
 
 ## Fase 7 — Respaldos y entrega operativa en una PC
 
@@ -219,6 +306,19 @@ Criterios de aceptación: cuatro sesiones operan sobre una única base; se cumpl
 
 Dirección de dependencias: Aplicación depende de Dominio; Infraestructura implementa contratos de Aplicación; Web invoca Aplicación y compone Infraestructura. Las reglas no dependen de la interfaz ni de SQLite. No se requiere crear una API separada para los celulares en el alcance inicial.
 
+### Decisiones de la ampliación comercial — propuestas para aprobación
+
+| ID | Decisión | Alcance / motivo |
+| --- | --- | --- |
+| D-29 | Acceso exclusivamente de empleados y base por instalación | Clientes, médicos externos y proveedores son registros; sin registro público, portal ni multiempresa compartida. |
+| D-30 | Producto, variante, presentación, oferta y lote separados | Evitar duplicar artículos por proveedor, mezclar envases o ocultar atributos críticos en texto libre. |
+| D-31 | Inventario por movimientos con reservas separadas y saldo reconciliable | Disponibilidad excluye no utilizables y compras pendientes; transacciones, concurrencia y reintentos seguros. |
+| D-32 | Pedido comercial distinto del trabajo OpticalWork existente | Preservar calidad, recetas/versiones y trabajos históricos; no inventar ventas retroactivas ni un segundo motor de control. |
+| D-33 | Datos técnicos por ojo y montaje versionados | Aprobación profesional explícita; ningún cálculo de compatibilidad clínica ni sustitución automática. |
+| D-34 | Autorización comercial distinta de técnica y documentos con proyecciones por rol | Administrador aprueba costos/compra; Profesional prepara el anexo técnico mínimo; Ventas recibe resumen sin antecedentes ni graduaciones del paciente. |
+| D-35 | Etapas 5.A/5.B y 6.C–6.G | Conservar fases 5–8 y exigir aprobación entre entregas. Priorizar backend; UX/UI definitivo y licencias quedan fuera. |
+| D-36 | Escalas exactas para unidades e importes | Propuesta de enteros escalados y moneda explícita; validar precisión/redondeo antes de código y conservarlos en documentos. |
+
 ## Registro de progreso
 
 | Fecha | Tarea | Resultado / verificación | Pendiente |
@@ -259,6 +359,16 @@ En tareas futuras registrar aquí el alcance concreto, comandos/pruebas ejecutad
 - Antes de migrar, copia SQLite mediante su API de backup en `data/migration-backups/pre-fase41-361984ca67f24c83bd22c08b266531f4`, con manifiesto de columnas, filas y hashes y copia de adjuntos existentes (0). Tras `--initialize-database`, verificados los valores de **las 17 tablas previas sin cambios**, integridad, claves foráneas y dos triggers nuevos. No se introdujeron pedidos ni pacientes ficticios en la base local.
 - Git: remoto `NadiaEnoaRizoAvalos/optica_` confirmado privado, rama `main`, historial remoto existente preservado. Bases, copias, capturas, logs y herramientas temporales de revisión permanecen excluidos de Git.
 - Pendientes de alcance: aceptación del usuario; inventario en fase 5 y circuito comercial completo en fase 6; operación de respaldos en fase 7 y conexión segura de celulares en fase 8. Ninguna de esas fases se inicia automáticamente.
+
+### Planificación de la ampliación comercial interna — 2026-10-16
+
+- Revisados los cuatro proyectos por capas, entidades/DbContext, permisos, trabajo mínimo y pruebas existentes. Implementado: usuarios/negocio, clientes/visitas, clínica/profesionales/adjuntos y trabajo/calidad/entrega mínimos. Faltan catálogo/proveedores, inventario, ventas/presupuestos, pedido comercial, reservas y abastecimiento/recepciones; respaldos operativos y Wi-Fi permanecen en fases 7/8.
+- Actualizados exclusivamente AGENTS.md, REQUISITOS.md y PLANS.md: acceso interno sin cuentas de clientes/externos, modelo conceptual/cardinalidades, separación clínica/comercial, roles y proyecciones, unidades/precios/lotes, riesgos y fuentes oficiales de fabricantes. No se agregó código, paquete, tabla ni migración ni se cambió la base local.
+- A–G organizadas como 5.A/5.B y 6.C–6.G, conservando numeración y controles existentes. Cada etapa incluye objetivo, funcionalidades, entidades, dependencias, pruebas previstas, aceptación y estado. Todas pendientes de implementación/aprobación. Rediseño definitivo y comercialización del software fuera de este trabajo.
+- Validación previa al versionado documental: `git diff --check` sin errores; `dotnet build OpticaSosa.sln --no-restore -m:1 -nr:false -p:UseSharedCompilation=false`: **0 errores y 0 advertencias**. Un primer intento falló por DLL bloqueadas por el servidor abierto; se detuvo exclusivamente esta aplicación y se repitió satisfactoriamente.
+- `dotnet test OpticaSosa.sln --no-build --no-restore --verbosity minimal -m:1 -nr:false`: **113 ejecutadas, 113 aprobadas, 0 fallidas y 0 omitidas** (33 Infraestructura, 80 Web). Son regresiones existentes ejecutadas nuevamente, no pruebas nuevas ni validación de módulos futuros.
+- Remoto confirmado privado y sincronizado en main antes de versionar; sólo los tres documentos se incluyen en la entrega. Commit/push se informan al cierre, sin un commit adicional para su propio hash. Se restablece la instancia habitual en localhost:5080.
+- **Pendiente:** aprobación explícita de **5.A / Etapa A — Productos, categorías, variantes y proveedores** y validación de sus reglas abiertas antes de programar. Esta planificación no inicia fase 5 ni autoriza avanzar a B–G.
 
 ### Confirmaciones de alcance
 

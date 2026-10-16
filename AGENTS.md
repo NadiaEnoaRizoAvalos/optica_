@@ -28,6 +28,26 @@
 
 ## Arquitectura y código
 
+### Uso exclusivamente interno
+
+- Sólo empleados autorizados usan el sistema. Cliente, profesional externo y proveedor son registros del negocio, nunca cuentas creadas automáticamente. No implementar registro público, portal de pacientes, seguimiento externo ni acceso de proveedores.
+- Mantener únicamente Administrador, Atención/Ventas y Profesional como roles iniciales. Los tres celulares son para empleados; cada óptica tiene una instalación y base local independiente. No introducir una plataforma multiempresa ni servicios de licencias en este alcance.
+- Administrador gestiona usuarios, negocio, catálogo, proveedores, inventario, precios y autorización comercial de compras; no obtiene acceso clínico automáticamente. Profesional revisa especificaciones y aprueba técnicamente, sin permisos financieros o administrativos implícitos. Atención/Ventas utiliza sólo la información comercial autorizada.
+- No mezclar lógica clínica y comercial. Seleccionar una referencia técnica autorizada no habilita a leer recetas completas, graduaciones individuales o antecedentes; diseñar proyecciones específicas y autorización en servidor.
+- Preservar los módulos existentes. Extender OpticalWork y sus controles sin construir otro control de calidad ni confundir el trabajo operativo con el futuro pedido comercial. Documentar la compatibilidad y migración antes de cambiar vínculos.
+- Priorizar backend, persistencia, reglas y pruebas; agregar pantallas mínimas utilizables. El rediseño visual definitivo será una etapa independiente, sujeta a aprobación.
+
+### Catálogo y operaciones comerciales
+
+- Separar producto, variante, presentación, oferta del proveedor y lote. Modelar atributos ópticos con tipos, unidades y precisión; no usar texto libre o un JSON genérico como sustituto de las relaciones. No generar todas las combinaciones posibles de graduaciones.
+- Diferenciar especificaciones del catálogo, prescripción OD/OI y medidas de montaje. No inferir compatibilidad clínica ni sustituir materiales por similitud; cualquier cambio que afecte adaptación requiere revisión profesional y nueva verificación.
+- Stock físico, reservas, no utilizable y pendiente de recepción son conceptos distintos. Recepciones futuras no son disponibilidad. No permitir stock negativo sin una regla nueva expresamente autorizada; reservas y movimientos deben ser transaccionales, concurrentes e idempotentes.
+- Mantener movimientos y compensaciones trazables. Convertir cajas, blísteres y unidades con factores exactos y conservar lote/vencimiento; nunca contar simultáneamente una caja y su contenido. Revalidar vencimiento al reservar, consumir y entregar.
+- Separar presupuesto, venta, pedido, trabajo óptico, solicitud, compra, recepción y entrega. Conservar especificaciones y precios aprobados como snapshots históricos; no reconstruirlos desde el catálogo actual.
+- Aprobación técnica no autoriza compras. No enviar órdenes, correos ni mensajes sin confirmación autorizada; los documentos para proveedores contienen sólo los datos mínimos necesarios, sin historial clínico completo. No agregar facturación fiscal ni pagos externos sin alcance aprobado.
+
+### Separación de capas
+
 - Usar C# y .NET 10, ASP.NET Core, Blazor, EF Core y SQLite como base propuesta. Confirmar versiones compatibles y entorno instalado en fase 1, antes de adoptar paquetes.
 - Mantener un monolito modular por capas: Dominio, Aplicación, Infraestructura y Web. No introducir microservicios ni servicios externos para el funcionamiento normal.
 - Dominio contiene entidades, objetos de valor e invariantes, sin dependencias de interfaz, EF Core o archivos.
