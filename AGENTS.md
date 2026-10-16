@@ -41,6 +41,7 @@
 - Auditar actor, acción, fecha y referencia del objeto sin copiar datos clínicos, contraseñas o secretos a logs.
 - No exponer el servidor a internet. Preparar HTTPS, firewall y acceso Wi-Fi privado antes de habilitar celulares.
 - Respaldar SQLite consistentemente junto con todos los documentos, configuración necesaria y estrategia de recuperación de claves. Automatizar, verificar integridad, conservar copias anteriores ante fallos y probar restauración aislada.
+- Distinguir integridad de autenticidad: firmas CMS con confianza aprobada fuera del respaldo; no confiar automáticamente en certificados incluidos ni exportar claves privadas. Cambiar políticas/claves operativas requiere autorización.
 - Una copia en el mismo disco no protege ante pérdida del equipo. Evaluar almacenamiento externo y cifrado con recuperación de claves; no activarlos ni sobrescribir una instalación operativa sin las autorizaciones y verificaciones correspondientes.
 
 ## Pruebas, documentación y GitHub

@@ -9,7 +9,8 @@ public sealed record BackupRunView(Guid Id, DateTime StartedUtc, DateTime? Finis
 public sealed record BackupDestinationView(BackupTarget? Disk, bool? Connected, string Message);
 public sealed record BackupOverview(bool SchemaReady, BackupConfiguration Configuration,
     IReadOnlyList<BackupRunView> Runs, DateTime? NextUtc, DateTime? LastValidUtc, string? Alert, bool ExternalWritesAuthorized,
-    DateTime? NextRetryUtc = null, BackupDestinationView? Destination = null)
+    DateTime? NextRetryUtc = null, BackupDestinationView? Destination = null,
+    bool SignaturesRequired = false, bool SigningEnabled = false)
 {
     public BackupRunView? LatestAttempt => Runs.FirstOrDefault();
 }

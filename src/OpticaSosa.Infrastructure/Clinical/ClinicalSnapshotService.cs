@@ -19,7 +19,7 @@ public sealed class ClinicalSnapshotService(ClinicalSnapshotWriter writer, ICurr
             await AuditAsync(actor, "clinical.snapshot.completed", ct);
             return result;
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or OperationCanceledException)
+        catch (Exception ex) when (ex is IOException or InvalidDataException or UnauthorizedAccessException or OperationCanceledException)
         {
             await AuditAsync(actor, "clinical.snapshot.failed", CancellationToken.None);
             throw;

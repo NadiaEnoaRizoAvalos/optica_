@@ -4,6 +4,8 @@
 <h1>Respaldos y recuperación</h1>
 <p>La programación funciona sin navegador mientras el servidor esté activo. No se recuperan estados de días en que estuvo apagado.</p>
 <p role="note">Uso clínico real pendiente de verificar seguridad, cifrado y recuperación completa. Esta pantalla no concede acceso a historias clínicas.</p>
+<p><strong>Autenticidad:</strong> @(Model.Overview.SignaturesRequired ? "Verificación de firma obligatoria para aceptar una copia." : "Firmas no exigidas: los hashes por sí solos no prueban el origen del respaldo.")</p>
+<p>Firma de nuevas copias: @(Model.Overview.SigningEnabled ? "habilitada por configuración técnica" : "desactivada"). Esta política actual no acredita firmas en copias históricas ni activa cifrado.</p>
 @if (Model.Message is not null) { <p role="status">@Model.Message</p> }
 @if (Model.Overview.Alert is not null) { <p role="alert">@Model.Overview.Alert</p> }
 <p><strong>Estado: @(Model.Overview.Configuration.Enabled ? "Programación activa" : "Programación desactivada")</strong></p>

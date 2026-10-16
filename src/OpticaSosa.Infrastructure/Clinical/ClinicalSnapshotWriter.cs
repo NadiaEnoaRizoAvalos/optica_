@@ -12,7 +12,7 @@ namespace OpticaSosa.Infrastructure.Clinical;
 
 public sealed class ClinicalSnapshotWriter(IDbContextFactory<OpticaDbContext> factory,
     StoragePaths paths, IStorageCapacity capacity, IOptions<ClinicalFileOptions> options, ClinicalFileGate gate,
-    IConfiguration configuration, TimeProvider clock)
+    IConfiguration configuration, TimeProvider clock, OpticaSosa.Infrastructure.Backups.BackupAuthenticity authenticity)
 {
     public long EstimateBytes() => PrivateFiles(paths.AttachmentsDirectory).Sum(x => new FileInfo(x).Length) + new FileInfo(paths.DatabaseFile).Length;
 
@@ -21,6 +21,7 @@ public sealed class ClinicalSnapshotWriter(IDbContextFactory<OpticaDbContext> fa
         await gate.Semaphore.WaitAsync(ct);
         try
         {
+            authenticity.CheckCreationPolicy();
             await using var processLock = new FileStream(Path.Combine(paths.DataDirectory, "backup-files.lock"),
                 FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
             var files = PrivateFiles(paths.AttachmentsDirectory).ToArray();
@@ -78,9 +79,12 @@ public sealed class ClinicalSnapshotWriter(IDbContextFactory<OpticaDbContext> fa
                 manifest["optica.db"] = Convert.ToHexString(await SHA256.HashDataAsync(database, ct));
             // Sin este manifiesto final la carpeta es incompleta y no debe restaurarse.
             await File.WriteAllTextAsync(Path.Combine(destination, "complete.json"), JsonSerializer.Serialize(new
-            { Format = 2, Status = "Complete", CreatedAtUtc = clock.GetUtcNow().UtcDateTime,
+            { Format = authenticity.SigningEnabled ? 3 : 2, Status = "Complete", CreatedAtUtc = clock.GetUtcNow().UtcDateTime,
                 ApplicationVersion = typeof(ClinicalSnapshotWriter).Assembly.GetName().Version?.ToString(),
                 Runtime = Environment.Version.ToString(), Migrations = await db.Database.GetAppliedMigrationsAsync(ct), Files = manifest }), ct);
+            await authenticity.SignAsync(destination, ct);
+            await authenticity.VerifyAsync(destination, await File.ReadAllBytesAsync(Path.Combine(destination, "complete.json"), ct),
+                authenticity.SigningEnabled ? 3 : 2, ct);
             return new(destination, files.Length, "Complete");
         }
         finally { gate.Semaphore.Release(); }

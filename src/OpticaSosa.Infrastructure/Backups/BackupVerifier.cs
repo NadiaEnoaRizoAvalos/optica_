@@ -7,7 +7,8 @@ using Microsoft.Extensions.Options;
 
 namespace OpticaSosa.Infrastructure.Backups;
 
-public sealed class BackupVerifier(StoragePaths paths, IStorageCapacity capacity, IOptions<BackupRuntimeOptions> options)
+public sealed class BackupVerifier(StoragePaths paths, IStorageCapacity capacity, IOptions<BackupRuntimeOptions> options,
+    BackupAuthenticity authenticity)
 {
     public async Task<DateTime> VerifyAsync(string directory, CancellationToken ct = default)
     {
@@ -16,16 +17,19 @@ public sealed class BackupVerifier(StoragePaths paths, IStorageCapacity capacity
         { throw new InvalidDataException("El manifiesto no es válido o no es compatible.", ex); }
     }
 
-    private static async Task<DateTime> VerifyCoreAsync(string directory, CancellationToken ct)
+    private async Task<DateTime> VerifyCoreAsync(string directory, CancellationToken ct)
     {
         BackupFileSafety.RejectLinks(directory);
         var manifestPath = BackupFileSafety.Child(directory, "complete.json");
         if (!File.Exists(manifestPath) || new FileInfo(manifestPath).Length > 64L * 1024 * 1024)
             throw new IOException("No hay manifiesto completo válido.");
-        using var manifest = JsonDocument.Parse(await File.ReadAllTextAsync(manifestPath, ct));
+        var manifestBytes = await File.ReadAllBytesAsync(manifestPath, ct);
+        using var manifest = JsonDocument.Parse(manifestBytes);
         var root = manifest.RootElement;
-        if (root.GetProperty("Status").GetString() != "Complete" || root.GetProperty("Format").GetInt32() != 2)
+        var format = root.GetProperty("Format").GetInt32();
+        if (root.GetProperty("Status").GetString() != "Complete" || format is not (2 or 3))
             throw new IOException("Formato de copia no compatible.");
+        await authenticity.VerifyAsync(directory, manifestBytes, format, ct);
         var files = root.GetProperty("Files");
         var createdAt = root.GetProperty("CreatedAtUtc").GetDateTime().ToUniversalTime();
         foreach (var name in new[] { "optica.db", "configuration.json", "recovery.txt" })
@@ -47,6 +51,8 @@ public sealed class BackupVerifier(StoragePaths paths, IStorageCapacity capacity
         using var manifest = JsonDocument.Parse(await File.ReadAllTextAsync(Path.Combine(directory, "complete.json"), ct));
         var required = manifest.RootElement.GetProperty("Files").EnumerateObject()
             .Sum(x => new FileInfo(BackupFileSafety.Child(directory, x.Name)).Length);
+        var signature = BackupFileSafety.Child(directory, BackupAuthenticity.SignatureFile);
+        if (File.Exists(signature)) required += new FileInfo(signature).Length;
         if (capacity.AvailableBytes < required + options.Value.ReserveBytes) throw new IOException("No hay espacio para restaurar en el entorno aislado.");
         var root = BackupFileSafety.Child(paths.DataDirectory, "restore-tests");
         Directory.CreateDirectory(root);
@@ -62,6 +68,7 @@ public sealed class BackupVerifier(StoragePaths paths, IStorageCapacity capacity
             await source.CopyToAsync(output, ct);
         }
         File.Copy(Path.Combine(directory, "complete.json"), Path.Combine(target, "complete.json"), overwrite: false);
+        if (File.Exists(signature)) File.Copy(signature, Path.Combine(target, BackupAuthenticity.SignatureFile), overwrite: false);
         await VerifyAsync(target, ct);
         // Nunca iniciar automáticamente un servidor restaurado, migrar o cambiar rutas activas.
         return target;

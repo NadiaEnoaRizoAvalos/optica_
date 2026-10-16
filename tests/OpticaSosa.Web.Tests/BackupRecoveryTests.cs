@@ -86,7 +86,8 @@ public sealed class BackupRecoveryTests
     {
         await using var test = new BackupTestContext(); await test.InitializeAsync(); await test.ConfigureAsync(); await test.CopyAsync();
         var paths = test.App.Services.GetRequiredService<StoragePaths>();
-        var verifier = new BackupVerifier(paths, new NoCapacity(), Microsoft.Extensions.Options.Options.Create(new BackupRuntimeOptions()));
+        var verifier = new BackupVerifier(paths, new NoCapacity(), Microsoft.Extensions.Options.Options.Create(new BackupRuntimeOptions()),
+            test.App.Services.GetRequiredService<BackupAuthenticity>());
         var directory = Assert.Single(Directory.GetDirectories(Assert.Single(Directory.GetDirectories(test.Targets.Root))));
         await Assert.ThrowsAsync<IOException>(() => verifier.RestoreIsolatedAsync(directory));
         Assert.True(File.Exists(Path.Combine(directory, "complete.json")));

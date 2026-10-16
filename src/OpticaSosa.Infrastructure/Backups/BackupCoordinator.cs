@@ -30,7 +30,8 @@ public sealed partial class BackupCoordinator(IDbContextFactory<OpticaDbContext>
     {
         var defaults = new BackupSettings();
         if (!await ReadyAsync(ct)) return new(false, Map(defaults), [], null, null,
-            "Respaldos nuevos no habilitados: falta revisar y aplicar la migración con autorización. La copia manual anterior sigue disponible.", runtime.Value.ExternalWritesAuthorized);
+            "Respaldos nuevos no habilitados: falta revisar y aplicar la migración con autorización. La copia manual anterior sigue disponible.", runtime.Value.ExternalWritesAuthorized,
+            SignaturesRequired: runtime.Value.RequireSignature, SigningEnabled: runtime.Value.SigningEnabled);
         await using var db = await factory.CreateDbContextAsync(ct);
         var settings = await db.BackupSettings.AsNoTracking().SingleOrDefaultAsync(ct) ?? defaults;
         var rows = await db.BackupRuns.AsNoTracking().OrderByDescending(x => x.StartedUtc).ThenBy(x => x.Id).Take(50).ToListAsync(ct);
@@ -50,7 +51,8 @@ public sealed partial class BackupCoordinator(IDbContextFactory<OpticaDbContext>
         }
         return new(true, Map(settings), rows.Select(x => new BackupRunView(x.Id, x.StartedUtc, x.FinishedUtc,
             x.Trigger, x.Status, x.Error, x.Files, x.MissedPeriods)).ToArray(), settings.Enabled ? settings.NextUtc : null,
-            valid, alert, runtime.Value.ExternalWritesAuthorized, settings.Enabled ? latest?.RetryUtc : null, destination);
+            valid, alert, runtime.Value.ExternalWritesAuthorized, settings.Enabled ? latest?.RetryUtc : null, destination,
+            runtime.Value.RequireSignature, runtime.Value.SigningEnabled);
     }
 
     private BackupDestinationView InspectConfiguredDestination(string? volumeId)
