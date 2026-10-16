@@ -1,0 +1,16 @@
+@using OpticaSosa.Application.Customers
+<input type="hidden" name="Input.SubmissionId" value="@Input.SubmissionId" />
+<input type="hidden" name="Input.Version" value="@Input.Version" />
+<label for="first-name">Nombre *</label>
+<InputText id="first-name" @bind-Value="Input.FirstName" maxlength="80" autocomplete="given-name" required />
+<label for="last-name">Apellido *</label>
+<InputText id="last-name" @bind-Value="Input.LastName" maxlength="80" autocomplete="family-name" required />
+<label for="document">Documento *</label>
+<InputText id="document" @bind-Value="Input.Document" maxlength="32" required />
+<label for="phone">Teléfono</label>
+<InputText id="phone" @bind-Value="Input.Phone" type="tel" maxlength="40" autocomplete="tel" />
+<label for="email">Correo</label>
+<InputText id="email" @bind-Value="Input.Email" type="email" maxlength="254" autocomplete="email" />
+@code {
+    [Parameter, EditorRequired] public CustomerInput Input { get; set; } = default!;
+}

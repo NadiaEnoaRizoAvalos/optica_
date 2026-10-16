@@ -1,0 +1,35 @@
+@inject OpticaSosa.Application.Business.IBusinessSettingsService Business
+@{ var branding = await Business.GetBrandingAsync(); }
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] — @branding.DisplayName</title>
+    <link rel="stylesheet" href="/app.css" />
+</head>
+<body>
+    <main>
+        <component type="typeof(OpticaSosa.Web.Components.Business.BusinessHeader)" render-mode="Static" param-Branding="branding" />
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <nav aria-label="Principal">
+                <a href="/">Inicio</a>
+                @if (Roles.All.Any(User.IsInRole)) { <a href="/clientes">Clientes</a> }
+                <a href="/cuenta/clave">Mi contraseña</a>
+                @if (User.IsInRole(Roles.Administrator))
+                {
+                    <a href="/admin/usuarios">Usuarios</a>
+                    <a href="/admin/auditoria">Auditoría</a>
+                    <a href="/admin/negocio">Configuración del negocio</a>
+                }
+                <form method="post" action="/cuenta/salir">
+                    @Html.AntiForgeryToken()
+                    <button type="submit">Cerrar sesión</button>
+                </form>
+            </nav>
+        }
+        @RenderBody()
+    </main>
+</body>
+</html>

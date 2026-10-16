@@ -1,0 +1,82 @@
+@page "/clientes/{Id:guid}"
+@attribute [Authorize(Policy = Permissions.ReadCustomers)]
+@inject ICustomerService Customers
+@inject IVisitService Visits
+@inject NavigationManager Navigation
+
+<BusinessPageTitle Text="Ficha de cliente" />
+<main>
+    <CustomerNavigation />
+    @if (Details is null) { <h1>Cliente no encontrado</h1> }
+    else
+    {
+        <h1>@Details.Customer.LastName, @Details.Customer.FirstName</h1>
+        <dl>
+            <dt>Documento</dt><dd>@Details.Customer.Document</dd>
+            <dt>Teléfono</dt><dd>@(Details.Customer.Phone ?? "Sin informar")</dd>
+            <dt>Correo</dt><dd>@(Details.Email ?? "Sin informar")</dd>
+            <dt>Estado</dt><dd>@(Details.Customer.IsActive ? "Activo" : "Inactivo")</dd>
+            <dt>Próxima atención</dt><dd>@(Details.Customer.IsRecurrent ? "Recurrente: tiene visitas completadas" : "Nuevo: sin visitas completadas")</dd>
+        </dl>
+        <AuthorizeView Policy="@Permissions.WriteCustomers">
+            <p><a href="@($"/clientes/{Id}/editar")">Editar cliente</a></p>
+            @if (Details.Customer.IsActive) { <p><a href="@($"/clientes/{Id}/visitas/nueva")">Iniciar visita</a></p> }
+        </AuthorizeView>
+        @if (Result?.Error is not null) { <p role="alert">@Result.Error</p><a href="@($"/clientes/{Id}")">Recargar ficha</a> }
+        <AuthorizeView Policy="@Permissions.DeactivateCustomers" Context="deactivationAuth">
+            @if (Details.Customer.IsActive)
+            {
+                <p><a href="@($"/clientes/{Id}/inactivar")">Inactivar cliente</a></p>
+            }
+        </AuthorizeView>
+        <section>
+            <h2>Historial de visitas administrativas</h2>
+            <p>Las recetas y los antecedentes visuales se incorporarán en una fase posterior. Fechas en hora argentina.</p>
+            @foreach (var visit in Details.Visits)
+            {
+                <article class="visit">
+                    <h3>@CustomerDates.Display(visit.StartedAtUtc) — @CustomerDates.Status(visit.Status)</h3>
+                    <p>@visit.Reason</p>
+                    @if (visit.AdministrativeNotes is not null) { <p>@visit.AdministrativeNotes</p> }
+                    <p>Al iniciar: @(visit.WasRecurrent ? "Recurrente" : "Nuevo")</p>
+                    @if (visit.EndedAtUtc.HasValue) { <p>Cierre: @CustomerDates.Display(visit.EndedAtUtc.Value)</p> }
+                    <AuthorizeView Policy="@Permissions.WriteCustomers" Context="visitAuth">
+                        @if (visit.Status == VisitStatus.InProgress)
+                        {
+                            <EditForm Model="Closing" FormName="@($"visit-close-{visit.Id}")" OnSubmit="CloseAsync">
+                                <input type="hidden" name="Closing.VisitId" value="@visit.Id" />
+                                <input type="hidden" name="Closing.Version" value="@visit.Version" />
+                                <button type="submit" name="Closing.Completed" value="true">Completar visita</button>
+                                <button type="submit" name="Closing.Completed" value="false">Cancelar visita</button>
+                            </EditForm>
+                        }
+                    </AuthorizeView>
+                </article>
+            }
+            @if (Details.Visits.Count == 0) { <p>No hay visitas en esta página.</p> }
+            <nav aria-label="Páginas del historial">
+                @if (Details.HistoryPage > 1) { <a href="@($"/clientes/{Id}?pagina={Details.HistoryPage - 1}")">Más recientes</a> }
+                @if (Details.HasOlderVisits) { <a href="@($"/clientes/{Id}?pagina={Details.HistoryPage + 1}")">Más antiguas</a> }
+            </nav>
+        </section>
+    }
+</main>
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+    [SupplyParameterFromQuery(Name = "pagina")] public int Page { get; set; } = 1;
+    [SupplyParameterFromForm] public CloseForm? Closing { get; set; }
+    private CustomerDetails? Details;
+    private CustomerResult? Result;
+    protected override async Task OnInitializedAsync()
+    {
+        Details = await Customers.GetAsync(Id, Page);
+        Closing ??= new();
+    }
+    private async Task CloseAsync()
+    {
+        Result = await Visits.CloseAsync(Id, Closing!.VisitId, Closing.Version, Closing.Completed);
+        if (Result.Succeeded) Navigation.NavigateTo($"/clientes/{Id}", forceLoad: true);
+    }
+    public sealed class CloseForm { public Guid VisitId { get; set; } public Guid Version { get; set; } public bool Completed { get; set; } }
+}

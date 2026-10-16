@@ -1,0 +1,16 @@
+@using OpticaSosa.Application.Business
+
+<header class="business-header">
+    <a href="/" class="business-brand">
+        @if (Branding.LogoVersion.HasValue)
+        {
+            <img src="@($"/negocio/logo/{Branding.LogoVersion}")" alt="@($"Logo de {Branding.DisplayName}")" width="64" height="64" />
+        }
+        else { <span class="business-mark" aria-hidden="true">◉</span> }
+        <span>@Branding.DisplayName</span>
+    </a>
+</header>
+
+@code {
+    [Parameter, EditorRequired] public BusinessBranding Branding { get; set; } = BusinessBranding.Default;
+}

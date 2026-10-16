@@ -1,0 +1,58 @@
+@page "/clientes/nuevo"
+@page "/clientes/{Id:guid}/editar"
+@attribute [Authorize(Policy = Permissions.WriteCustomers)]
+@inject ICustomerService Customers
+@inject NavigationManager Navigation
+
+<BusinessPageTitle Text="@(Id.HasValue ? "Editar cliente" : "Registrar cliente")" />
+<main>
+    <CustomerNavigation />
+    <h1>@(Id.HasValue ? "Editar cliente" : "Registrar cliente")</h1>
+    @if (Missing) { <p>El cliente no existe.</p> }
+    else
+    {
+        <p>Los campos marcados con * son obligatorios. Usá únicamente datos ficticios durante las pruebas.</p>
+        <EditForm Model="Input" FormName="customer-editor" OnValidSubmit="SaveAsync">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <CustomerFields Input="Input!" />
+            @if (Result?.Error is not null) { <p role="alert">@Result.Error</p> }
+            @if (Result?.PossibleDuplicates is { Count: > 0 } matches)
+            {
+                <ul>@foreach (var match in matches)
+                {
+                    <li><a href="@($"/clientes/{match.Id}")" target="_blank" rel="noopener">@match.LastName, @match.FirstName — @match.Document</a></li>
+                }</ul>
+                <label><InputCheckbox @bind-Value="Input!.ConfirmPossibleDuplicate" /> Revisé las coincidencias y confirmé que corresponden a personas distintas.</label>
+            }
+            <button type="submit">Guardar cliente</button>
+            @if (Id.HasValue) { <a href="@($"/clientes/{Id}")">Volver a la ficha</a> }
+        </EditForm>
+    }
+</main>
+
+@code {
+    [Parameter] public Guid? Id { get; set; }
+    [SupplyParameterFromForm(FormName = "customer-editor")] public CustomerInput? Input { get; set; }
+    private CustomerResult? Result;
+    private bool Missing;
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id.HasValue)
+        {
+            var details = await Customers.GetAsync(Id.Value);
+            if (details is null) { Missing = true; return; }
+            Input ??= new CustomerInput
+            {
+                FirstName = details.Customer.FirstName, LastName = details.Customer.LastName,
+                Document = details.Customer.Document, Phone = details.Customer.Phone, Email = details.Email, Version = details.Version
+            };
+        }
+        Input ??= new();
+    }
+    private async Task SaveAsync()
+    {
+        Result = Id.HasValue ? await Customers.UpdateAsync(Id.Value, Input!) : await Customers.CreateAsync(Input!);
+        if (Result.Succeeded) Navigation.NavigateTo($"/clientes/{Result.CustomerId}", forceLoad: true);
+    }
+}

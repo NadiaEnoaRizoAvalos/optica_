@@ -1,0 +1,11 @@
+@inherits LayoutComponentBase
+@using OpticaSosa.Application.Business
+@inject IBusinessSettingsService Business
+
+<BusinessHeader Branding="Branding" />
+@Body
+
+@code {
+    private BusinessBranding Branding = BusinessBranding.Default;
+    protected override async Task OnInitializedAsync() => Branding = await Business.GetBrandingAsync();
+}

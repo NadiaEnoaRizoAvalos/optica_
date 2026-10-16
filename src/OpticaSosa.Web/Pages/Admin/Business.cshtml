@@ -1,0 +1,48 @@
+@page "/admin/negocio"
+@model OpticaSosa.Web.Pages.Admin.BusinessModel
+@{ ViewData["Title"] = "Configuración del negocio"; }
+
+<div class="settings-heading">
+    <p class="eyebrow">Administración</p>
+    <h1>Configuración del negocio</h1>
+    <p>Personalizá esta instalación. Los campos son opcionales; sin nombre comercial se usa el nombre genérico del sistema.</p>
+</div>
+@if (Model.Message is not null) { <p class="saved-message" role="status">@Model.Message</p> }
+<form method="post" enctype="multipart/form-data" class="business-settings">
+    <div asp-validation-summary="All" role="alert"></div>
+    <input asp-for="Input.Version" type="hidden" />
+    <section>
+        <h2>Identidad del negocio</h2>
+        <label asp-for="Input.TradeName">Nombre comercial</label>
+        <input asp-for="Input.TradeName" maxlength="120" placeholder="Sistema de Gestión para Ópticas" />
+        <label asp-for="Logo">Logo</label>
+        <input asp-for="Logo" type="file" accept="image/png,image/jpeg" />
+        <p class="field-help">PNG o JPEG, hasta 2 MB y 2048 × 2048 píxeles. Se guarda una copia optimizada sin metadatos.</p>
+        <label><input asp-for="Input.RemoveLogo" /> Quitar el logo actual</label>
+        <div class="brand-preview">
+            <p class="eyebrow">Vista actual guardada</p>
+            <component type="typeof(OpticaSosa.Web.Components.Business.BusinessHeader)" render-mode="Static" param-Branding="Model.Branding" />
+        </div>
+    </section>
+    <section>
+        <h2>Ubicación</h2>
+        <label asp-for="Input.Address">Dirección</label><input asp-for="Input.Address" maxlength="200" autocomplete="street-address" />
+        <div class="settings-grid">
+            <div><label asp-for="Input.Province">Provincia</label><input asp-for="Input.Province" maxlength="80" /></div>
+            <div><label asp-for="Input.Locality">Localidad</label><input asp-for="Input.Locality" maxlength="100" /></div>
+        </div>
+    </section>
+    <section>
+        <h2>Contacto y establecimiento</h2>
+        <div class="settings-grid">
+            <div><label asp-for="Input.Phone">Teléfono</label><input asp-for="Input.Phone" type="tel" maxlength="40" /></div>
+            <div><label asp-for="Input.WhatsApp">WhatsApp</label><input asp-for="Input.WhatsApp" type="tel" maxlength="40" /></div>
+        </div>
+        <label asp-for="Input.Email">Correo electrónico</label><input asp-for="Input.Email" type="email" maxlength="254" />
+        <label asp-for="Input.Cuit">CUIT, si corresponde</label><input asp-for="Input.Cuit" maxlength="20" placeholder="00-00000000-0" />
+        <label asp-for="Input.AdditionalDetails">Datos adicionales del establecimiento</label>
+        <textarea asp-for="Input.AdditionalDetails" maxlength="2000"></textarea>
+        <p class="field-help">No incluyas información de clientes ni recetas en estos campos.</p>
+    </section>
+    <div class="settings-actions"><button type="submit">Guardar configuración</button><a href="/">Volver al inicio</a></div>
+</form>

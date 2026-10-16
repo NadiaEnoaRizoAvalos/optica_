@@ -1,0 +1,30 @@
+@page "/"
+@attribute [Authorize]
+
+<BusinessPageTitle Text="Inicio" />
+
+<main>
+    <p class="eyebrow">Sistema de gestión</p>
+    <h1>Panel de gestión</h1>
+    <p>Bienvenido al sistema de gestión.</p>
+    <AuthorizeView Policy="@Permissions.ReadCustomers">
+        <p><a href="/clientes">Administrar clientes y visitas</a></p>
+    </AuthorizeView>
+    <p><a href="/cuenta/clave" data-enhance-nav="false">Cambiar mi contraseña</a></p>
+    <AuthorizeView Roles="Administrador">
+        <nav aria-label="Administración">
+            <a href="/admin/usuarios" data-enhance-nav="false">Administrar usuarios</a>
+            <a href="/admin/negocio" data-enhance-nav="false">Configuración del negocio</a>
+            · <a href="/admin/auditoria" data-enhance-nav="false">Consultar auditoría</a>
+        </nav>
+    </AuthorizeView>
+    <form method="post" action="/cuenta/salir" data-enhance="false">
+        <AntiforgeryToken />
+        <button type="submit">Cerrar sesión</button>
+    </form>
+    <section aria-labelledby="status-title">
+        <h2 id="status-title">Configuración inicial</h2>
+        <p>Ya podés probar clientes y visitas administrativas. Recetas, inventario y ventas se incorporarán en próximas fases.</p>
+        <p>Usá sólo datos ficticios durante el desarrollo.</p>
+    </section>
+</main>

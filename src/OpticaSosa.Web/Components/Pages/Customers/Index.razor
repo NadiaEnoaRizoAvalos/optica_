@@ -1,0 +1,54 @@
+@page "/clientes"
+@attribute [Authorize(Policy = Permissions.ReadCustomers)]
+@inject ICustomerService Customers
+
+<BusinessPageTitle Text="Clientes" />
+<main>
+    <CustomerNavigation />
+    <h1>Clientes</h1>
+    <EditForm Model="Filter" FormName="customer-search" OnValidSubmit="SearchAsync">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <label for="search">Nombre, apellido, documento, teléfono o correo</label>
+        <InputText id="search" @bind-Value="Filter!.Query" maxlength="100" />
+        <label><InputCheckbox @bind-Value="Filter!.IncludeInactive" /> Incluir clientes inactivos</label>
+        <button type="submit">Buscar</button>
+    </EditForm>
+    @if (Results is not null)
+    {
+        @if (Results.HasMore) { <p role="status">Se muestran los primeros 100 resultados. Afiná la búsqueda para encontrar los demás.</p> }
+        <p>La clasificación indica cómo se considerará al cliente en su próxima atención.</p>
+        <div class="table-scroll">
+            <table>
+                <thead><tr><th>Cliente</th><th>Documento</th><th>Teléfono</th><th>Clasificación</th><th>Estado</th></tr></thead>
+                <tbody>
+                    @foreach (var customer in Results.Items)
+                    {
+                        <tr><td><a href="@($"/clientes/{customer.Id}")">@customer.LastName, @customer.FirstName</a></td>
+                            <td>@customer.Document</td><td>@customer.Phone</td><td>@(customer.IsRecurrent ? "Recurrente" : "Nuevo")</td>
+                            <td>@(customer.IsActive ? "Activo" : "Inactivo")</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        @if (Results.Items.Count == 0) { <p>No se encontraron clientes.</p> }
+    }
+</main>
+
+@code {
+    [SupplyParameterFromForm(FormName = "customer-search")] public SearchInput? Filter { get; set; }
+    private CustomerSearchResult? Results;
+    protected override async Task OnInitializedAsync()
+    {
+        var submitted = Filter is not null;
+        Filter ??= new();
+        if (!submitted) await SearchAsync();
+    }
+    private async Task SearchAsync() => Results = await Customers.SearchAsync(Filter!.Query, Filter.IncludeInactive);
+    public sealed class SearchInput
+    {
+        [System.ComponentModel.DataAnnotations.StringLength(100, ErrorMessage = "La búsqueda admite hasta 100 caracteres.")]
+        public string? Query { get; set; } = "";
+        public bool IncludeInactive { get; set; }
+    }
+}

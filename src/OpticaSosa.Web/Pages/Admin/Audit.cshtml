@@ -1,0 +1,16 @@
+@page "/admin/auditoria"
+@model OpticaSosa.Web.Pages.Admin.AuditModel
+@{ ViewData["Title"] = "Auditoría"; }
+<h1>Auditoría de seguridad</h1>
+<p>Últimos 100 eventos. Se muestran identificadores internos, sin contraseñas ni datos clínicos.</p>
+<div class="table-scroll">
+    <table>
+        <thead><tr><th>Fecha UTC</th><th>Acción</th><th>Actor</th><th>Destino</th></tr></thead>
+        <tbody>
+        @foreach (var entry in Model.Entries)
+        {
+            <tr><td>@entry.OccurredAt.ToString("yyyy-MM-dd HH:mm:ss")</td><td>@entry.Action</td><td>@entry.ActorId</td><td>@entry.TargetId</td></tr>
+        }
+        </tbody>
+    </table>
+</div>

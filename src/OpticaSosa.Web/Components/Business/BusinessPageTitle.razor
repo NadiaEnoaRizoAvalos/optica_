@@ -1,0 +1,10 @@
+@using OpticaSosa.Application.Business
+@inject IBusinessSettingsService Business
+
+<PageTitle>@Text — @Branding.DisplayName</PageTitle>
+
+@code {
+    [Parameter] public string Text { get; set; } = "Inicio";
+    private BusinessBranding Branding = BusinessBranding.Default;
+    protected override async Task OnInitializedAsync() => Branding = await Business.GetBrandingAsync();
+}

@@ -1,0 +1,45 @@
+@page "/admin/usuarios"
+@model OpticaSosa.Web.Pages.Admin.UsersModel
+@{ ViewData["Title"] = "Usuarios"; }
+<h1>Usuarios</h1>
+@if (Model.Message is not null) { <p role="status">@Model.Message</p> }
+<section>
+    <h2>Crear cuenta</h2>
+    <p>La contraseña debe tener al menos 12 caracteres, mayúscula, minúscula, número y símbolo.</p>
+    <p>El rol Administrador gestiona cuentas y auditoría. El acceso clínico corresponde al rol Profesional.</p>
+    <form method="post" asp-page-handler="Create">
+        <div asp-validation-summary="All" role="alert"></div>
+        <label asp-for="UserName">Usuario</label>
+        <input asp-for="UserName" maxlength="64" autocomplete="off" required />
+        <label asp-for="Password">Contraseña inicial</label>
+        <input asp-for="Password" type="password" minlength="12" maxlength="256" autocomplete="new-password" required />
+        <label asp-for="Role">Rol</label>
+        <select asp-for="Role">
+            @foreach (var role in Roles.All) { <option value="@role">@role</option> }
+        </select>
+        <button type="submit">Crear usuario</button>
+    </form>
+</section>
+<section>
+    <h2>Cuentas registradas</h2>
+    <div class="table-scroll">
+        <table>
+            <thead><tr><th>Usuario</th><th>Rol</th><th>Estado</th><th>Acción</th></tr></thead>
+            <tbody>
+            @foreach (var account in Model.Accounts)
+            {
+                <tr>
+                    <td>@account.UserName</td><td>@account.Role</td><td>@(account.IsActive ? "Activo" : "Inactivo")</td>
+                    <td>@if (account.IsActive)
+                    {
+                        <form method="post" asp-page-handler="Deactivate">
+                            <input type="hidden" name="userId" value="@account.Id" />
+                            <button type="submit">Inactivar</button>
+                        </form>
+                    }</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</section>

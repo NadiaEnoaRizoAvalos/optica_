@@ -1,0 +1,14 @@
+@page "/cuenta/ingresar"
+@model OpticaSosa.Web.Pages.Account.LoginModel
+@{ ViewData["Title"] = "Ingresar"; }
+<h1>Ingresar</h1>
+<p>Usá tu cuenta personal para acceder al sistema.</p>
+<form method="post">
+    <div asp-validation-summary="All" role="alert"></div>
+    <label asp-for="UserName">Usuario</label>
+    <input asp-for="UserName" autocomplete="username" maxlength="64" required />
+    <label asp-for="Password">Contraseña</label>
+    <input asp-for="Password" type="password" autocomplete="current-password" maxlength="256" required />
+    <button type="submit">Ingresar</button>
+</form>
+<p>Si todavía no tenés una cuenta o necesitás recuperar el acceso, contactá al administrador.</p>

@@ -1,0 +1,6 @@
+@page "/cuenta/denegado"
+@attribute [Microsoft.AspNetCore.Authorization.AllowAnonymous]
+@{ ViewData["Title"] = "Acceso restringido"; Response.StatusCode = 403; }
+<h1>Acceso restringido</h1>
+<p>Tu cuenta no tiene permiso para realizar esta operación.</p>
+<a href="/">Volver al inicio</a>

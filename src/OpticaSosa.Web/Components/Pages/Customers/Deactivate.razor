@@ -1,0 +1,42 @@
+@page "/clientes/{Id:guid}/inactivar"
+@attribute [Authorize(Policy = Permissions.DeactivateCustomers)]
+@inject ICustomerService Customers
+@inject NavigationManager Navigation
+
+<BusinessPageTitle Text="Inactivar cliente" />
+<main>
+    <CustomerNavigation />
+    <h1>Inactivar cliente</h1>
+    @if (Details is null) { <p>El cliente no existe.</p> }
+    else
+    {
+        <p>@Details.Customer.LastName, @Details.Customer.FirstName — @Details.Customer.Document</p>
+        <p>Se conservará la ficha y todo el historial. No se podrán iniciar nuevas visitas.</p>
+        <EditForm Model="Input" FormName="customer-deactivate" OnSubmit="DeactivateAsync">
+            <input type="hidden" name="Input.Version" value="@Input!.Version" />
+            <label><InputCheckbox @bind-Value="Input!.Confirmed" /> Confirmo la inactivación del cliente.</label>
+            @if (Result?.Error is not null) { <p role="alert">@Result.Error</p> }
+            <button type="submit">Inactivar cliente</button>
+            <a href="@($"/clientes/{Id}")">Volver a la ficha</a>
+        </EditForm>
+    }
+</main>
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+    [SupplyParameterFromForm(FormName = "customer-deactivate")] public DeactivateInput? Input { get; set; }
+    private CustomerDetails? Details;
+    private CustomerResult? Result;
+    protected override async Task OnInitializedAsync()
+    {
+        Details = await Customers.GetAsync(Id);
+        Input ??= new() { Version = Details?.Version ?? Guid.Empty };
+    }
+    private async Task DeactivateAsync()
+    {
+        Result = Input!.Confirmed ? await Customers.DeactivateAsync(Id, Input.Version)
+            : new(CustomerResultCode.Invalid, Error: "Confirmá la inactivación para continuar.");
+        if (Result.Succeeded) Navigation.NavigateTo($"/clientes/{Id}", forceLoad: true);
+    }
+    public sealed class DeactivateInput { public Guid Version { get; set; } public bool Confirmed { get; set; } }
+}
