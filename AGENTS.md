@@ -1,97 +1,54 @@
-# Instrucciones permanentes — Sistema de Gestión para Ópticas
-
-## Versionado y entregas
-
-- Al terminar una funcionalidad importante, corrección significativa o fase: revisar el diff, compilar, ejecutar pruebas pertinentes, corregir errores y actualizar PLANS.md antes de crear un commit local descriptivo.
-- Agrupar avances coherentes y comprobados; no crear commits por cada línea ni presentar entregas con pruebas fallidas como terminadas.
-- Evaluar al cerrar cada fase si existe un avance significativo y funcional para versionar. No generar commits vacíos, por archivo, sólo de formato, de pruebas temporales, de código incompleto ni de cambios sin verificar. Una actualización de política solicitada expresamente se agrupa con su documentación de entrega en un único commit coherente.
-- Antes de cada commit comprobar también organización del código, ausencia de archivos innecesarios y continuidad de funcionalidades anteriores. Compilar la solución completa y ejecutar las pruebas correspondientes; no considerar terminado el avance si una verificación falla.
-- Antes de agregar archivos y antes de publicar, revisar archivos incluidos e historial a enviar: excluir bases y auxiliares SQLite, datos médicos/personales, logos cargados, secretos, .env, respaldos, logs y artefactos locales. Los ejemplos de pruebas deben ser explícitamente ficticios.
-- Si aparece un secreto o dato privado, detener el push e informar cómo corregirlo. No reescribir historial ni borrar archivos del usuario por iniciativa propia.
-- En la primera vinculación, mostrar el inventario de archivos incluidos y pedir aprobación explícita antes del primer push. Un commit local no constituye autorización de publicación.
-- El usuario autorizó commits y pushes posteriores automáticos una vez aprobado el primer push. Después de esa aprobación, publicar cada avance satisfactorio en el mismo remoto privado si las herramientas/permisos lo permiten, sin pedir nuevamente autorización general. Confirmar visibilidad privada y destino antes de publicar. Esto no autoriza avanzar de fase ni operaciones destructivas.
-- Nunca usar force push, git reset --hard, eliminar historial ni sobrescribir trabajo remoto sin autorización expresa. Inspeccionar y preservar cualquier historial remoto preexistente.
-- Comprobar el resultado de cada push: código de salida exitoso y SHA de la rama remota igual al commit local esperado. Si falla autenticación, red o aparece historial divergente, informar el bloqueo y resolver sin force push ni sobrescrituras; no afirmar que se publicó.
-- Informar brevemente funcionalidades completadas, pruebas, pendientes, identificador del commit y rama utilizada; señalar si el push sigue pendiente. No crear commits adicionales únicamente para registrar su propio hash.
-- Conservar los nombres internos de proyectos/namespaces salvo necesidad técnica. La interfaz debe usar el nombre configurado del negocio o "Sistema de Gestión para Ópticas", sin fijar una marca comercial.
+# Instrucciones permanentes — Óptica Sosa
 
 ## Alcance y forma de trabajo
 
-- Desarrollar un sistema funcional, seguro y mantenible para una óptica; evitar funcionalidades innecesarias.
-- Trabajar en una sola funcionalidad por tarea. Leer estos lineamientos y la sección pertinente de REQUISITOS.md y PLANS.md; no volver a analizar todo el proyecto sin necesidad.
-- Modificar únicamente archivos relacionados con la tarea. Conservar los módulos que funcionan y los cambios del usuario.
-- No programar ni instalar dependencias durante la fase de planificación inicial.
-- Pedir autorización antes de instalar herramientas o dependencias y antes de ejecutar cambios destructivos, incluyendo eliminación de datos, reinicios de base, migraciones con pérdida de información o sobrescritura de respaldos.
-- Completar los criterios de aceptación y solicitar aprobación explícita antes de comenzar otra fase. Una aprobación de fase no autoriza instalaciones ni operaciones destructivas.
-- Al terminar cada tarea, actualizar PLANS.md con progreso, validaciones, pendientes y bloqueos. Informar brevemente qué cambió y qué falta.
-- Dar explicaciones breves y concretas. No afirmar que una prueba pasó si no se ejecutó.
+- Mantener dos áreas con igual importancia: gestión clínica e historial visual, y gestión comercial y operativa. El Profesional puede atender y registrar información sin compras.
+- Sistema interno para empleados, con base independiente por instalación. Clientes, profesionales externos, proveedores y laboratorios son registros, no cuentas automáticas.
+- Trabajar en una funcionalidad por tarea, modificar sólo archivos relacionados y conservar módulos que funcionan. Priorizar simplicidad, seguridad y mantenimiento.
+- Pedir autorización antes de instalar dependencias, ejecutar acciones destructivas o reemplazar datos. Aprobar una planificación no autoriza programar otra fase.
+- Solicitar aprobación antes de comenzar cada fase. Informar brevemente cambios, validaciones, problemas y pendientes; actualizar PLANS.md.
+- Cada módulo debe tener pantallas funcionales y un procedimiento práctico de prueba desde el navegador. El rediseño definitivo corresponde a la fase 12.
 
 ## Arquitectura y código
 
-### Uso exclusivamente interno
+- Conservar C#/.NET 10, ASP.NET Core/Blazor, EF Core y SQLite local. No cambiar motor, namespaces ni arquitectura sin justificar y documentar la decisión. La interfaz usa el nombre configurado o “Sistema de Gestión para Ópticas”, sin marca fija.
+- Separar Domain (reglas), Application (casos de uso y contratos), Infrastructure (persistencia, identidad y archivos) y Web (interfaz y composición). No acceder a EF ni decidir reglas de negocio desde pantallas.
+- Evitar duplicación, archivos gigantes, servicios universales y abstracciones sin necesidad. Reutilizar los módulos clínicos, trabajos y controles existentes.
+- Usar operaciones asíncronas, cancelación, contextos breves, validación del servidor y funcionamiento sin servicios/CDN de internet.
+- Diseñar claves, relaciones, índices, restricciones y concurrencia explícitamente. Revisar migraciones, compatibilidad y recuperación antes de aplicarlas. SQLite vive en el disco del servidor, nunca en una carpeta compartida para acceso directo desde celulares.
 
-- Sólo empleados autorizados usan el sistema. Cliente, profesional externo y proveedor son registros del negocio, nunca cuentas creadas automáticamente. No implementar registro público, portal de pacientes, seguimiento externo ni acceso de proveedores.
-- Mantener únicamente Administrador, Atención/Ventas y Profesional como roles iniciales. Los tres celulares son para empleados; cada óptica tiene una instalación y base local independiente. No introducir una plataforma multiempresa ni servicios de licencias en este alcance.
-- Administrador gestiona usuarios, negocio, catálogo, proveedores, inventario, precios y autorización comercial de compras; no obtiene acceso clínico automáticamente. Profesional revisa especificaciones y aprueba técnicamente, sin permisos financieros o administrativos implícitos. Atención/Ventas utiliza sólo la información comercial autorizada.
-- No mezclar lógica clínica y comercial. Seleccionar una referencia técnica autorizada no habilita a leer recetas completas, graduaciones individuales o antecedentes; diseñar proyecciones específicas y autorización en servidor.
-- Preservar los módulos existentes. Extender OpticalWork y sus controles sin construir otro control de calidad ni confundir el trabajo operativo con el futuro pedido comercial. Documentar la compatibilidad y migración antes de cambiar vínculos.
-- Priorizar backend, persistencia, reglas y pruebas; agregar pantallas mínimas utilizables. El rediseño visual definitivo será una etapa independiente, sujeta a aprobación.
+## Integridad clínica y comercial
 
-### Catálogo y operaciones comerciales
+- Conservar recetas médicas y ópticas, ambos ojos, todas las graduaciones, síntomas, antecedentes, consultas, controles, profesionales/matrículas y documentos. Nunca generar diagnósticos automáticamente.
+- Cada receta es un documento independiente. Las correcciones crean versiones con motivo y autor; no sobrescribir ni borrar historia. Evitar eliminaciones en cascada. Paginar sin imponer máximos arbitrarios de registros o adjuntos.
+- Distinguir vacío de cero. Respetar precisiones aprobadas, importes exactos y versiones históricas de datos relevantes.
+- Separar producto/variante, graduación por ojo y datos de montaje. No esconder atributos críticos en texto libre o JSON genérico. Crear únicamente variantes y presentaciones utilizadas.
+- Admitir stock, encargos a laboratorio y pedidos mixtos. Reservar sólo existencias recibidas y utilizables; controlar faltantes, lotes y vencimientos desde su primer uso. No sustituir productos automáticamente.
+- Usar transacciones, concurrencia e idempotencia en pagos, reservas, movimientos, recepción y entrega. Una reserva no es salida física; no descontar dos veces ni reponer material consumido al cancelar.
+- Diferenciar receta, trabajo, pedido comercial, venta y encargo. No inventar ventas históricas ni incorporar compras agrupadas o estructuras de ERP sin necesidad.
+- Preservar los controles de calidad y su historia. Actualmente se exigen las dos etapas: cualquier adaptación requiere matriz aprobada, revisión de reglas de dominio y restricciones SQLite, migración segura y pruebas. “No aplica” nunca evita un control esencial.
 
-- Separar producto, variante, presentación, oferta del proveedor y lote. Modelar atributos ópticos con tipos, unidades y precisión; no usar texto libre o un JSON genérico como sustituto de las relaciones. No generar todas las combinaciones posibles de graduaciones.
-- Diferenciar especificaciones del catálogo, prescripción OD/OI y medidas de montaje. No inferir compatibilidad clínica ni sustituir materiales por similitud; cualquier cambio que afecte adaptación requiere revisión profesional y nueva verificación.
-- Stock físico, reservas, no utilizable y pendiente de recepción son conceptos distintos. Recepciones futuras no son disponibilidad. No permitir stock negativo sin una regla nueva expresamente autorizada; reservas y movimientos deben ser transaccionales, concurrentes e idempotentes.
-- Mantener movimientos y compensaciones trazables. Convertir cajas, blísteres y unidades con factores exactos y conservar lote/vencimiento; nunca contar simultáneamente una caja y su contenido. Revalidar vencimiento al reservar, consumir y entregar.
-- Separar presupuesto, venta, pedido, trabajo óptico, solicitud, compra, recepción y entrega. Conservar especificaciones y precios aprobados como snapshots históricos; no reconstruirlos desde el catálogo actual.
-- Aprobación técnica no autoriza compras. No enviar órdenes, correos ni mensajes sin confirmación autorizada; los documentos para proveedores contienen sólo los datos mínimos necesarios, sin historial clínico completo. No agregar facturación fiscal ni pagos externos sin alcance aprobado.
+## Seguridad y recuperación
 
-### Separación de capas
+- Autorizar en el servidor con mínimo privilegio. Usar Identity, cuentas individuales, protección de sesión y CSRF; nunca contraseñas predeterminadas o criptografía propia.
+- Hoy la gestión de cuentas asigna un rol por cuenta. Multirrol está aprobado para planificar en fase 5; conservar cuentas y permisos hasta implementar y verificar la transición.
+- Administrador no implica acceso clínico. Profesional no implica acceso financiero. Atención/Ventas no accede a historia clínica completa ni modifica graduaciones.
+- Una futura proyección técnica comercial será explícita, mínima, de sólo lectura y ligada a una versión autorizada por el Profesional. Resolver sus campos conforme a PLANS.md antes de implementarla.
+- Usar exclusivamente datos ficticios en desarrollo y pruebas. No usar datos clínicos reales hasta verificar seguridad, cifrado, autorizaciones y recuperación.
+- Guardar adjuntos en almacenamiento privado: validar contenido, tipo y límites configurables; nombres internos, hashes, permisos, espacio libre y recuperación de operaciones interrumpidas.
+- Conservar originales. No reducir legibilidad ni comprimir PDF silenciosamente; optimización de imágenes sólo segura y explícita. HEIC/HEIF permanece sin habilitar hasta validar una conversión segura.
+- Auditar actor, acción, fecha y referencia del objeto sin copiar datos clínicos, contraseñas o secretos a logs.
+- No exponer el servidor a internet. Preparar HTTPS, firewall y acceso Wi-Fi privado antes de habilitar celulares.
+- Respaldar SQLite consistentemente junto con todos los documentos, configuración necesaria y estrategia de recuperación de claves. Automatizar, verificar integridad, conservar copias anteriores ante fallos y probar restauración aislada.
+- Una copia en el mismo disco no protege ante pérdida del equipo. Evaluar almacenamiento externo y cifrado con recuperación de claves; no activarlos ni sobrescribir una instalación operativa sin las autorizaciones y verificaciones correspondientes.
 
-- Usar C# y .NET 10, ASP.NET Core, Blazor, EF Core y SQLite como base propuesta. Confirmar versiones compatibles y entorno instalado en fase 1, antes de adoptar paquetes.
-- Mantener un monolito modular por capas: Dominio, Aplicación, Infraestructura y Web. No introducir microservicios ni servicios externos para el funcionamiento normal.
-- Dominio contiene entidades, objetos de valor e invariantes, sin dependencias de interfaz, EF Core o archivos.
-- Aplicación contiene casos de uso, validaciones, contratos y autorización de operaciones. Depende de Dominio.
-- Infraestructura implementa persistencia, archivos, identidad y respaldos mediante contratos de Aplicación.
-- Web contiene interfaz adaptable, autenticación y composición de dependencias. No consultar EF Core desde componentes ni ubicar reglas de negocio en ellos.
-- Preferir clases y métodos pequeños, nombres claros y organización por funcionalidad dentro de cada capa. Dividir archivos cuando mezclen responsabilidades; evitar abstracciones sin utilidad y duplicación.
-- Usar programación asincrónica para E/S, cancelación cuando corresponda, errores controlados y registros sin información sensible.
-- Documentar decisiones relevantes y alternativas en la sección de decisiones de PLANS.md. Crear documentación adicional únicamente cuando la tarea lo requiera.
+## Pruebas, documentación y GitHub
 
-## Datos y reglas del negocio
-
-- Diseñar entidades y relaciones antes de implementar cada módulo; usar claves, restricciones, índices y migraciones versionadas.
-- Mantener un único archivo de base de datos en el disco local del servidor. Ningún celular debe abrir SQLite directamente ni existir una base separada por dispositivo.
-- Acceder a SQLite únicamente desde el servidor; no alojar el archivo activo en una carpeta compartida o sincronizada.
-- Usar contextos de datos de vida corta por operación; no compartir DbContext entre usuarios o durante toda la sesión de Blazor.
-- Aplicar transacciones a operaciones que cambien ventas, pedidos y stock. Manejar concurrencia y reintentos de envío sin duplicar operaciones.
-- Evitar borrados en cascada que eliminen historial clínico o comercial. Definir anulación, inactivación y retención de cada entidad.
-- Conservar el historial clínico durante años: no imponer cupos fijos de recetas, visitas, controles, antecedentes, versiones ni adjuntos por cliente o registro. Paginar consultas sin recortar lo almacenado; una nueva receta es un documento independiente.
-- Conservar los originales clínicos inmutables, con metadatos y SHA-256. Los tamaños de carga se administran de forma centralizada y autorizada; reducirlos no debe bloquear la descarga de originales anteriores. No comprimir PDF ni aplicar transformaciones con pérdida automáticamente. Cualquier optimización debe ser explícita, sin sobrescribir el original y con garantías verificables de conservación.
-- No inventar datos ausentes ni interpretar un valor no informado como cero. Guardar dinero con precisión explícita y conservar importes históricos de ventas.
-- No generar diagnósticos, graduaciones, recetas ni recomendaciones médicas automáticamente. Registrar únicamente lo informado por profesionales, con autoría y procedencia.
-
-## Seguridad y privacidad
-
-- Usar únicamente datos ficticios en desarrollo, pruebas, capturas y ejemplos. No copiar bases, fotografías o documentos reales de pacientes.
-- Autenticar a cada usuario y autorizar cada caso de uso en el servidor. Ocultar un botón no constituye control de acceso.
-- Aplicar mínimo privilegio; no incorporar cuentas compartidas, contraseñas por defecto ni secretos en el repositorio.
-- Usar mecanismos mantenidos de identidad y hash de contraseñas; no implementar criptografía propia.
-- Proteger base, adjuntos y respaldos con permisos del sistema operativo y una estrategia documentada de cifrado y recuperación de claves.
-- No servir adjuntos como archivos públicos. Validar tamaño, extensión y contenido, generar nombres internos y evitar rutas elegidas por el usuario o ejecución de archivos.
-- No registrar recetas, documentos, identificadores personales ni credenciales en logs técnicos. Mantener auditoría de accesos y cambios sensibles con información mínima.
-- No exponer el servidor a internet. Antes de habilitar celulares, definir HTTPS confiable, firewall y acceso limitado a la red privada.
-- Los respaldos deben incluir datos y adjuntos de manera consistente. Verificar restauraciones; no tratar la mera copia del archivo SQLite abierto como respaldo válido.
-
-## Verificación
-
-- En pedidos, el estado listo/entregado sólo se obtiene mediante casos de uso que comprueban ambos controles aprobados de la ronda vigente. No agregar endpoints de asignación libre de estados.
-- Conservar controles, ítems y autoría como registros históricos. Las rectificaciones generan un nuevo control con motivo; cambios de especificaciones o requisitos invalidan aprobaciones sin borrar historia.
-- Las vistas operativas de Atención/Ventas no deben consultar ni proyectar recetas, graduaciones, síntomas o controles técnicos. Administrador configura requisitos sin recibir acceso clínico.
-- Mantener navegación común entre Razor y Blazor; verificar formularios con antifalsificación, selección múltiple de archivos y diseño en tamaños de PC y celular con datos ficticios.
-
-- Crear pruebas relevantes de invariantes, permisos, persistencia, concurrencia y operaciones críticas; evitar pruebas que sólo repitan la implementación.
-- Ejecutar las pruebas necesarias para el cambio, incluyendo regresiones relacionadas. Registrar comandos y resultados en PLANS.md.
-- En cada entrega informar la compilación por separado (errores y advertencias) y el conteo de pruebas ejecutadas, aprobadas, fallidas y omitidas. No confundir cantidad de proyectos compilados con cantidad de pruebas ni sumar reejecuciones como pruebas diferentes.
-- Antes de liberar datos reales, verificar autorización, protección de adjuntos, ausencia de información sensible en logs y restauración completa en un entorno separado.
-- No agregar herramientas, dependencias ni ejecutar operaciones destructivas sin la autorización requerida arriba.
+- Probar reglas importantes, permisos, integridad, concurrencia y regresiones; incluir atención clínica sin compra y recuperación. Usar datos ficticios.
+- Antes de cada commit: revisar cambios y archivos innecesarios, compilar la solución completa, ejecutar las pruebas correspondientes y corregir fallos.
+- Informar por separado errores/advertencias de compilación y pruebas ejecutadas, aprobadas, fallidas y omitidas. No presentar resultados históricos como nuevas ejecuciones.
+- REQUISITOS.md define comportamiento; PLANS.md alcance, progreso y pendientes; DECISIONES.md decisiones y estados; BITACORA.md conserva entregas y verificaciones. Evitar repetir el historial en los documentos vigentes.
+- Crear un commit coherente por avance significativo, funcional y verificado, incluyendo reorganizaciones documentales. No hacer commits vacíos, temporales, por archivo o por formato.
+- Excluir y revisar bases locales, datos de pacientes, adjuntos, logos cargados, secretos, respaldos, logs y archivos generados, tanto en el diff como en el historial que se publique.
+- Verificar destino y privacidad de GitHub. Mantener la autorización de publicación existente; al terminar una fase evaluar automáticamente commit y push, verificar resultado e informar identificador y rama.
+- No usar force push, reescribir historia ni ejecutar comandos destructivos sin autorización. Ante secretos o destino incorrecto detener la publicación y resolverlo.

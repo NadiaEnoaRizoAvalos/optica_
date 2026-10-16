@@ -1,375 +1,134 @@
-# Plan de trabajo — Sistema de Gestión para Ópticas
+# Plan vigente — sistema Óptica
 
-## Estado actual y reglas de avance
+## Estado y límites de esta entrega
 
-- Fase 0: documentación inicial aprobada por el usuario.
-- Fase 1: aceptada por el usuario tras visualizar la aplicación; autorizó fase 2. No se afirma haber realizado una prueba con internet físicamente desconectado.
-- Fase 2: aceptada al autorizar expresamente fase 3; existe una cuenta de acceso, conservada durante la actualización.
-- Fase 3 y tarea adicional de configuración/GitHub: aceptadas al pedir expresamente continuar con fase 4. Primer push realizado y verificado en main, commit 2c4d495.
-- Fase 4: recetas, antecedentes y adjuntos implementados con conservación de originales, sin cupos de cantidad y con tamaños administrables. Verificación automatizada y actualización local completadas; pendiente aceptación visual del usuario. Fase 5 no iniciada.
-- Fase 4.1 autorizada: navegación y ficha integrada, registro clínico guiado y control de calidad por pedido implementados y verificados. Fase 5 sigue pendiente de aprobación.
-- Última entrega funcional (4.1): 113 pruebas ejecutadas y aprobadas (33 Infraestructura y 80 Web), 0 fallidas, 0 omitidas; compilación con 0 errores y 0 advertencias. Todos los datos de pruebas son ficticios y están aislados de la base local. Las 94 pruebas corresponden a la entrega anterior de adjuntos, no a la suite actual.
-- Ampliación comercial: esta tarea autoriza únicamente revisión, modelo y documentación. Etapas A–G propuestas dentro de fases 5 y 6; ninguna iniciada. Mantener exclusivamente acceso interno de empleados. Se espera aprobación para **5.A / Etapa A**.
-- Trabajar una funcionalidad por tarea; marcar cada tarea y registrar su validación al terminar.
-- El cierre de cada fase requiere cumplir sus criterios y aprobación explícita para avanzar. No encadenar fases automáticamente.
-- Solicitar autorización específica para instalaciones y cambios destructivos.
+Reorganización documental autorizada el 16/10/2026. Las fases 0–4.1 conservan su estado completado según las verificaciones existentes. Las fases 5–12 están definidas y pendientes: aprobar este plan no autoriza comenzar su programación.
 
-## Fase 0 — Planificación inicial
+Esta tarea modifica exclusivamente AGENTS.md, REQUISITOS.md, PLANS.md, BITACORA.md y DECISIONES.md. No modifica código, base operativa, migraciones, cuentas, contraseñas ni dependencias.
 
-- [x] Verificar ubicación del proyecto: `G:\WINDOWS\Desktop\optica`.
-- [x] Crear AGENTS.md con reglas permanentes.
-- [x] Crear REQUISITOS.md con alcance, modelo conceptual y requisitos.
-- [x] Crear PLANS.md con fases y criterios de aceptación.
-- [x] Obtener aprobación para comenzar fase 1.
+[REQUISITOS.md](REQUISITOS.md) define comportamiento; [AGENTS.md](AGENTS.md), reglas permanentes; [DECISIONES.md](DECISIONES.md), decisiones y estados; [BITACORA.md](BITACORA.md), historial y evidencia de verificaciones. El plan anterior se conserva allí como histórico, sin continuar sus numeraciones caducas.
 
-Criterio de aceptación: sólo los tres Markdown solicitados, arquitectura explicada y alcance pendiente de aprobación. Validación: revisión documental y comprobación de archivos; no corresponde ejecutar pruebas de aplicación.
+## Fases completadas
 
-## Fase 1 — Validación técnica y base de arquitectura
-
-- [x] Confirmar Windows, recursos, herramientas existentes y forma de ejecución del servidor mediante inspección no destructiva. Windows 11 Pro x64, aproximadamente 15 GiB utilizables; ejecución manual en localhost.
-- [x] Confirmar versiones compatibles de .NET 10, EF Core y SQLite; SDK 10.0.402 y proveedor EF Core SQLite 10.0.12 instalados con autorización y verificados mediante compilación y pruebas.
-- [x] Validar alcance mínimo, roles y regla de cliente nuevo/recurrente con la óptica. Usuario confirmó roles y criterio de visita previa; matriz detallada se define en fase 2.
-- [x] Registrar decisión del modo Blazor: soporte interactivo en servidor; pantalla inicial estática. Reconexión pendiente para la primera operación interactiva.
-- [x] Definir estructura Dominio, Aplicación, Infraestructura y Web y proyecto de pruebas de Infraestructura. No crear contratos de negocio vacíos; se definirán junto con sus casos de uso.
-- [x] Crear la solución mínima, configuración por entorno y una pantalla de comprobación, después de las autorizaciones correspondientes. Compilación y HTTP local verificados.
-- [x] Definir carpetas de datos y adjuntos, contexto inicial sin entidades, fábrica por operación y procedimiento de migraciones documentado en README. No se creó base operativa ni esquema de negocio.
-
-Criterios de aceptación: solución compila en la PC; interfaz mínima abre en localhost sin internet; dependencias entre capas respetadas; sin secretos; decisiones y verificaciones registradas. Presentar resultado y pedir aprobación de fase 2.
-
-## Fase 2 — Acceso y protección básica
-
-- [x] Implementar alta controlada del primer administrador y usuarios individuales. Comando local interactivo sin claves predeterminadas; creación inicial bloqueada al existir cuentas. El usuario debe ejecutarlo para elegir su contraseña.
-- [x] Implementar inicio/cierre, cambio de contraseña propia, bloqueo, recuperación local de administrador, roles y políticas. Matriz concreta documentada en README para aceptación de la entrega: administración de cuentas/auditoría sólo Administrador y permisos clínicos sólo Profesional.
-- [x] Incorporar auditoría mínima y logs sin datos sensibles. Acciones e IDs internos; últimos 100 eventos visibles sólo a administradores.
-- [x] Definir y probar ACL de Windows. Aplicadas a data: usuario ejecutor, SYSTEM y administradores; herencia amplia deshabilitada. Cifrado y respaldos siguen pendientes antes de datos reales.
-- [x] Probar rechazo de acceso anónimo, CSRF y operaciones sin permiso en endpoints y Aplicación. Verificar cuentas inactivas y revocación de sesiones.
-
-Entrega aceptada al autorizar fase 3. Existe una cuenta elegida por el usuario; no se generaron credenciales en el chat ni cuentas de prueba en la base de uso local.
-
-Criterios de aceptación: permisos comprobados por rol; cuentas inactivas sin acceso; sin credenciales predeterminadas ni datos reales. Aprobar antes de fase 3.
-
-## Fase 3 — Clientes y visitas
-
-- [x] Diseñar y migrar Customer y Visit con claves estables, documento normalizado único, índices, versiones de concurrencia, claves foráneas restrictivas y una sola visita en curso por cliente. Preparada clave compuesta cliente/visita para futuras referencias clínicas coherentes.
-- [x] Implementar alta, consulta, edición y búsqueda por nombres sin depender de tildes/orden, documento, teléfono y correo. Documento obligatorio, único incluso inactivo. Coincidencias de nombre/teléfono requieren confirmación explícita, sin fusionar fichas. Máximo 100 resultados por búsqueda, con aviso para refinar.
-- [x] Implementar inactivación con confirmación sólo por Administrador, conservando historial; no se permite mientras haya una visita en curso. Visitas administrativas con inicio, finalización/cancelación, autoría y paginación de 25 en 25, sin contenido clínico.
-- [x] Aplicar clasificación: ficha para próxima atención según existencia de visitas completadas; visita histórica conserva clasificación calculada al inicio, contando sólo finalizaciones anteriores. Canceladas no convierten al cliente en recurrente.
-- [x] Probar validaciones, SQLite, duplicados y reenvíos, búsqueda, conflictos de edición, clasificación, historial, claves foráneas, permisos en servidor/Aplicación, CSRF y formularios Blazor SSR.
-
-Pendiente de aceptación: ingresar con la cuenta existente en `http://localhost:5080/clientes` y recorrer el módulo con datos ficticios. Recetas, antecedentes y adjuntos médicos permanecen en fase 4 y no se implementaron.
-
-Criterios de aceptación: recorrido completo de atención con datos ficticios, historial conservado y clasificación coherente. Aprobar antes de fase 4.
-
-## Fase 4 — Recetas, antecedentes y adjuntos
-
-Antes de iniciar esta fase se realizará la tarea adicional autorizada de GitHub y configuración del negocio. No se modifica el alcance clínico ni se adelanta su implementación.
-
-### Tarea adicional autorizada: GitHub y personalización
-
-- [x] Revisar estado inicial: Git instalado, sin repositorio local ni remoto configurado. Inicializado main y configurado origin con la URL proporcionada por el usuario, que termina en optica_.git.
-- [x] Autenticar mediante Git Credential Manager y verificar por API GitHub que NadiaEnoaRizoAvalos/optica_ es privado y permite push. Remoto vacío: no hay historial ajeno para fusionar ni sobrescribir.
-- [x] Extender .gitignore, conservar código/pruebas/documentación y crear ARCHIVOS_PARA_GITHUB.md con los 117 archivos de la primera publicación. Revisados patrones de secretos y literales de correo; sin hallazgos de credenciales reales ni archivos binarios inesperados. Datos y respaldos quedan excluidos.
-- [x] Incorporar reglas permanentes en AGENTS.md: revisión, build/tests, progreso, comprobación de privacidad, commits locales coherentes y pushes posteriores automáticos al mismo remoto privado una vez aprobado el primero. Sin autorizaciones implícitas para fase 4 ni cambios destructivos.
-- [x] Eliminar la marca comercial fija de títulos y cabeceras, sin renombrar proyectos/namespaces. Nombre genérico: Sistema de Gestión para Ópticas.
-- [x] Implementar configuración administrativa separada en SQLite: nombre/logo, ubicación, contactos, CUIT y datos adicionales, todos opcionales; fallback genérico y vista de la identidad guardada. Control de concurrencia y auditoría sin copiar datos del establecimiento.
-- [x] Validar PNG/JPEG por bytes/extensión/MIME, tamaños y decodificación; reencodificar como PNG sin metadatos originales, máximo 512 px, y guardar BLOB privado. SkiaSharp y dependencias nativas instaladas con autorización explícita.
-- [x] Verificar persistencia tras cierre/reinicio de dos hosts de prueba, permisos HTTP/Aplicación, CSRF, cambios obsoletos, retiro de logo y continuidad de autenticación/clientes.
-- [x] Compilar y ejecutar suite completa: 0 errores/advertencias, 54 aprobadas (20 Infraestructura, 34 Web), 0 fallidas/omitidas. Modelo sin diferencias respecto a migración.
-- [x] Crear copia SQLite y adjuntos antes de migrar, verificarla y aplicar BusinessConfiguration explícitamente; Up sólo crea una tabla, sin borrar registros. Comparación posterior: diez tablas previas intactas e integridad correcta. No se guardó una marca ficticia en la base local.
-- [x] Preparar entrega verificada e inventario para el commit local y revisión del primer push. El identificador del commit se informa al entregar y se consulta con git log -1; no se incluye un hash autorreferencial en estos archivos.
-- [x] Obtener aprobación del inventario para el primer push al remoto privado. El usuario aprobó el commit inicial b640541 y solicitó consolidar la política de versionado; se publica junto con esa actualización documental coherente, sin reescribir el commit inicial. Verificar main local contra origin/main al entregar.
-- [x] Obtener aceptación de esta tarea y autorización separada antes de fase 4: el usuario pidió expresamente continuar con fase 4.
-
-Verificación local: servidor dejado activo en localhost:5080; ingreso 200 con nombre genérico y sin marca fija, CSS 200, configuración/clientes anónimos 302 al ingreso, stderr vacío. La interfaz administrativa y la persistencia se comprobaron automáticamente en bases ficticias; la revisión visual manual corresponde al usuario.
-
-Configuración Git/GitHub — 2026-10-15: revisados Git, autor existente, origin y rama main; GitHub confirmó nuevamente repositorio privado y permiso de escritura. El remoto seguía vacío antes de publicar. Revisión del historial inicial: 117 archivos, inventario coincidente, sin patrones de secretos, correos personales en archivos ni rutas de datos privados; credenciales de tests ficticias. No se modifica código de aplicación en esta tarea. La política permanente agrega exclusión explícita de commits vacíos/temporales, verificación de continuidad funcional y confirmación de publicación por SHA remoto. La compilación inicial encontró DLL bloqueadas por el servidor abierto; se detuvo sólo esa instancia. La repetición de `dotnet build OpticaSosa.sln --no-restore` terminó con 0 errores y 0 advertencias; `dotnet test OpticaSosa.sln --no-build --no-restore --verbosity minimal` aprobó las 54 pruebas (20 Infraestructura y 34 Web), sin fallidas ni omitidas. Se reinicia el servidor al finalizar. No se borra ni sobrescribe código ni historial.
-
-Copia previa privada: data/migration-backups/pre-negocio-2026-10-15-54128ddd3dce4dc781c428fd527ccb62. Es una copia para esta migración, no reemplaza los respaldos operativos de fase 7. Licencias comerciales del producto, pruebas gratuitas y panel de ventas siguen pospuestos.
-
-### Alcance clínico de fase 4 — implementación verificada
-
-- [x] Completar validación de alcance: graduaciones con 3 decimales y distancia pupilar binocular en mm con 2 decimales. El usuario reemplazó la propuesta anterior: sin máximo fijo de recetas, consultas, antecedentes ni adjuntos; fotos 25 MB y PDF 50 MB por archivo, configurables; acceso documental sólo Profesional. Evaluar HEIC/HEIF sin prometer conversión no verificada.
-- [x] Implementar profesionales, recetas médicas y registros de la óptica; búsqueda, consulta, edición e inactivación de profesionales, separadas de cuentas de acceso.
-- [x] Implementar graduaciones por ojo y antecedentes con procedencia y autoría. Enteros escalados conservan precisión exacta, lateralidad y diferencia entre cero y ausente.
-- [x] Implementar historial de correcciones y acceso restringido. Versiones append-only con motivo, profesional informante histórico y usuario; cliente/tipo/visita no cambian en una corrección. Lectura y escritura autorizadas en servidor y casos de uso; auditoría sin contenido clínico.
-- [x] Implementar carga, consulta paginada, descarga verificada, retiro histórico y recuperación privada de JPG/JPEG/PNG/PDF. Tamaños centralizados en SQLite, configurables sólo por Administrador; almacenamiento original con SHA-256, control de espacio, estados durables y auditoría sin contenido clínico.
-- [x] Completar pruebas de adjuntos y regresiones: más de diez documentos en una receta, historiales extensos, límite configurable, PDF de más de 32 MB, formatos inválidos, permisos HTTP/Aplicación, CSRF, vínculos entre clientes, fallos de disco/confirmación y optimización PNG sin pérdida. Copia con documentos históricos/retirados y restauración aislada verificadas; copia fallida no sobrescribe la anterior.
-- [x] Completar actualización local conservadora y verificación de arranque sin alterar datos anteriores.
-- [ ] Obtener revisión y aceptación del usuario. No avanzar a fase 5 sin autorización expresa.
-
-Entrega funcional parcial de fase 4 — 2026-10-15:
-
-- Alcance cotejado antes de modificar código. No se instalaron dependencias nuevas ni se avanzó a inventario.
-- Formularios Razor HTTP para el módulo clínico, integrados con las fichas Blazor existentes y el estilo adaptable del sistema. POST evita poner términos de búsqueda profesionales en URLs; listas e historial acotados con refinamiento/paginación.
-- Migración ClinicalRecords aditiva: crea Professionals, ClinicalRecords, ClinicalRevisions y EyeMeasurements, con referencias restrictivas a usuario/cliente/profesional y FK compuesta que impide asociar una visita de otro cliente. No se ejecuta Down ni se borra historial.
-- `dotnet build OpticaSosa.sln --no-restore -m:1 -nr:false`: 0 errores y 0 advertencias. `dotnet test OpticaSosa.sln --no-build --no-restore --verbosity minimal -m:1 -nr:false`: 74 ejecutadas, 74 aprobadas, 0 fallidas, 0 omitidas. No se suman las reejecuciones como pruebas nuevas. `dotnet-ef migrations has-pending-model-changes`: sin diferencias.
-- Se corrigieron errores iniciales de plantilla y la simulación del envío de decimales: las pruebas ahora envían los marcadores invariantes que genera Razor, igual que el navegador. Se detuvo sólo el servidor de esta aplicación por bloqueo de DLL. Ante un fallo de memoria de MSBuild, se cerraron sus servidores de compilación y se verificó con un solo nodo; no se atribuyó ese intento fallido a pruebas aprobadas.
-- Almacenamiento interno privado probado: identificadores GUID, archivos fuera de wwwroot, escritura transitoria con publicación atómica sin sobrescritura, rechazo de enlaces y limpieza de sus propios temporales ante fallos/cancelación. Todavía no se habilitan cargas ni descargas clínicas; falta el caso de uso con metadatos y validación acordada.
-- Copia previa consistente: `data/migration-backups/pre-fase4-2026-10-15-a3f655349bba4e84bd519e557762d28e`, con SQLite y adjuntos; integrity_check y foreign_key_check correctos, 11 tablas previas registradas y 0 archivos existentes. Aplicación explícita con `--initialize-database`: migración completada; comparación por hash confirmó las 11 tablas previas intactas y las cuatro nuevas vacías. No se crearon cuentas, contraseñas ni pacientes de prueba en la base local.
-- Servidor reiniciado en segundo plano en localhost:5080: ingreso y CSS 200, rutas clínicas anónimas 302 al ingreso, stderr vacío. Formularios autenticados comprobados automáticamente en hosts aislados; la revisión visual manual queda para el usuario. Remoto confirmado privado y sincronizado antes de publicar el módulo; informar SHA/resultado del push al entregar.
-- Para probar: con una cuenta de rol Profesional, abrir Clientes → ficha → Recetas y antecedentes visuales. Registrar un profesional desde `/clinica/profesionales`, crear una receta y consultar/corregir sus versiones. Un administrador puede crear la cuenta Profesional desde Usuarios; no obtiene acceso clínico por ser Administrador. Usar sólo datos ficticios.
-- Pendientes de esa entrega parcial resueltos por la modificación de requisitos y la entrega de adjuntos que se describe a continuación. No se interpretó una aprobación de fase 5.
-
-Entrega de adjuntos y conservación del historial:
-
-- Se actualizaron AGENTS.md, REQUISITOS.md y README con conservación de originales, ausencia de cupos por cliente/receta/rol y tamaños configurables. El modelo es cliente 1:N registros, registro 1:N versiones, versión 1:N adjuntos; ningún índice impone un máximo de documentos. Las páginas de 25 sólo acotan cada consulta. Se retiraron topes arbitrarios de navegación de visitas y registros.
-- Límites iniciales de carga: foto 25 MB, PDF 50 MB; Administrador cambia la política con concurrencia y auditoría en `/admin/archivos-clinicos`. El Profesional conserva acceso clínico exclusivo. Reducir límites no bloquea descargas anteriores, que usan streaming y verifican tamaño/hash.
-- PNG: optimización explícita de IDAT sin cambiar los datos filtrados ni demás chunks; descarga de copia para revisión, sin reemplazo ni carga automática. No se recomprimen JPEG ni PDF. HEIC/HEIF evaluado y no habilitado por falta de conversor verificado en esta instalación; se informa alternativa de exportar copia conservando original.
-- Metadatos Pending se guardan antes de publicar bytes; archivos GUID privados, movimiento sin overwrite, reintento idempotente y recuperación explícita tras fallos. No se borran originales ni versiones. Cargas y copias respetan reserva de espacio. Acceso y operaciones se auditan con acciones/IDs.
-- Copia manual completa en directorio nuevo privado, SQLite por BackupDatabase, todos los adjuntos y manifiesto final con hashes; comprobación de integridad, relaciones y documentos. Prueba de restauración en otro host aislado y prueba de fallo preservando respaldo anterior. No se implementó programación, cifrado ni retención de fase 7.
-- PdfPig 0.1.16 y dependencias incorporados con autorización mediante la solicitud de instalación; lectura estructural estricta, sin extracción de datos clínicos, ejecución, modificación ni compresión del PDF. Se reutilizó SkiaSharp ya autorizado para validar imágenes. No se instalaron codecs HEIC.
-- `dotnet build OpticaSosa.sln --no-restore -m:1 -nr:false`: 0 errores, 0 advertencias. `dotnet test OpticaSosa.sln --no-build --no-restore --verbosity minimal -m:1 -nr:false`: 94 ejecutadas, 94 aprobadas, 0 fallidas, 0 omitidas (26 Infraestructura, 68 Web). Las reejecuciones no se contabilizan como pruebas nuevas. Modelo/migración sin diferencias. Se corrigió una comprobación nula del codificador en una prueba antes de validar la entrega.
-- Migración ClinicalAttachments revisada y aplicada explícitamente: Up sólo crea ClinicalAttachments y ClinicalFilePolicies e índices/FK restrictivas. Copia consistente previa en `data/migration-backups/pre-adjuntos-ed7fcf36fe9e4e6da967b466a92ffbb7`; integrity_check y foreign_key_check correctos. Comparación por hash confirmó las 15 tablas anteriores intactas; 0 documentos locales, sin insertar pacientes ni documentos ficticios. La migración no borra ni modifica historial previo.
-- Servidor reiniciado en segundo plano en localhost:5080. Ingreso/CSS 200; adjuntos y administración anónimos 302 al ingreso; stderr vacío. Pruebas autenticadas completas en host aislado; revisión visual manual pendiente. Remoto confirmado privado y sin divergencia antes de publicar; el commit y la verificación de SHA del push se informan en la entrega.
-
-Criterios de aceptación: historial clínico trazable sin generación automática de diagnósticos; adjuntos inaccesibles sin permiso; ausencia de datos sensibles en logs. Aprobar antes de fase 5.
-
-## Fase 4.1 — Reorganización funcional y control de calidad (autorizada)
-
-**Objetivo:** conectar clientes, profesionales, documentos y trabajos mediante navegación consistente y controles efectivos por pedido; conservar base y funcionalidades previas.
-
-- [x] Incorporar entidades de pedido mínimo, controles/ítems, plantillas y transiciones con FKs restrictivas y concurrencia.
-- [x] Implementar permisos separados, aprobación backend, dos etapas obligatorias, rectificaciones y auditoría atómica.
-- [x] Incorporar navegación común, ficha central del cliente y vínculos profesionales/documentos.
-- [x] Incorporar formulario clínico guiado, síntomas declarados, consultas/controles informados y selección múltiple de archivos con vistas locales.
-- [x] Incorporar pantallas de pedidos, calidad, entregas y configuración de obligatoriedad.
-- [x] Completar compilación y regresiones, pruebas de bypass y concurrencia, y revisión visual de flujo con datos ficticios aislados.
-- [x] Respaldar base local, aplicar migración revisada sin pérdida y verificar preservación de datos y documentos.
-- [x] Verificar destino privado y sincronización del historial; preparar una entrega coherente. El resultado del commit y push se comunica al cierre, sin crear otro commit sólo para incluir su propio hash.
-
-**Aceptación:** ninguna entrega sin ambos controles aprobados, ningún permiso clínico nuevo para Administrador/Ventas, historial conservado, conflictos visibles, original clínico intacto y flujo completo comprobado. No avanzar a fase 5 sin aprobación.
-
-**Arquitectura:** Dominio contiene catálogo y máquina de estados; Aplicación define IWorkService/IClinicalDirectory; Infraestructura implementa consultas, permisos, EF/SQLite, concurrencia y auditoría; Razor/Blazor sólo presentan y envían operaciones. Las plantillas y cada control guardan versiones/snapshots. Un pedido fija una ClinicalRevision concreta; actualizar la receta no altera silenciosamente lo aprobado. Cambiar explícitamente el vínculo o especificaciones exige nueva ronda. No se crean inventario, precios, pagos ni un segundo módulo de ventas.
-
-**Migración QualityWorkflow:** sólo agrega columnas opcionales o con valores iniciales compatibles y seis tablas. Triggers sobre OpticalWorks refuerzan que receta y versión pertenezcan al cliente, sin reconstruir tablas clínicas anteriores. No ejecutar Down. Consultas/controles usan IsFollowUp dentro de VisualHistory para preservar tipos históricos. Profesionales relacionados conservan participación en versiones previas.
-
-## Fase 5 — Inventario
-
-Se conserva el número y objetivo de la fase; se organiza en dos entregas aprobables. Modelo, permisos, unidades y fuentes técnicas propuestos en REQUISITOS.md, secciones 3–4. No generar tablas vacías para etapas posteriores.
-
-### 5.A / Etapa A — Productos, categorías, variantes y proveedores
-
-**Estado:** diseñada, no implementada; requiere aprobación antes de comenzar.
-
-- **Objetivo:** catálogo reutilizable y normalizado, sin cantidades de stock manuales ni cuentas externas.
-- **Funcionalidades/tareas:** A.1 acordar campos obligatorios, unidades, moneda/precisión e identidad de SKU; A.2 categorías/productos y variantes; A.3 perfiles separados de cristal, contacto y armazón y presentaciones; A.4 proveedores/ofertas múltiples; A.5 precios vigentes, costos restringidos, inactivación, auditoría y pantallas mínimas. Ejecutar una funcionalidad por tarea, sin rediseño visual integral.
-- **Entidades:** ProductCategory, Product, ProductVariant, ProductPresentation, perfiles tipados y tratamientos, Supplier y SupplierOffering; precios por variante/presentación. Lotes y cantidades físicas se incorporan en B, no en la ficha global. Crear sólo catálogos auxiliares con necesidad real.
-- **Dependencias:** base 4.1, permisos internos existentes, validación de muestras de catálogo/proveedores por la óptica. Referencias oficiales consultadas y citadas en REQUISITOS.md; no copiar catálogos ni presuponer ofertas locales.
-- **Pruebas previstas:** SKU/código duplicado y normalizado; persistencia; varias variantes por producto y proveedores por variante sin duplicar stock; diferencias entre familias y presentaciones; SPH/CYL/AXIS/ADD/BC/DIA tipados sin confundir OD/OI con catálogo; cero/ausente; conversión exacta de unidad; costos no visibles para Ventas/Profesional; inactivación, CSRF, concurrencia y regresión de clínica/calidad.
-- **Aceptación:** altas/ediciones/consultas desde navegador con datos ficticios; especificaciones estructuradas; proveedores múltiples; precios/unidades inequívocos; permisos en servidor; sin movimiento de stock ni cambios de calidad anticipados. Build y pruebas satisfactorios, actualización del plan y entrega versionada. Pedir aprobación antes de 5.B.
-
-### 5.B / Etapa B — Inventario, movimientos y disponibilidad
-
-**Estado:** diseñada, pendiente de A y aprobación propia.
-
-- **Objetivo:** existencias auditables y reproducibles, con lotes y vencimiento.
-- **Funcionalidades/tareas:** B.1 posiciones/saldos e ingreso inicial documentado; B.2 entradas/salidas, consumo, ajustes y bajas compensatorias; B.3 condiciones utilizable/no utilizable y cambios de presentación; B.4 lotes/vencimiento, alertas y consulta de disponibilidad. Reservas se diseñan aquí y se materializan en D al existir necesidades de pedidos; no crear reservas sin origen. Compras/recepciones se conectan en E/F.
-- **Entidades:** StockLot, StockMovement/líneas y StockBalance versionado, referidos a variante/presentación/lote/condición. Eventos de inventario con responsable, fecha, motivo, unidad y origen. No implementar una segunda entrada por compra al integrar F.
-- **Dependencias:** A, reglas confirmadas de unidades/conversión, vencimiento según etiqueta, fecha de negocio y stock mínimo/alertas. La compra pendiente no se muestra como existencia disponible; si aún no existe su módulo, indicarlo sin inventar cantidades.
-- **Pruebas previstas:** entradas/salidas y compensación; equivalencia de saldo e historial; negativos rechazados; dos salidas simultáneas sobre la última unidad; reenvíos; fallos a mitad de transacción; envase y contenido no duplicados; lotes separados; cuarentena/dañados/vencidos excluidos; cambios de día; devolución no disponible sin revisión; permisos y datos anteriores intactos.
-- **Aceptación:** existencias reconstruibles, ninguna salida inconsistente, movimientos trazables e idempotentes, alertas configurables y vista mínima por rol. Build/suite aprobados y aceptación expresa antes de fase 6.
-
-## Fase 6 — Pedidos y ventas
-
-Se conserva el número. C–G son entregas incrementales de esta fase ampliada, cada una sujeta a aprobación; no equivalen a una autorización para ejecutarlas juntas. El trabajo mínimo de fase 4.1 ya existe y se reutiliza.
-
-### 6.C / Etapa C — Presupuestos, ventas y pedidos de clientes
-
-**Estado:** diseñada, no implementada; depende de A/B y aprobación.
-
-- **Objetivo:** documentos comerciales distintos con líneas y precios históricos.
-- **Funcionalidades/tareas:** C.1 presupuestos/versiones/aceptación; C.2 pedido comercial, líneas y referencias técnicas autorizadas; C.3 venta, anulación y acuerdos económicos; C.4 señas/pagos/saldos únicamente después de definir moneda, descuentos, redondeo, medios y permisos. No agregar facturación fiscal. Registrar necesidades/revisión técnica pendiente sin prometer disponibilidad ni entrega completa antes de D/G.
-- **Entidades:** Quote/QuoteLine, CustomerOrder/OrderLine, Sale/SaleLine y snapshots comerciales; pagos/asignaciones sólo en su subtarea validada. Vínculo opcional del trabajo OpticalWork con pedido y líneas, sin crear ventas retroactivas para los trabajos anteriores.
-- **Dependencias:** A/B, estados comerciales y momento de venta/consumo acordados. Caso de uso nuevo para que Ventas seleccione referencia habilitada por Profesional sin usar lectura clínica completa; aprobación técnica versionada distinta de la aceptación comercial.
-- **Pruebas previstas:** cantidades/precios/totales exactos y redondeo; snapshots tras cambiar catálogo/precio; conversiones de documentos y reenvíos; referencia de otro cliente rechazada; permisos comerciales frente a clínicos; anulaciones sin borrar historia y sin reingreso de stock inventado; pedidos antiguos y controles intactos.
-- **Aceptación:** presupuesto, venta y pedido son identificables y no se confunden con compra/trabajo; cuentas sin nuevos privilegios clínicos; documentos confirmados no se reescriben. Las pantallas explican los pasos aún pendientes; no habilitar entrega del nuevo circuito hasta G. Verificar y pedir aprobación antes de D.
-
-### 6.D / Etapa D — Materiales, verificación automática y reservas
-
-**Estado:** diseñada, pendiente de C y aprobación.
-
-- **Objetivo:** calcular disponibilidad exacta y faltantes desde necesidades técnicamente aprobadas.
-- **Funcionalidades/tareas:** D.1 especificaciones por ojo y medidas de montaje revisadas por Profesional; D.2 MaterialRequirement por trabajo y sus versiones; D.3 comprobación automática de variantes/presentaciones/cantidades/lotes; D.4 reservar, liberar y consumir con transacciones; D.5 faltantes y fabricación personalizada, sin sustitución automática ni stock pendiente contado como disponible.
-- **Entidades:** TechnicalSpecificationVersion, EyeSpecification/MountingMeasurement como datos tipados, MaterialRequirement, StockReservation y eventos/asignaciones. Separar cantidades reservadas, consumidas y faltantes; solicitud de abastecimiento se conecta con E.
-- **Dependencias:** B/C, contrato del inventario y permisos técnicos. No convertir una receta de anteojos en adaptación de contacto; BC/DIA y parámetros no existentes requieren registro/procedencia profesional validada. Confirmar reglas de prioridad y duración de reservas.
-- **Pruebas previstas:** OD/OI con variantes distintas; coincidencia exacta de tratamientos/BC/DIA/modelo; completo/faltante/encargo; reserva simultánea de última unidad; vencido/dañado rechazado; reintento/cancelación/cambio de especificación; consumidor no descuenta dos veces; faltantes comerciales no revelan valores clínicos.
-- **Aceptación:** reservas no superan existencias utilizables, disponibilidad y faltantes reproducibles, fabricación personalizada no crea existencias ficticias; interfaces separadas por rol y cambios obsoletos rechazados. Aprobar antes de E.
-
-### 6.E / Etapa E — Solicitudes y compras a proveedores
-
-**Estado:** diseñada, pendiente de D y aprobación.
-
-- **Objetivo:** abastecer faltantes con revisión técnica y autorización comercial independientes.
-- **Funcionalidades/tareas:** E.1 solicitud idempotente por necesidad/faltante; E.2 revisión técnica; E.3 agrupación y distribución de cantidades; E.4 autorización y orden separada por proveedor; E.5 PDF descargable y registro autorizado de emisión/envío, sin mensajería automática.
-- **Entidades:** SupplyRequest/líneas, PurchaseOrder/líneas y PurchaseAllocation hacia necesidades/pedidos. Usuario, fecha, número único, estimaciones y snapshots de costo/moneda/presentación/especificaciones necesarias.
-- **Dependencias:** A/D, condiciones de compra y responsables confirmados; selección y autorización previa de cualquier dependencia nueva para generar PDF. Catálogo del proveedor no prueba stock local ni viabilidad de fabricar una combinación no confirmada.
-- **Pruebas previstas:** varios pedidos agrupados sin duplicar cantidades, separación por proveedor, solicitudes repetidas, cambio de cantidad/costo tras autorización, rechazo de compra por Ventas/Profesional, revisión comercial sin historial clínico, PDF comercial separado del anexo técnico protegido y ninguna transmisión automática.
-- **Aceptación:** trazabilidad del faltante hasta línea de compra; Profesional prepara sin autorizar gasto; Administrador autoriza y emite sin obtener acceso clínico; documentos guardados con versiones y descarga autorizada por tipo. Verificar y pedir aprobación antes de F.
-
-### 6.F / Etapa F — Recepciones y actualización de inventario
-
-**Estado:** diseñada, pendiente de E y aprobación.
-
-- **Objetivo:** incorporar sólo materiales recibidos y aceptados, con seguimiento por necesidad.
-- **Funcionalidades/tareas:** F.1 recepción parcial/total por línea; F.2 diferencias, rechazos, daño y sobreentrega con autorización; F.3 lotes/vencimientos y devolución; F.4 entrada transaccional mediante el servicio de inventario existente y asignación a pedidos pendientes; F.5 pendientes y plazos en ficha del proveedor.
-- **Entidades:** GoodsReceipt/líneas, referencias a PurchaseOrderLine, lotes, movimientos y documentos de devolución/compensación. No duplicar el libro de inventario ni cambiar directamente un saldo.
-- **Dependencias:** B/D/E, política de recepción inicial por Administrador y procedimiento de devolución. No habilitar delegación a otros roles automáticamente; cantidades aceptadas/rechazadas/devueltas y reposición pendiente requieren reglas claras.
-- **Pruebas previstas:** recepción parcial sucesiva; reenvío idempotente; compra ajena/proveedor incorrecto; cantidades excedidas; sustitución sin autorización; cuarentena, lote y vencimiento; devolución; caída entre recepción y movimiento con rollback; asignación correcta a pedidos y ningún salto a entrega.
-- **Aceptación:** inventario y recepción consistentes, lo no aceptado no disponible, faltantes actualizados sin reaprovisionamiento doble, compra y documentos previos conservados. Aprobar antes de G.
-
-### 6.G / Etapa G — Integración con trabajos, calidad y entregas
-
-**Estado:** diseñada; controles existentes operativos, integración comercial nueva pendiente de C–F y aprobación.
-
-- **Objetivo:** cerrar pedido comercial → materiales → preparación → controles → entrega con las invariantes de fase 4.1.
-- **Funcionalidades/tareas:** G.1 enlazar trabajos y líneas/materiales con coherencia de cliente y receta fijada; G.2 adaptar checklists a nuevas categorías mediante diseño aprobado; G.3 invalidar aprobaciones afectadas por cambios de especificación/material y revisar reservas; G.4 entrega documentada y segura, inicialmente total; G.5 recorrido integral y regresiones. Entregas parciales requieren acuerdo previo, no se habilitan implícitamente.
-- **Entidades:** reutilizar OpticalWork, QualityControl/ítems/plantillas e historial; añadir sólo vínculo comercial, referencias a versión/material y Delivery/líneas/asignaciones cuando se implemente. No crear otro motor de calidad ni convertir los pedidos históricos en ventas.
-- **Dependencias:** C/D/E/F y reglas de entrega/categorías confirmadas. Para contacto y artículos sin montaje, definir tipo de trabajo y verificaciones pertinentes sin usar Repair como atajo ni desactivar las dos etapas existentes arbitrariamente.
-- **Pruebas previstas:** materiales recibidos no habilitan entrega; pedidos con varios trabajos sólo entregables cuando todos cumplen; técnico/previo pendientes u observados bloquean; cambios y concurrencia invalidan; lote reservado vence antes de entrega; doble entrega/doble consumo; anulaciones y trabajos históricos; ventas sin lectura clínica y Administración sin privilegios técnicos.
-- **Aceptación:** recorrido completo con datos ficticios desde presupuesto a entrega, documentos de compra/recepción enlazados, inventario conciliado y ninguna ruta directa que evite calidad. Compilación/suite y comprobación funcional en navegador, documentación, commit/push verificados; aprobación antes de fase 7.
-
-### Riesgos y decisiones por confirmar antes de implementar
-
-| Riesgo o dependencia | Tratamiento / momento de decisión |
-| --- | --- |
-| Confundir pedido actual con venta o pedido comercial | OpticalWork permanece; vínculo opcional para nuevos pedidos. Sin datos ni precios retrospectivos; pruebas de preservación en C/G. |
-| Catálogo óptico combinatorio y diferencias regionales | Perfiles tipados; registrar sólo variantes ofrecidas/necesarias. No inferir un producto válido del producto cartesiano de rangos; validar proveedor en A/D/E. |
-| Datos de contacto no cubiertos por receta actual | Perfil técnico protegido para BC/DIA y procedencia; evaluar extensión tipada por versión clínica, sin reinterpretar DP ni agregar enums que violen restricciones existentes sin migración revisada. |
-| Unidades/presentaciones y lotes | Factores exactos e históricos; apertura/transferencia sin duplicación; acordar venta por caja/blíster/unidad y política de vencimiento/etiquetas incompletas en A/B. |
-| Dinero y SQLite | Escalas enteras, moneda y redondeo validados; costo de referencia separado de histórico. Decidir reglas antes de A/C; sin cálculo tributario/facturación fiscal. |
-| Filtración al seleccionar receta o solicitar materiales | Referencia habilitada y proyecciones por rol; sin datos clínicos en nombres/especificaciones comerciales o PDF completo para proveedor. Pruebas negativas C–G. |
-| Doble reserva, consumo o recepción | Transacción, token de saldo/documento e idempotencia; pruebas con operaciones concurrentes y fallos de escritura. Reservar no descuenta físico y vender no duplica consumo. |
-| Estados y cancelaciones entre módulos | Estados separados y transiciones coordinadas; consumidos no se liberan como reserva. Nueva recepción no aprueba control; entrega revalida vencimiento. |
-| Contención SQLite y crecimiento del historial | Contextos cortos, índices, paginación y transacciones breves. Medir con datos ficticios y cuatro sesiones; cualquier cambio de motor requiere justificación/aprobación. |
-| Pérdida de datos en actualización | Copia consistente previa, inspección de Up, pruebas desde esquema anterior y comparación de registros/archivos. No aplicar migraciones en esta planificación ni reconstruir tablas por iniciativa propia. |
-| Dependencias y PDF / integraciones externas | No instalar ahora. Seleccionar herramienta en E y pedir autorización; PDF descargable no significa autorización de enviar una compra. |
-| Acumulación de alcance | Una funcionalidad por tarea y aprobación entre etapas. Fases 7 y 8 conservan numeración; rediseño UX/UI definitivo se planificará aparte, sin implementarlo en A–G. |
-
-### Decisiones propuestas para aceptación
-
-Confirmar al aprobar la etapa pertinente: campos obligatorios de producto/proveedor y claves SKU; unidades/presentaciones; moneda, escalas/redondeo y costo de referencia; catálogo local/encargos; rol receptor de mercadería (propuesta: Administrador); duración/prioridad de reservas; aprobación de sustituciones; señas/pagos/descuentos; política de entregas parciales. Estas preguntas no bloquean la documentación actual ni autorizan reglas todavía no acordadas.
-
-## Fase 7 — Respaldos y entrega operativa en una PC
-
-- [ ] Acordar pérdida máxima tolerada, tiempo de recuperación, retención, destino y custodia de claves.
-- [ ] Implementar respaldos consistentes manuales y programados con manifiesto, adjuntos y configuración necesaria.
-- [ ] Probar fallos de respaldo y conservación de la última copia válida.
-- [ ] Restaurar en un directorio separado y verificar base, relaciones, acceso y adjuntos.
-- [ ] Documentar arranque, apagado, actualización, respaldo y recuperación.
-- [ ] Validar protección del disco, permisos y requisitos de privacidad antes de autorizar datos reales.
-- [ ] Realizar aceptación integral en localhost sin internet con datos sintéticos.
-
-Criterios de aceptación: recuperación completa demostrada, medidas de protección acordadas y recorrido operativo aprobado en una PC. El uso de datos reales requiere aceptación expresa. Aprobar antes de fase 8.
-
-## Fase 8 — Acceso por Wi-Fi desde tres celulares
-
-- [ ] Configurar dirección local estable, HTTPS confiable y firewall limitado a red privada; sin apertura de puertos hacia internet.
-- [ ] Verificar interfaz y formularios en los tres celulares.
-- [ ] Probar PC y tres celulares simultáneos, conflictos de edición, doble envío y recuperación de conexión.
-- [ ] Verificar funcionamiento sin internet, recursos locales y mensajes ante servidor inaccesible.
-- [ ] Repetir aceptación de permisos y adjuntos a través de la red.
-
-Criterios de aceptación: cuatro sesiones operan sobre una única base; se cumple el objetivo de respuesta acordado; sin confirmaciones falsas al perder conexión; recuperación y respaldos siguen funcionando. Cerrar con aprobación del usuario.
-
-## Arquitectura y decisiones iniciales
-
-| ID | Decisión propuesta | Motivo / condición de revisión |
+| Fase | Entrega conservada | Evidencia histórica |
 | --- | --- | --- |
-| D-01 | Monolito modular por capas | Instalación local sencilla y separación de responsabilidades. |
-| D-02 | ASP.NET Core + Blazor adaptable | Una interfaz para navegador de PC y celulares; modo definitivo en fase 1. |
-| D-03 | SQLite + EF Core en el servidor | Base inicial local; revisar si aparecen contención sostenida, mayor concurrencia o nuevas necesidades operativas. |
-| D-04 | Adjuntos privados en disco y metadatos en SQLite | Evitar acceso público y permitir respaldo conjunto; coordinar consistencia entre archivos y base. |
-| D-05 | Primero localhost, después red privada | Validar operación en una PC antes de sumar certificados y conectividad móvil. |
-| D-06 | Sin servicios externos obligatorios | Mantener operación sin internet. |
-| D-07 | Sin automatización clínica | Conservar registros profesionales y evitar inferencias médicas. |
-| D-08 | Soporte Blazor interactivo en servidor, interactividad por componente cuando se necesite | Evitar activar circuitos para una pantalla informativa; probar reconexión antes de incorporar formularios interactivos. |
-| D-09 | Arranque manual en localhost:5080 durante desarrollo | No configurar servicios de Windows, certificados ni red antes de validar el arranque básico. |
-| D-10 | EF Core y proveedor oficial SQLite 10.0.12 | Instalación autorizada, compatibilidad verificada mediante compilación y pruebas. Fuentes: [proveedores](https://learn.microsoft.com/en-us/ef/core/providers/), [SQLite](https://learn.microsoft.com/en-us/ef/core/providers/sqlite/) y [paquete](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.Sqlite/10.0.12). |
-| D-11 | Contexto inicial sin entidades ni migración vacía; fábrica por operación | Incorporar modelos al implementar cada módulo, sin inventar tablas de negocio durante fase 1. Primera migración junto con la primera entidad real; revisión y aplicación explícitas. |
-| D-12 | Directorio privado configurable y validado; SQLite con claves foráneas y sin pool inicial | Separar archivos públicos y privados, facilitar cierre de archivos y recuperación. Validaciones de rutas no reemplazan permisos/cifrado ni revisión del equipo. |
-| D-13 | ASP.NET Core Identity y páginas Razor HTTP para cuentas; Blazor para interfaz del sistema | Cookies y operaciones de identidad requieren ciclo HTTP. No usar SignInManager en componentes interactivos. Fuentes: [Identity](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/identity?view=aspnetcore-10.0) y [configuración de cookies y sello](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/identity-configuration?view=aspnetcore-10.0). |
-| D-14 | Primer administrador y recuperación sólo por consola local | Sin registro público, credenciales por defecto ni entrega de contraseñas por chat. El acceso depende del usuario autorizado de Windows. |
-| D-15 | Revalidación de cookie en cada solicitud; pantallas protegidas estáticas en esta fase | Revocar acceso inmediatamente al inactivar o cambiar contraseña. Antes de introducir circuitos con datos protegidos, incorporar revalidación del circuito. |
-| D-16 | Roles cerrados y un rol por cuenta en esta entrega | Administrador gestiona usuarios/auditoría; Profesional habilita políticas clínicas; AtenciónVentas no recibe permisos administrativos o clínicos. No hay módulos clínicos todavía. |
-| D-17 | Documento obligatorio, normalizado y único incluso en clientes inactivos | Confirmado por el usuario en fase 3. Contactos opcionales; nacimiento y domicilio excluidos inicialmente. Nombres/teléfonos coincidentes advierten, pero permiten confirmar personas distintas con documentos diferentes. |
-| D-18 | Clientes y visitas mediante componentes Blazor con renderizado estático y formularios POST protegidos | Mantener contexto por operación y evitar circuitos de autenticación persistentes. Búsquedas por POST para no incluir datos personales en URL/logs de solicitudes. Sin paquetes nuevos. |
-| D-19 | Clasificación histórica en cada visita, calculada desde visitas completadas previas | No reescribir el pasado al sumar nuevas atenciones. La clasificación de ficha/listado corresponde a la próxima atención; no equivale a compras previas. Una visita en curso por cliente. |
-| D-20 | Concurrencia con token Guid y restricción única de documento en SQLite | Evitar sobrescrituras y duplicados aun entre operaciones simultáneas. Alta y visita incluyen ID de envío para no repetir la operación ante reenvíos. Cambios y auditoría se guardan atómicamente. |
-| D-21 | Visitas administrativas; claves estables y vínculo restrictivo cliente/visita | En fase 4 se podrán vincular recetas y antecedentes con cliente y visita sin eliminar historial ni aceptar vínculos cruzados. No anticipar tablas ni campos médicos. |
-| D-22 | Una configuración por instalación y contrato separado de los clientes | SQLite conserva una fila BusinessSettings; campos opcionales, versiones de concurrencia y marca genérica por defecto. Misma cabecera para Blazor y páginas de cuentas; namespaces internos sin cambios. |
-| D-23 | Logo normalizado en BLOB, sin archivo original ni ruta de usuario | Atomicidad con configuración y respaldo incluido en SQLite. PNG/JPEG máximo 2 MB/2048 px, decodificación real y salida PNG estática hasta 512 px. [SkiaSharp 4.153.1](https://www.nuget.org/packages/SkiaSharp/4.153.1) y [licencia](https://github.com/mono/SkiaSharp/blob/main/LICENSE.txt). |
-| D-24 | Publicar sólo nombre y logo para presentación | Datos completos y edición requieren business.manage (Administrador). Futuras salidas de documentos podrán reutilizar el perfil con permisos definidos en su fase; no se implementan comprobantes todavía. |
-| D-25 | Primer commit integra la base existente y la ampliación verificada | El proyecto no tenía Git ni historial y el remoto está vacío. No se inventan commits de fases anteriores ni se fuerza el remoto. Primer push requiere revisión del inventario; luego rige autorización de pushes automáticos satisfactorios. |
-| D-26 | Originales inmutables y metadatos de adjuntos por versión, sin cupos de cantidad | SHA-256 antes de descarga, estados Pending/Available/Failed/Retired, FK restrictivas y paginación. Los límites administrables sólo afectan cargas nuevas; los documentos previos permanecen accesibles. |
-| D-27 | Validación PDF con PdfPig 0.1.16, sin reescritura | Biblioteca mantenida incorporada con autorización. Apertura estructural estricta y profundidad acotada; no se ejecutan ni previsualizan PDF dentro de la app. Fuentes: [paquete](https://www.nuget.org/packages/PdfPig/0.1.16), [opciones oficiales](https://github.com/UglyToad/PdfPig/blob/master/src/UglyToad.PdfPig/ParsingOptions.cs). No es una transformación del documento ni evaluación médica de su contenido. |
-| D-28 | Optimización PNG sin pérdida y HEIC/HEIF pendiente de conversor verificado | Recompresión IDAT sin cambiar píxeles, orientación, profundidad ni metadatos; opción explícita y copia descargable. No recomprimir PDF/JPEG. El enum HEIF no demuestra que un decoder esté disponible: [API](https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skencodedimageformat), [seguimiento del proyecto](https://github.com/mono/SkiaSharp/issues/2887). No habilitar conversiones sin pruebas de conservación. |
+| 0 | Alcance y planificación inicial | Documentos y decisiones iniciales. |
+| 1 | Base técnica por capas y aplicación local | Compilación y 8 pruebas aprobadas en esa entrega. |
+| 2 | Usuarios, permisos y auditoría | Compilación y 23 pruebas aprobadas en esa entrega. |
+| 3 | Clientes, documento obligatorio y visitas | Compilación y 44 pruebas aprobadas en esa entrega. |
+| 4 | Recetas, antecedentes, versiones y adjuntos privados | Cierre registrado con 94 pruebas aprobadas; entregas intermedias en BITACORA.md. |
+| 4.1 | Reorganización funcional, trabajos y controles de calidad | 113 pruebas aprobadas y 16 comprobaciones de navegador registradas por separado. |
 
-Dirección de dependencias: Aplicación depende de Dominio; Infraestructura implementa contratos de Aplicación; Web invoca Aplicación y compone Infraestructura. Las reglas no dependen de la interfaz ni de SQLite. No se requiere crear una API separada para los celulares en el alcance inicial.
+Estos conteos son históricos, no nuevas ejecuciones ni sumandos de una única batería. La configuración del negocio y los avances de GitHub también quedan conservados en la bitácora. La verificación de esta reorganización se registra allí antes del commit.
 
-### Decisiones de la ampliación comercial — propuestas para aprobación
+Estado actual que condiciona las próximas fases: gestión de cuentas con un rol por cuenta; respaldo manual consistente; sin catálogo, ventas/pagos, existencias ni encargos comerciales implementados. El trabajo óptico actual exige dos aprobaciones en dominio y SQLite y debe conservarse.
 
-| ID | Decisión | Alcance / motivo |
+## Reglas para las próximas fases
+
+- Área clínica y comercial conservan igual importancia. La atención clínica existente sigue disponible sin compra y no depende de completar las fases comerciales.
+- Trabajar por funcionalidades pequeñas dentro de la fase aprobada; no saltar a otra fase sin autorización.
+- Cada módulo incluye pantallas funcionales, permisos, auditoría, pruebas pertinentes y pasos para comprobarlo en el navegador.
+- No usar datos clínicos reales hasta aceptar seguridad, cifrado, autorizaciones y recuperación. La primera prioridad operativa es resolver esta protección en fase 5.
+- El inventario mínimo necesario para vender se implementa en fase 7; fase 9 lo amplía. Lotes/vencimientos aplican desde el primer manejo físico de productos que los requieran.
+- La adaptación del circuito de calidad se realiza en fase 10. Hasta entonces se mantienen las reglas actuales y no se presentan pedidos nuevos como un circuito de entrega completo.
+
+## Fases pendientes de implementación
+
+### Fase 5 — Multirrol, seguridad y recuperación prioritaria
+
+**Estado: pendiente. No comenzar sin aprobación.**
+
+Tareas: revisar matriz de permisos y compatibilidad; habilitar asignaciones múltiples preservando cuentas/contraseñas; proteger último administrador y revocar sesiones cuando corresponda; automatizar respaldos consistentes, copia externa, retención, integridad y alertas; definir cifrado y recuperación de claves; documentar y practicar restauración aislada.
+
+Criterios de aceptación: interfaz administrativa utilizable; cuentas anteriores conservadas; combinaciones de roles e inactivos sin escalada de privilegios; auditoría y concurrencia verificadas; administrador sin rol clínico no accede a clínica. Restauración verificable de base, todos los adjuntos/versiones y configuración, incluida pérdida del equipo; fallo o desconexión del destino informado sin eliminar copias buenas. Parámetros P-01 y matriz P-04 confirmados antes de implementar sus respectivas partes.
+
+Pruebas: combinaciones de roles, último administrador, cambios simultáneos, sesiones revocadas, permisos clínicos/comerciales; respaldo interrumpido, disco insuficiente, destino ausente, hashes, recuperación aislada y disponibilidad de claves. No activar cifrado ni restaurar sobre datos operativos sin autorización específica.
+
+### Fase 6 — Catálogo y proveedores prácticos
+
+**Estado: pendiente.**
+
+Tareas: pantallas de armazones, cristales, contactos y accesorios; códigos, variantes tipadas realmente utilizadas, unidades, precios y estado; proveedores/laboratorios y contactos. Separar atributos de producto de graduaciones individuales y montaje.
+
+Criterios de aceptación: alta, edición, búsqueda e inactivación desde navegador, permisos y auditoría; sin duplicados ni existencias ficticias; variantes y unidades comprensibles. Resolver P-06 en lo aplicable. No implementar ofertas ni compras agrupadas.
+
+Pruebas: códigos/variantes duplicados, precios exactos, parámetros pertinentes, permisos y conservación de referencias al inactivar.
+
+### Fase 7 — Pedidos, ventas, señas y stock mínimo seguro
+
+**Estado: pendiente.**
+
+Tareas: pedidos comerciales y vínculos con trabajos/versiones técnicas; materiales de stock, de laboratorio y mixtos; precios, descuentos, moneda, pagos parciales, saldo y fechas prometidas. Implementar existencias iniciales trazables, entradas mínimas, reservas/liberaciones y faltantes desde esta fase. Proyección técnica mínima de sólo lectura para operación autorizada.
+
+Criterios de aceptación: circuito práctico en navegador para pedido, seña, saldo, reserva y faltante; disponibilidad real, sin negativos ni doble reserva; material encargado no disponible antes de recibirlo. Publicación técnica autorizada y versionada sin acceso comercial a historia completa. Resolver P-02 y P-03 antes de sus implementaciones. No inventar ventas históricas ni habilitar entrega nueva completa antes de fase 10.
+
+Pruebas: importes/redondeo, pago repetido o anulado, reserva concurrente de última unidad, cancelaciones, pedido mixto/por ojo, material no recibido o vencido, separación de permisos y atención clínica sin compra.
+
+### Fase 8 — Encargos simples y recepción de laboratorio
+
+**Estado: pendiente.**
+
+Tareas: laboratorio, materiales/cantidades, autorización técnica y comercial, fechas estimadas/reales y estados del encargo; demoras, observaciones/correcciones y recepción por material. Documentación mínima exportable sin mensajería automática.
+
+Criterios de aceptación: seguir y recibir un encargo desde navegador; cantidad recibida válida incorporada una sola vez al inventario existente; recepción no equivale a calidad ni entrega. Exportar no marca enviado. Resolver reglas de recepción/cancelación y datos de P-06; no introducir asignaciones de compras agrupadas.
+
+Pruebas: permisos por proyección, cambios técnicos, envíos registrados, demora, recepción parcial, material observado, cancelación y reintento sin duplicar existencias.
+
+### Fase 9 — Inventario ampliado
+
+**Estado: pendiente.**
+
+Tareas: ampliar el núcleo existente con movimientos, ajustes justificados, bajas, devoluciones, alertas y vistas reconciliables; lotes, vencimientos y conversiones exactas de presentaciones cuando correspondan.
+
+Criterios de aceptación: administración práctica desde navegador; separar físico/reservado/disponible/no utilizable/pendiente; conservar trazabilidad sin editar saldos directamente ni crear un segundo libro de inventario. No postergar hasta aquí validaciones indispensables para fase 7.
+
+Pruebas: reconciliación, ajuste/compensación, reintentos, última unidad concurrente, vencimiento posterior a reserva, paquetes/unidades, cancelación sin reponer consumidos y devolución revisada.
+
+### Fase 10 — Calidad y entrega según producto/trabajo
+
+**Estado: pendiente.**
+
+Tareas: aprobar matriz de controles aplicables y roles; adaptar circuito existente sin duplicarlo; revisar restricciones de dominio y SQLite, compatibilidad y migración; preparación y entrega con materiales válidos y regla de pago acordada.
+
+Criterios de aceptación: pruebas desde navegador por tipo de trabajo/producto; historia anterior conservada; ningún “no aplica” evita controles esenciales ni obliga a aprobaciones ficticias. Entregar sólo con controles aplicables aprobados y materiales disponibles/no vencidos; entrega auditada e idempotente. Resolver P-05 antes de alterar reglas existentes.
+
+Pruebas: trabajos y aprobaciones históricos, estados listos/entregados, observaciones y cambios que invalidan aprobación, permisos, contactos vencidos, faltantes, deuda y entregas parciales si se aprueban.
+
+### Fase 11 — Caja básica e informes operativos
+
+**Estado: pendiente.**
+
+Tareas: caja, ingresos por medio de pago, cierres y reportes básicos conciliados con pedidos, pagos y anulaciones, con permisos explícitos.
+
+Criterios de aceptación: consulta y cierre desde navegador con cifras reconciliables y trazabilidad; sin contabilidad integral ni reportes que filtren información clínica o financiera fuera de permiso.
+
+Pruebas: cierre, anulaciones, medios de pago, moneda, saldos y diferencias justificadas; regresiones del circuito de pagos.
+
+### Fase 12 — Experiencia final y operación Windows/Wi-Fi
+
+**Estado: pendiente.**
+
+Tareas: rediseño visual definitivo, navegación y accesibilidad; operación en PC y tres celulares, HTTPS/firewall privados, recursos locales, instalación y actualización seguras con respaldo.
+
+Criterios de aceptación: cuatro sesiones simultáneas en red local sin internet, pantallas adaptables, desconexión/reintento comprensibles y actualización que preserve datos. Revalidar recuperación y condiciones de uso de datos reales.
+
+Pruebas: recorridos completos por rol, tamaños de pantalla, concurrencia, recursos sin internet, permisos de red, interrupciones y recuperación tras actualización.
+
+## Confirmaciones pendientes — única lista vigente
+
+Estas decisiones no bloquean la reorganización documental; deben resolverse antes de implementar el comportamiento afectado.
+
+| ID | Confirmación necesaria | Antes de |
 | --- | --- | --- |
-| D-29 | Acceso exclusivamente de empleados y base por instalación | Clientes, médicos externos y proveedores son registros; sin registro público, portal ni multiempresa compartida. |
-| D-30 | Producto, variante, presentación, oferta y lote separados | Evitar duplicar artículos por proveedor, mezclar envases o ocultar atributos críticos en texto libre. |
-| D-31 | Inventario por movimientos con reservas separadas y saldo reconciliable | Disponibilidad excluye no utilizables y compras pendientes; transacciones, concurrencia y reintentos seguros. |
-| D-32 | Pedido comercial distinto del trabajo OpticalWork existente | Preservar calidad, recetas/versiones y trabajos históricos; no inventar ventas retroactivas ni un segundo motor de control. |
-| D-33 | Datos técnicos por ojo y montaje versionados | Aprobación profesional explícita; ningún cálculo de compatibilidad clínica ni sustitución automática. |
-| D-34 | Autorización comercial distinta de técnica y documentos con proyecciones por rol | Administrador aprueba costos/compra; Profesional prepara el anexo técnico mínimo; Ventas recibe resumen sin antecedentes ni graduaciones del paciente. |
-| D-35 | Etapas 5.A/5.B y 6.C–6.G | Conservar fases 5–8 y exigir aprobación entre entregas. Priorizar backend; UX/UI definitivo y licencias quedan fuera. |
-| D-36 | Escalas exactas para unidades e importes | Propuesta de enteros escalados y moneda explícita; validar precisión/redondeo antes de código y conservarlos en documentos. |
+| P-01 | Destino externo y dispositivo, frecuencia, retención, pérdida/tiempo de recuperación aceptables, responsables, cifrado compatible y custodia/recuperación de claves. | Automatización/cifrado de fase 5. |
+| P-02 | Campos exactos de la proyección técnica comercial, destinatarios, aprobación/publicación y efecto de corregir o revocar una versión. Nunca incluir historia completa ni permitir editar graduaciones. | Proyección de fase 7 y documentos de fase 8. |
+| P-03 | Moneda, escalas/redondeo, descuentos autorizados, excedentes/devoluciones, anulaciones, permisos de pagos y entrega con deuda. | Ventas/pagos de fase 7. |
+| P-04 | Matriz multirrol, quién asigna/revoca roles, cambios de permisos propios, último administrador e invalidación de sesiones. | Cambios de cuentas de fase 5. |
+| P-05 | Controles esenciales y aplicabilidad por producto/trabajo, transición de restricciones actuales y reglas de entrega parcial. | Adaptación de fase 10. |
+| P-06 | Variantes/unidades y datos mínimos del catálogo/proveedor; autorización comercial, recepción parcial, material observado y cancelación del encargo. | Catálogo de fase 6 y encargos de fase 8, según corresponda. |
 
-## Registro de progreso
+## Seguimiento de esta entrega y próxima acción
 
-| Fecha | Tarea | Resultado / verificación | Pendiente |
-| --- | --- | --- | --- |
-| 2026-10-15 | Planificación inicial | Ubicación confirmada; tres documentos creados. Sin código ni instalaciones. | Revisión y aprobación de fase 1. |
-| 2026-10-15 | Base de fase 1 autorizada | Solución con cuatro capas, pantalla inicial, configuración local, estilos locales, exclusiones y README. `dotnet sln add` completado. | Compilar y arrancar con SDK 10; proyectos de pruebas y persistencia pendientes. |
-| 2026-10-15 | Verificación del entorno | `dotnet --info` confirmó Windows x64 y único SDK 8.0.100. `dotnet build OpticaSosa.sln --no-restore` falló con NETSDK1045. Sin paquetes instalados. Consulta de memoria por CIM denegada; disco G con aproximadamente 765 GiB libres. | Autorizar instalación de SDK .NET 10. Confirmar RAM, versiones EF/SQLite y reglas funcionales antes de sus módulos. |
-| 2026-10-15 | Instalación y validación de base | SDK 10.0.402 instalado mediante winget oficial con autorización. Consulta CIM autorizada confirmó Windows 11 Pro x64 y aproximadamente 15 GiB utilizables. `dotnet build OpticaSosa.sln --no-restore`: 0 errores y 0 advertencias. | Persistencia y proyectos de pruebas sin paquetes instalados. |
-| 2026-10-15 | Arranque y recursos locales | Se corrigió mapeo con MapStaticAssets y perfil Development. HTTP 200 en inicio, CSS, Blazor JS y página de error; ruta inexistente 404. HTML sin recursos externos. SDK fijado en global.json. | Validación visual y prueba sin internet desconectado pendientes; no se afirma haberlas ejecutado. Fase 2 no iniciada. |
-| 2026-10-15 | Persistencia base y pruebas autorizadas | Instalados EF Core SQLite 10.0.12, Microsoft.NET.Test.Sdk 18.0.1, xUnit 2.9.3 y runner 3.1.5. Fábrica SQLite, contexto vacío y rutas privadas. `dotnet build OpticaSosa.sln --no-restore`: 0 errores/advertencias; `dotnet test OpticaSosa.sln --no-build --no-restore`: 8 aprobadas, 0 fallidas/omitidas. | Aceptación de fase 1; ningún módulo funcional implementado aún. |
-| 2026-10-15 | Integración de persistencia con Web | Arranque sin migraciones ni base operativa; creada carpeta privada de adjuntos. Inicio, CSS y JS respondieron 200 tras el cambio. Sin paquetes adicionales fuera de lo autorizado. | Inspección visual y prueba con desconexión física de internet no ejecutadas. |
-| 2026-10-15 | Fase 1 revisada y fase 2 autorizada | Usuario visualizó la instancia local y pidió continuar con fase 2; luego autorizó Identity EF, Design, dotnet-ef y Mvc.Testing. | Aceptación de la nueva interfaz de cuentas tras crear administrador. |
-| 2026-10-15 | Usuarios, permisos y auditoría | Casos de uso autorizados, Identity, páginas HTTP con CSRF, cookies, bloqueo, inactivación, cambio de contraseña, recuperación local y auditoría. Migración InitialIdentity generada y revisada: Up crea tablas/índices; no se ejecutó Down. | Sin funciones de clientes, clínicas ni comerciales; fase 3 requiere aprobación. |
-| 2026-10-15 | Verificación final fase 2 | `dotnet build OpticaSosa.sln --no-restore`: 0 errores/advertencias. `dotnet test OpticaSosa.sln --no-build --no-restore`: 23 aprobadas (9 Infraestructura, 14 Web). `dotnet-ef migrations has-pending-model-changes`: sin cambios pendientes. | Primera cuenta real de acceso a elegir por el usuario, sin pacientes. |
-| 2026-10-15 | Preparación local de fase 2 | Se confirmó ausencia de optica.db, se restringió data con ACL Windows y se aplicó explícitamente InitialIdentity y roles sobre base nueva. ACL protegida con 3 reglas. Servidor reiniciado en segundo plano: localhost:5080; ingreso/CSS 200, inicio/usuarios anónimos 302 a ingreso; stderr vacío. | Servidor activo para revisión. Crear primer administrador con --create-admin en terminal local. |
-
-En tareas futuras registrar aquí el alcance concreto, comandos/pruebas ejecutados y resultados reales. Si una verificación no pudo ejecutarse, indicar motivo y riesgo pendiente.
-
-### Entrega de fase 3 — 2026-10-15
-
-- Alcance cotejado antes de modificar código: fase 3 es Clientes y visitas; se explicó al usuario la inclusión de inactivación e historial. Confirmó documento obligatorio, nombre y apellido obligatorios y contactos opcionales.
-- Implementados Dominio, contratos/casos de uso, persistencia EF Core y componentes Blazor SSR del módulo. Permisos nuevos para lectura/escritura administrativa en los tres roles e inactivación sólo para Administrador. Auditoría guarda acciones e IDs, sin copiar nombres, documentos, contactos ni notas.
-- `dotnet build OpticaSosa.sln --no-restore`: 0 errores y 0 advertencias. `dotnet test OpticaSosa.sln --no-build --no-restore`: 44 aprobadas (15 Infraestructura, 29 Web), ninguna fallida/omitida. Modelo y migración coinciden según `dotnet-ef migrations has-pending-model-changes`.
-- Prueba de actualización desde InitialIdentity preservó usuarios, hashes, roles, auditoría y adjuntos ficticios. La migración CustomersAndVisits sólo crea tablas, índices y restricciones en Up; no se ejecutó Down ni se eliminaron registros.
-- Antes de aplicar: servidor anterior detenido; copia mediante API de respaldo de SQLite en `data/migration-backups/pre-fase3-2026-10-15-bfa993fad551434e9de75193a68c179f`, reabierta y verificada con integrity_check y foreign_key_check. Adjuntos incluidos (0 archivos existentes). Es una copia local de seguridad para esta actualización, no el módulo de respaldos de fase 7.
-- Aplicación explícita con `--initialize-database` completada. Comparación posterior confirmó las 8 tablas previas sin cambios de registros, una cuenta conservada, integridad correcta y tablas nuevas vacías. No se cargaron clientes ficticios en la base local.
-- Servidor reiniciado en segundo plano en localhost:5080. Ingreso, CSS y Blazor JS responden 200; clientes/nuevo y listado anónimos redirigen al ingreso (302); stderr vacío. Pruebas autenticadas de formularios completas en host aislado. Revisión visual manual pendiente; no se afirma haberla realizado.
-- Falta aceptación del usuario y autorización explícita antes de fase 4.
-
-### Entrega de fase 4.1 — 2026-10-16
-
-- Implementados navegación compartida, ficha central, directorio clínico, fichas profesionales con especialidad/contactos y vínculos históricos, consultas/controles informados y motivos declarados. El guardado clínico vuelve al historial del cliente; carga múltiple con vistas locales, retiro de selección, resultado parcial explícito y originales sujetos a la seguridad existente.
-- Pedidos mínimos, plantillas administrables, dos etapas de calidad, controles inmutables por ronda, motivos de rectificación, permisos específicos, transiciones restringidas y auditoría atómica. Ambos controles deben aprobarse antes de entregar. Cambios relevantes invalidan aprobaciones; se conserva historia. La receta vinculada queda fijada a su versión, con protección adicional de pertenencia en SQLite.
-- Compilación final: `dotnet build OpticaSosa.sln --no-restore -m:1 -nr:false -p:UseSharedCompilation=false`: **0 errores, 0 advertencias**.
-- Suite final: `dotnet test OpticaSosa.sln --no-build --no-restore --verbosity minimal -m:1 -nr:false`: **113 ejecutadas, 113 aprobadas, 0 fallidas y 0 omitidas** (33 Infraestructura y 80 Web). No se suman reejecuciones como pruebas distintas. Incluye bypass HTTP/servicio, observados/pendientes/No aplica, concurrencia, idempotencia, invalidación, separación por pedido, snapshots de rol/fecha, vínculos cruzados, documentos múltiples y regresiones anteriores.
-- `dotnet-ef migrations has-pending-model-changes --project src/OpticaSosa.Infrastructure --startup-project src/OpticaSosa.Web --no-build`: modelo sincronizado. Los primeros intentos detectaron bloqueo de DLL por servidor abierto, límite de memoria y una consulta no traducible a SQL; se corrigieron antes de la verificación final. Las pruebas se ejecutaron con permisos para comunicación local entre procesos; sin dependencias nuevas.
-- Revisión en navegador Brave instalado mediante Playwright ya disponible, con base y cuentas ficticias aisladas en un directorio temporal exclusivo: **16 comprobaciones satisfactorias**. Se recorrieron selección de cliente/profesional, consulta con archivo y vista previa, pedido, observación/corrección, aprobación técnica, aprobación previa a entrega por Ventas, rechazo de acceso técnico y entrega. Sin errores JavaScript; fichas sin desbordamiento horizontal a 390 px. Capturas inspeccionadas de escritorio (1440 px) y móvil (390 px). No equivale a probar celulares físicos ni acceso Wi-Fi; sigue en fase 8. Edge no pudo iniciar para automatización; no se instalaron navegadores.
-- Antes de migrar, copia SQLite mediante su API de backup en `data/migration-backups/pre-fase41-361984ca67f24c83bd22c08b266531f4`, con manifiesto de columnas, filas y hashes y copia de adjuntos existentes (0). Tras `--initialize-database`, verificados los valores de **las 17 tablas previas sin cambios**, integridad, claves foráneas y dos triggers nuevos. No se introdujeron pedidos ni pacientes ficticios en la base local.
-- Git: remoto `NadiaEnoaRizoAvalos/optica_` confirmado privado, rama `main`, historial remoto existente preservado. Bases, copias, capturas, logs y herramientas temporales de revisión permanecen excluidos de Git.
-- Pendientes de alcance: aceptación del usuario; inventario en fase 5 y circuito comercial completo en fase 6; operación de respaldos en fase 7 y conexión segura de celulares en fase 8. Ninguna de esas fases se inicia automáticamente.
-
-### Planificación de la ampliación comercial interna — 2026-10-16
-
-- Revisados los cuatro proyectos por capas, entidades/DbContext, permisos, trabajo mínimo y pruebas existentes. Implementado: usuarios/negocio, clientes/visitas, clínica/profesionales/adjuntos y trabajo/calidad/entrega mínimos. Faltan catálogo/proveedores, inventario, ventas/presupuestos, pedido comercial, reservas y abastecimiento/recepciones; respaldos operativos y Wi-Fi permanecen en fases 7/8.
-- Actualizados exclusivamente AGENTS.md, REQUISITOS.md y PLANS.md: acceso interno sin cuentas de clientes/externos, modelo conceptual/cardinalidades, separación clínica/comercial, roles y proyecciones, unidades/precios/lotes, riesgos y fuentes oficiales de fabricantes. No se agregó código, paquete, tabla ni migración ni se cambió la base local.
-- A–G organizadas como 5.A/5.B y 6.C–6.G, conservando numeración y controles existentes. Cada etapa incluye objetivo, funcionalidades, entidades, dependencias, pruebas previstas, aceptación y estado. Todas pendientes de implementación/aprobación. Rediseño definitivo y comercialización del software fuera de este trabajo.
-- Validación previa al versionado documental: `git diff --check` sin errores; `dotnet build OpticaSosa.sln --no-restore -m:1 -nr:false -p:UseSharedCompilation=false`: **0 errores y 0 advertencias**. Un primer intento falló por DLL bloqueadas por el servidor abierto; se detuvo exclusivamente esta aplicación y se repitió satisfactoriamente.
-- `dotnet test OpticaSosa.sln --no-build --no-restore --verbosity minimal -m:1 -nr:false`: **113 ejecutadas, 113 aprobadas, 0 fallidas y 0 omitidas** (33 Infraestructura, 80 Web). Son regresiones existentes ejecutadas nuevamente, no pruebas nuevas ni validación de módulos futuros.
-- Remoto confirmado privado y sincronizado en main antes de versionar; sólo los tres documentos se incluyen en la entrega. Commit/push se informan al cierre, sin un commit adicional para su propio hash. Se restablece la instancia habitual en localhost:5080.
-- **Pendiente:** aprobación explícita de **5.A / Etapa A — Productos, categorías, variantes y proveedores** y validación de sus reglas abiertas antes de programar. Esta planificación no inicia fase 5 ni autoriza avanzar a B–G.
-
-### Confirmaciones de alcance
-
-El usuario confirmó los roles administrador, atención/ventas y profesional con acceso clínico restringido, y la clasificación de recurrente basada en una visita completada anterior. Autorizó SDK, EF Core/SQLite y pruebas; aprobó fase 2 y sus paquetes adicionales y herramienta local EF. Posteriormente aprobó fase 3, solicitó cotejar su alcance y confirmó documento obligatorio. Tras publicar el avance en GitHub aprobó fase 4, pidió informar cantidades de pruebas en las próximas entregas y confirmó 3 decimales en dioptrías y 2 en distancia pupilar binocular. La fase 5 requiere nueva aprobación explícita.
+- Reorganización documental completada y verificada; resultados registrados en BITACORA.md. Commit y push documentales se comprueban e informan al cierre, sin un commit adicional para su propio identificador.
+- Plan anterior y decisiones D-01–D-36 conservados con su contexto histórico; D-37–D-46 registran la aprobación y sus límites.
+- Siguiente paso: presentar documentos, verificación y commit/push; esperar aprobación explícita para iniciar fase 5. No hay tareas de programación iniciadas por esta entrega.
