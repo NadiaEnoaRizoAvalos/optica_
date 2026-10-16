@@ -14,6 +14,12 @@
     @if (latest.Error is not null) { <p role="alert">@latest.Error</p> }
 }
 else { <p><strong>Último intento:</strong> Sin intentos registrados</p> }
+@if (!Model.Overview.SchemaReady)
+{
+    <p role="note">Pantalla nueva de respaldos — fase 5.2.A. La migración pendiente no impide abrir esta página. Se muestran valores iniciales de referencia, sin configuración guardada ni acceso al destino; los controles permanecen deshabilitados hasta autorizar y aplicar la actualización. Las copias manuales locales anteriores siguen en Almacenamiento clínico y no se incorporan automáticamente a este historial.</p>
+    <p><strong>Disco externo configurado:</strong> No disponible hasta completar la actualización autorizada.</p>
+    <p><strong>Estado de conexión:</strong> Sin consultar; no se verificó un destino configurado.</p>
+}
 @if (Model.Overview.Destination is { } destination)
 {
     <p><strong>Disco externo configurado:</strong> @(destination.Disk?.DisplayName ?? Model.Overview.Configuration.VolumeId ?? "Sin destino")</p>
@@ -26,9 +32,9 @@ else { <p><strong>Último intento:</strong> Sin intentos registrados</p> }
 @if (Model.Overview.NextRetryUtc is { } retry) { <p>Próximo reintento: @Model.DisplayDate(retry)</p> }
 <p>Zona del horario configurado: @Model.Overview.Configuration.TimeZoneId</p>
 <p><a href="/admin/archivos-clinicos">Crear copia manual local existente</a></p>
-@if (Model.Overview.SchemaReady)
-{
     <section><h2>Destino y configuración</h2>
+    <fieldset disabled="@(!Model.Overview.SchemaReady)">
+    <legend>Configuración de respaldos automáticos</legend>
     <p>Inspeccionar sólo consulta identidad y capacidad. Guardar no modifica el disco. Se identifica por GUID de volumen, no por letra.</p>
     <form method="post" asp-page-handler="Inspect"><button type="submit">Inspeccionar discos (sólo lectura)</button></form>
     @foreach (var disk in Model.Targets)
@@ -62,8 +68,11 @@ else { <p><strong>Último intento:</strong> Sin intentos registrados</p> }
         <p>Con autorización de escritura habilitada, vincular crea únicamente un pequeño marcador de esta instalación dentro de la carpeta privada guardada. No activa la programación ni copia datos clínicos.</p>
         <button type="submit">Vincular carpeta guardada (requiere autorización)</button>
     </form>
-    <form method="post" asp-page-handler="Manual"><button type="submit">Encolar copia manual al destino configurado</button></form></section>
+    <form method="post" asp-page-handler="Manual"><button type="submit">Encolar copia manual al destino configurado</button></form>
+    </fieldset></section>
     <section><h2>Últimas ejecuciones</h2><p>Se muestran las últimas 50. El historial guardado no se elimina por este límite.</p>
+    @if (!Model.Overview.SchemaReady) { <p>Historial no disponible hasta completar la actualización autorizada.</p> }
+    else if (Model.Overview.Runs.Count == 0) { <p>No hay ejecuciones registradas en el módulo nuevo.</p> }
     @foreach (var run in Model.Overview.Runs)
     {
         <article><h3>@Model.DisplayDate(run.StartedUtc) — @OpticaSosa.Web.Pages.Admin.BackupsModel.DisplayStatus(run.Status)</h3>
@@ -74,4 +83,3 @@ else { <p><strong>Último intento:</strong> Sin intentos registrados</p> }
         </article>
     }
     </section>
-}

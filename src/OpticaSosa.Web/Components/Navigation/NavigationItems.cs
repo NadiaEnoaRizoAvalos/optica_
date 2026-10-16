@@ -13,5 +13,6 @@ public static class NavigationItems
         new("/pedidos", "Pedidos", "Trabajos ópticos y seguimiento por cliente.", "05", Permissions.ReadOrders),
         new("/calidad", "Control de calidad", "Verificaciones técnicas y previas a la entrega.", "06", Permissions.ReadOrders),
         new("/entregas", "Entregas", "Pedidos aprobados y entregas registradas.", "07", Permissions.DeliverOrders),
-        new("/administracion", "Configuración y administración", "Usuarios, negocio, archivos y requisitos de calidad.", "08", Permissions.ManageBusiness)];
+        new("/administracion", "Configuración y administración", "Usuarios, negocio, archivos y requisitos de calidad.", "08", Permissions.ManageBusiness),
+        new("/admin/respaldos", "Respaldos y recuperación", "Destino externo, programación e historial de copias.", "09", Permissions.ManageBackups)];
 }

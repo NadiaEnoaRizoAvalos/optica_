@@ -2,6 +2,7 @@
 @model OpticaSosa.Web.Pages.Admin.ClinicalFilesModel
 @{ ViewData["Title"] = "Almacenamiento clínico"; }
 <p class="eyebrow">Administración</p><h1>Almacenamiento clínico</h1>
+<p>Esta pantalla administra límites de archivos y la copia manual local en el servidor. Para consultar el disco externo, el horario, el historial y las alertas, abrí <a href="/admin/respaldos">Respaldos y recuperación — fase 5.2.A</a>.</p>
 <p>Espacio disponible en el disco del servidor: @Model.AvailableMiB.ToString("N0") MB. Reserva de seguridad configurada: @Model.ReserveMiB MB.</p>
 @if (Model.Message is not null) { <p role="status" class="saved-message">@Model.Message</p> }
 <form method="post">
@@ -17,5 +18,5 @@
     <h2>Copia local con documentos</h2>
     <p>Incluye una copia consistente de SQLite y todos los archivos privados, también documentos históricos y retirados. Se verifica integridad y correspondencia de los originales.</p>
     <form method="post" asp-page-handler="Backup"><button type="submit">Crear copia local verificada</button></form>
-    <p class="field-help">Se guarda en el directorio privado del servidor. Una copia en el mismo disco no cubre su rotura. La programación, cifrado, retención y recuperación operativa se completarán en fase 7.</p>
+    <p class="field-help">Se guarda en el directorio privado del servidor. Una copia en el mismo disco no cubre su rotura. La programación, cifrado, retención y recuperación operativa corresponden a la fase 5.2.A; su habilitación requiere las autorizaciones y verificaciones pendientes. Revisá su estado en <a href="/admin/respaldos">Respaldos y recuperación</a>.</p>
 </section>
