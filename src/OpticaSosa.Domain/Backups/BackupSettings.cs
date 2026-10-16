@@ -9,6 +9,8 @@ public sealed class BackupSettings
     public string? LocalTime { get; set; }
     public string TimeZoneId { get; set; } = TimeZoneInfo.Local.Id;
     public string? VolumeId { get; set; }
+    public string RelativeFolder { get; set; } = BackupFolder.Default;
+    public Guid? BindingId { get; set; }
     public int KeepCopies { get; set; } = 30;
     public Guid Version { get; set; } = Guid.NewGuid();
     public DateTime? NextUtc { get; set; }
@@ -26,6 +28,8 @@ public sealed class BackupRun
     public string? Error { get; set; }
     public string? DirectoryName { get; set; }
     public string? VolumeId { get; set; }
+    public string RelativeFolder { get; set; } = BackupFolder.Default;
+    public Guid? BindingId { get; set; }
     public int Files { get; set; }
     public int MissedPeriods { get; set; }
     public string? ActorId { get; set; }

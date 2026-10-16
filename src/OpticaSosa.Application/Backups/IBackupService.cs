@@ -1,7 +1,7 @@
 namespace OpticaSosa.Application.Backups;
 
 public sealed record BackupConfiguration(bool Enabled, int EveryDays, string? LocalTime, string TimeZoneId,
-    string? VolumeId, int KeepCopies, Guid Version);
+    string? VolumeId, int KeepCopies, Guid Version, string RelativeFolder = "Respaldos", bool DestinationBound = false);
 public sealed record BackupTarget(string VolumeId, string DisplayName, string FileSystem, string PhysicalDisks,
     long TotalBytes, long FreeBytes, bool Independent, bool Compatible, string Protection);
 public sealed record BackupRunView(Guid Id, DateTime StartedUtc, DateTime? FinishedUtc, string Trigger,
@@ -16,5 +16,6 @@ public interface IBackupService
     Task<IReadOnlyList<BackupTarget>> InspectTargetsAsync(CancellationToken ct = default);
     Task<BackupAction> ConfigureAsync(BackupConfiguration input, CancellationToken ct = default);
     Task<BackupAction> RequestAsync(CancellationToken ct = default);
+    Task<BackupAction> BindDestinationAsync(Guid version, CancellationToken ct = default);
     Task<BackupAction> VerifyAsync(Guid runId, CancellationToken ct = default);
 }

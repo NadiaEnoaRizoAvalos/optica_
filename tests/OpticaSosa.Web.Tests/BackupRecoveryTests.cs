@@ -48,11 +48,15 @@ public sealed class BackupRecoveryTests
         await using var db = await test.App.Services.GetRequiredService<IDbContextFactory<OpticaDbContext>>().CreateDbContextAsync();
         var settings = await db.BackupSettings.SingleAsync();
         var run = new BackupRun { Status = "Running", StartedUtc = test.Clock.Now.UtcDateTime,
-            VolumeId = FakeBackupTargets.Volume }; run.DirectoryName = run.Id.ToString("N"); db.Add(run); await db.SaveChangesAsync();
-        var target = test.Targets.Resolve(FakeBackupTargets.Volume, settings.InstallationId, true);
+            VolumeId = FakeBackupTargets.Volume, RelativeFolder = settings.RelativeFolder, BindingId = settings.BindingId };
+        run.DirectoryName = run.Id.ToString("N"); db.Add(run); await db.SaveChangesAsync();
+        var target = test.Targets.Resolve(FakeBackupTargets.Volume, settings.InstallationId, true, settings.RelativeFolder, settings.BindingId);
         await test.App.Services.GetRequiredService<ClinicalSnapshotWriter>().CreateAsync(target.Directory, default, run.Id);
+        var actualCompletion = test.Clock.Now.UtcDateTime;
+        test.Clock.Now = test.Clock.Now.AddHours(3);
         await test.Coordinator.TickAsync();
         Assert.Equal("Complete", Assert.Single((await test.Coordinator.OverviewAsync(default)).Runs).Status);
+        Assert.Equal(actualCompletion, (await test.Coordinator.OverviewAsync(default)).LastValidUtc);
         Assert.Single(Directory.GetDirectories(target.Directory));
     }
 

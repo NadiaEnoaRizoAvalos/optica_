@@ -18,6 +18,7 @@ public sealed class BackupSettingsConfiguration : IEntityTypeConfiguration<Backu
         b.Property(x => x.TimeZoneId).HasMaxLength(128);
         b.Property(x => x.VolumeId).HasMaxLength(512);
         b.Property(x => x.LocalTime).HasMaxLength(5);
+        b.Property(x => x.RelativeFolder).HasMaxLength(240);
     }
 }
 
@@ -32,5 +33,6 @@ public sealed class BackupRunConfiguration : IEntityTypeConfiguration<BackupRun>
         b.Property(x => x.VolumeId).HasMaxLength(512);
         b.Property(x => x.DirectoryName).HasMaxLength(32);
         b.Property(x => x.ActorId).HasMaxLength(450);
+        b.Property(x => x.RelativeFolder).HasMaxLength(240);
     }
 }

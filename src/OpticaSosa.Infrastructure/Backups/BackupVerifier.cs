@@ -9,14 +9,14 @@ namespace OpticaSosa.Infrastructure.Backups;
 
 public sealed class BackupVerifier(StoragePaths paths, IStorageCapacity capacity, IOptions<BackupRuntimeOptions> options)
 {
-    public async Task VerifyAsync(string directory, CancellationToken ct = default)
+    public async Task<DateTime> VerifyAsync(string directory, CancellationToken ct = default)
     {
-        try { await VerifyCoreAsync(directory, ct); }
-        catch (Exception ex) when (ex is JsonException or InvalidOperationException or KeyNotFoundException or ArgumentException)
+        try { return await VerifyCoreAsync(directory, ct); }
+        catch (Exception ex) when (ex is JsonException or InvalidOperationException or KeyNotFoundException or ArgumentException or FormatException)
         { throw new InvalidDataException("El manifiesto no es válido o no es compatible.", ex); }
     }
 
-    private static async Task VerifyCoreAsync(string directory, CancellationToken ct)
+    private static async Task<DateTime> VerifyCoreAsync(string directory, CancellationToken ct)
     {
         BackupFileSafety.RejectLinks(directory);
         var manifestPath = BackupFileSafety.Child(directory, "complete.json");
@@ -27,6 +27,7 @@ public sealed class BackupVerifier(StoragePaths paths, IStorageCapacity capacity
         if (root.GetProperty("Status").GetString() != "Complete" || root.GetProperty("Format").GetInt32() != 2)
             throw new IOException("Formato de copia no compatible.");
         var files = root.GetProperty("Files");
+        var createdAt = root.GetProperty("CreatedAtUtc").GetDateTime().ToUniversalTime();
         foreach (var name in new[] { "optica.db", "configuration.json", "recovery.txt" })
             if (!files.TryGetProperty(name, out _)) throw new IOException("Falta material de recuperación.");
         foreach (var item in files.EnumerateObject())
@@ -37,6 +38,7 @@ public sealed class BackupVerifier(StoragePaths paths, IStorageCapacity capacity
                 throw new IOException("Un archivo de la copia no conserva su hash.");
         }
         await ClinicalSnapshotWriter.VerifyDatabaseAsync(Path.Combine(directory, "optica.db"), directory, ct);
+        return createdAt;
     }
 
     public async Task<string> RestoreIsolatedAsync(string directory, CancellationToken ct = default)

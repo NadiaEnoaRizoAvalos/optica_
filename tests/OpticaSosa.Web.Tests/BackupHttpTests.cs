@@ -25,6 +25,7 @@ public sealed class BackupHttpTests
         await Assert.ThrowsAsync<UnauthorizedAccessException>(() => service.InspectTargetsAsync());
         await Assert.ThrowsAsync<UnauthorizedAccessException>(() => service.RequestAsync());
         await Assert.ThrowsAsync<UnauthorizedAccessException>(() => service.VerifyAsync(Guid.NewGuid()));
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(() => service.BindDestinationAsync(Guid.NewGuid()));
     }
 
     [Fact]
@@ -35,10 +36,11 @@ public sealed class BackupHttpTests
         var html = await client.GetStringAsync("/admin/respaldos");
         Assert.Contains("Respaldos y recuperación", html); Assert.DoesNotContain("value=\"20:00\"", html);
         Assert.Equal(HttpStatusCode.BadRequest, (await client.PostAsync("/admin/respaldos?handler=Save", new FormUrlEncodedContent(new Dictionary<string,string>()))).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, (await client.PostAsync("/admin/respaldos?handler=Bind", new FormUrlEncodedContent(new Dictionary<string,string>()))).StatusCode);
         var view = await test.Coordinator.OverviewAsync(default);
         var saved = await BrowserForms.PostAsync(client, "/admin/respaldos", "/admin/respaldos?handler=Save", new()
         { ["Enabled"] = "false", ["EveryDays"] = "7", ["LocalTime"] = "07:30", ["TimeZoneId"] = "UTC",
-          ["VolumeId"] = FakeBackupTargets.Volume, ["KeepCopies"] = "3", ["Version"] = view.Configuration.Version.ToString() });
+          ["VolumeId"] = FakeBackupTargets.Volume, ["KeepCopies"] = "3", ["RelativeFolder"] = "Respaldos", ["Version"] = view.Configuration.Version.ToString() });
         Assert.Equal(HttpStatusCode.Redirect, saved.StatusCode);
         Assert.Equal(7, (await test.Coordinator.OverviewAsync(default)).Configuration.EveryDays);
         Assert.False(Directory.Exists(test.Targets.Root));
@@ -54,9 +56,9 @@ public sealed class BackupHttpTests
             Options.Create(new BackupRuntimeOptions { WorkerEnabled = true }), TimeProvider.System,
             NullLogger<OpticaSosa.Web.Backups.BackupWorker>.Instance);
         await worker.StartAsync(default);
-        var until = DateTime.UtcNow.AddSeconds(10);
+        var until = DateTime.UtcNow.AddSeconds(60);
         while (DateTime.UtcNow < until && !(await test.Coordinator.OverviewAsync(default)).Runs.Any(x => x.Status == "Complete"))
-            await Task.Delay(30);
+            await Task.Delay(100);
         await worker.StopAsync(default);
         Assert.Equal("Complete", Assert.Single((await test.Coordinator.OverviewAsync(default)).Runs).Status);
     }

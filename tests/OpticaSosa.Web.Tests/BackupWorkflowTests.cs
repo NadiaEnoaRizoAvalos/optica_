@@ -60,7 +60,8 @@ public sealed class BackupWorkflowTests
         test.Clock.Now = test.Clock.Now.AddHours(2); test.Targets.Connected = false;
         await test.Coordinator.TickAsync();
         var failed = await test.Coordinator.OverviewAsync(default);
-        Assert.Equal("Failed", Assert.Single(failed.Runs).Status); Assert.NotNull(failed.Alert); Assert.False(Directory.Exists(test.Targets.Root));
+        Assert.Equal("Failed", Assert.Single(failed.Runs).Status); Assert.NotNull(failed.Alert);
+        Assert.Empty(Directory.GetDirectories(test.Targets.Root));
         await test.Coordinator.TickAsync(); Assert.Single((await test.Coordinator.OverviewAsync(default)).Runs);
         test.Targets.Connected = true; test.Clock.Now = test.Clock.Now.AddMinutes(16);
         await test.Coordinator.TickAsync(); Assert.Contains((await test.Coordinator.OverviewAsync(default)).Runs, x => x.Status == "Complete");
@@ -101,7 +102,9 @@ public sealed class BackupWorkflowTests
     {
         await using var test = new BackupTestContext(); await test.InitializeAsync(); await test.ConfigureAsync();
         await using var db = await test.App.Services.GetRequiredService<IDbContextFactory<OpticaDbContext>>().CreateDbContextAsync();
-        db.Add(new BackupRun { StartedUtc = test.Clock.Now.UtcDateTime.AddMinutes(-1), Status = "Running", VolumeId = FakeBackupTargets.Volume });
+        var settings = await db.BackupSettings.SingleAsync();
+        db.Add(new BackupRun { StartedUtc = test.Clock.Now.UtcDateTime.AddMinutes(-1), Status = "Running", VolumeId = FakeBackupTargets.Volume,
+            RelativeFolder = settings.RelativeFolder, BindingId = settings.BindingId });
         await db.SaveChangesAsync(); await test.Coordinator.TickAsync();
         var rows = (await test.Coordinator.OverviewAsync(default)).Runs;
         Assert.Contains(rows, x => x.Status == "Complete"); Assert.Contains(rows, x => x.Status == "Failed");

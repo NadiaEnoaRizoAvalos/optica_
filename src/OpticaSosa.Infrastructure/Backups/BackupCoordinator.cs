@@ -21,7 +21,9 @@ public sealed partial class BackupCoordinator(IDbContextFactory<OpticaDbContext>
         await connection.OpenAsync(ct);
         await using var command = connection.CreateCommand();
         command.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name IN ('BackupSettings','BackupRuns')";
-        return (long)(await command.ExecuteScalarAsync(ct))! == 2;
+        if ((long)(await command.ExecuteScalarAsync(ct))! != 2) return false;
+        command.CommandText = "SELECT (SELECT COUNT(*) FROM pragma_table_info('BackupSettings') WHERE name IN ('RelativeFolder','BindingId')) + (SELECT COUNT(*) FROM pragma_table_info('BackupRuns') WHERE name IN ('RelativeFolder','BindingId'))";
+        return (long)(await command.ExecuteScalarAsync(ct))! == 4;
     }
 
     public async Task<BackupOverview> OverviewAsync(CancellationToken ct)
@@ -40,7 +42,7 @@ public sealed partial class BackupCoordinator(IDbContextFactory<OpticaDbContext>
         if (!runtime.Value.ExternalWritesAuthorized) alert ??= "Escritura externa bloqueada hasta autorizar la instalación. No se tocará ningún disco externo.";
         else if (settings.VolumeId is not null)
         {
-            try { targets.Resolve(settings.VolumeId, settings.InstallationId, prepare: false); }
+            try { targets.Resolve(settings.VolumeId, settings.InstallationId, prepare: false, settings.RelativeFolder, settings.BindingId); }
             catch (Exception ex) when (ex is IOException or InvalidDataException or UnauthorizedAccessException)
             { alert = "El destino está desconectado, bloqueado, sin preparar o sin acceso. No se usará otro disco. " + alert; }
         }
@@ -56,6 +58,9 @@ public sealed partial class BackupCoordinator(IDbContextFactory<OpticaDbContext>
         if (!await ReadyAsync(ct)) return new(false, "La migración de respaldos no está aplicada. No se modificó la base.");
         if (input.EveryDays is < 1 or > 365 || input.KeepCopies is < 1 or > 3650)
             return new(false, "Frecuencia: entre 1 y 365 días. Conservación: entre 1 y 3650 copias.");
+        string relativeFolder;
+        try { relativeFolder = BackupFolder.Normalize(input.RelativeFolder); }
+        catch (ArgumentException ex) { return new(false, ex.Message); }
         try
         {
             _ = TimeZoneInfo.FindSystemTimeZoneById(input.TimeZoneId);
@@ -76,11 +81,22 @@ public sealed partial class BackupCoordinator(IDbContextFactory<OpticaDbContext>
             var settings = await db.BackupSettings.SingleOrDefaultAsync(ct);
             if (settings is not null && settings.Version != input.Version) return new(false, "La configuración cambió. Recargá antes de guardar.");
             if (settings is null) { settings = new(); db.Add(settings); }
+            var destinationChanged = settings.VolumeId != input.VolumeId || settings.RelativeFolder != relativeFolder;
+            if (input.Enabled && (destinationChanged || settings.BindingId is null))
+                return new(false, "Guardá el destino con programación desactivada, vinculá la carpeta privada y después activá el horario.");
+            if (input.Enabled)
+            {
+                try { targets.Resolve(input.VolumeId!, settings.InstallationId, false, relativeFolder, settings.BindingId); }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                { return new(false, "El destino vinculado no está accesible o su marcador cambió. No se activa la programación."); }
+            }
             var scheduleChanged = settings.Enabled != input.Enabled || settings.LocalTime != input.LocalTime ||
                 settings.TimeZoneId != input.TimeZoneId || settings.EveryDays != input.EveryDays;
             settings.Enabled = input.Enabled; settings.EveryDays = input.EveryDays;
             settings.LocalTime = string.IsNullOrEmpty(input.LocalTime) ? null : input.LocalTime;
             settings.TimeZoneId = input.TimeZoneId; settings.VolumeId = input.VolumeId;
+            settings.RelativeFolder = relativeFolder;
+            if (destinationChanged) settings.BindingId = null;
             settings.KeepCopies = input.KeepCopies; settings.Version = Guid.NewGuid();
             if (!settings.Enabled) settings.NextUtc = null;
             else if (scheduleChanged || settings.NextUtc is null)
@@ -105,8 +121,10 @@ public sealed partial class BackupCoordinator(IDbContextFactory<OpticaDbContext>
             await using var transaction = await db.Database.BeginTransactionAsync(ct);
             var settings = await db.BackupSettings.SingleOrDefaultAsync(ct);
             if (settings?.VolumeId is null) return new(false, "Seleccioná explícitamente un disco de destino.");
+            if (settings.BindingId is null) return new(false, "Primero vinculá la carpeta privada del destino con autorización.");
             if (await db.BackupRuns.AnyAsync(x => x.Status == "Queued" || x.Status == "Running", ct)) return new(false, "Ya existe una copia pendiente o en curso.");
-            db.Add(new BackupRun { StartedUtc = clock.GetUtcNow().UtcDateTime, ActorId = actor, VolumeId = settings.VolumeId });
+            db.Add(new BackupRun { StartedUtc = clock.GetUtcNow().UtcDateTime, ActorId = actor, VolumeId = settings.VolumeId,
+                RelativeFolder = settings.RelativeFolder, BindingId = settings.BindingId });
             Audit(db, actor, "backup.queued"); await db.SaveChangesAsync(ct);
             await transaction.CommitAsync(ct);
             return new(true, "Copia encolada. Continuará aunque cierres el navegador mientras el servidor siga activo.");
@@ -127,7 +145,7 @@ public sealed partial class BackupCoordinator(IDbContextFactory<OpticaDbContext>
                 return new(false, "No se encontró una copia completa para verificar.");
             try
             {
-                var target = targets.Resolve(run.VolumeId, settings.InstallationId, prepare: false);
+                var target = targets.Resolve(run.VolumeId, settings.InstallationId, prepare: false, run.RelativeFolder, run.BindingId);
                 var directory = BackupFileSafety.Child(target.Directory, run.DirectoryName);
                 try { await verifier.VerifyAsync(directory, ct); }
                 catch (Exception ex) when (ex is IOException or InvalidDataException or System.Text.Json.JsonException or SqliteException)
@@ -150,7 +168,8 @@ public sealed partial class BackupCoordinator(IDbContextFactory<OpticaDbContext>
         finally { gate.Semaphore.Release(); }
     }
 
-    private static BackupConfiguration Map(BackupSettings s) => new(s.Enabled, s.EveryDays, s.LocalTime, s.TimeZoneId, s.VolumeId, s.KeepCopies, s.Version);
+    private static BackupConfiguration Map(BackupSettings s) => new(s.Enabled, s.EveryDays, s.LocalTime, s.TimeZoneId,
+        s.VolumeId, s.KeepCopies, s.Version, s.RelativeFolder, s.BindingId is not null);
     private static void Audit(OpticaDbContext db, string? actor, string action, Guid? id = null) =>
         db.AuditEntries.Add(new AuditEntry { ActorId = actor ?? "system:backups", Action = action, TargetId = id?.ToString() });
 }

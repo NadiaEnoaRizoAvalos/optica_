@@ -24,9 +24,10 @@ public sealed partial class BackupCoordinator
                 {
                     try
                     {
-                        var recovered = targets.Resolve(interrupted.VolumeId, settings.InstallationId, prepare: false);
-                        await verifier.VerifyAsync(BackupFileSafety.Child(recovered.Directory, interrupted.DirectoryName), ct);
-                        interrupted.Status = "Complete"; interrupted.FinishedUtc = now;
+                        var recovered = targets.Resolve(interrupted.VolumeId, settings.InstallationId, prepare: false,
+                            interrupted.RelativeFolder, interrupted.BindingId);
+                        var completedAt = await verifier.VerifyAsync(BackupFileSafety.Child(recovered.Directory, interrupted.DirectoryName), ct);
+                        interrupted.Status = "Complete"; interrupted.FinishedUtc = completedAt;
                         if (interrupted.DueUtc is { } recoveredDue && settings.Enabled)
                         {
                             do { recoveredDue = BackupSchedule.Advance(recoveredDue, settings.EveryDays, settings.LocalTime!, settings.TimeZoneId); }
@@ -49,14 +50,16 @@ public sealed partial class BackupCoordinator
             {
                 // Conservar intento interrumpido; crear otro ID/directorio, nunca sobrescribirlo.
                 run.Status = "Failed";
-                run = new BackupRun { StartedUtc = now, ActorId = run.ActorId, VolumeId = run.VolumeId };
+                run = new BackupRun { StartedUtc = now, ActorId = run.ActorId, VolumeId = run.VolumeId,
+                    RelativeFolder = run.RelativeFolder, BindingId = run.BindingId };
                 db.Add(run);
             }
             if (run is null && settings.Enabled && settings.NextUtc is { } due && due <= now)
             {
                 var previous = await db.BackupRuns.Where(x => x.DueUtc == due).OrderByDescending(x => x.StartedUtc).FirstOrDefaultAsync(ct);
                 if (previous is { Status: "Failed" } && (previous.RetryUtc is null || previous.RetryUtc > now)) return;
-                run = new BackupRun { StartedUtc = now, DueUtc = due, Trigger = "Scheduled", VolumeId = settings.VolumeId };
+                run = new BackupRun { StartedUtc = now, DueUtc = due, Trigger = "Scheduled", VolumeId = settings.VolumeId,
+                    RelativeFolder = settings.RelativeFolder, BindingId = settings.BindingId };
                 var next = BackupSchedule.Advance(due, settings.EveryDays, settings.LocalTime!, settings.TimeZoneId);
                 while (next <= now)
                 {
@@ -71,7 +74,7 @@ public sealed partial class BackupCoordinator
             Audit(db, run.ActorId, "backup.started", run.Id); await db.SaveChangesAsync(ct);
             try
             {
-                var target = targets.Resolve(run.VolumeId!, settings.InstallationId, prepare: true);
+                var target = targets.Resolve(run.VolumeId!, settings.InstallationId, prepare: true, run.RelativeFolder, run.BindingId);
                 var required = writer.EstimateBytes();
                 if (target.FreeBytes < required + runtime.Value.ReserveBytes) throw new IOException("Espacio insuficiente en el destino.");
                 var copy = await writer.CreateAsync(target.Directory, ct, run.Id);
@@ -86,7 +89,7 @@ public sealed partial class BackupCoordinator
                     settings.Version = Guid.NewGuid();
                 }
                 Audit(db, run.ActorId, "backup.completed", run.Id); await db.SaveChangesAsync(ct);
-                await RetainAsync(db, settings, target.Directory, run.VolumeId!, ct);
+                await RetainAsync(db, settings, target.Directory, run.VolumeId!, run.RelativeFolder, run.BindingId, ct);
             }
             catch (Exception ex) when (ex is IOException or InvalidDataException or UnauthorizedAccessException or SqliteException or System.Text.Json.JsonException)
             {
@@ -116,9 +119,11 @@ public sealed partial class BackupCoordinator
         catch (IOException) { return null; }
     }
 
-    private async Task RetainAsync(Persistence.OpticaDbContext db, BackupSettings settings, string root, string volumeId, CancellationToken ct)
+    private async Task RetainAsync(Persistence.OpticaDbContext db, BackupSettings settings, string root, string volumeId,
+        string relativeFolder, Guid? bindingId, CancellationToken ct)
     {
-        var good = await db.BackupRuns.Where(x => x.Status == "Complete" && x.VolumeId == volumeId)
+        var good = await db.BackupRuns.Where(x => x.Status == "Complete" && x.VolumeId == volumeId &&
+                x.RelativeFolder == relativeFolder && x.BindingId == bindingId)
             .OrderByDescending(x => x.FinishedUtc).ToListAsync(ct);
         if (good.Count <= settings.KeepCopies) return;
         try

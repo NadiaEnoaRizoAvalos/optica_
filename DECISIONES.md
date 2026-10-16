@@ -353,4 +353,11 @@ Fuente histórica: PLANS.md del commit 94301cd. Las descripciones y motivos orig
 - **Estado:** Restauración ficticia implementada/probada; cifrado, recuperación de claves y pérdida física del equipo pendientes.
 - **Consecuencias:** No usar datos clínicos reales. La migración/restauración operativa requiere procedimiento y autorización específicos; no hay botón de reemplazo activo. El destino con acceso de administrador Windows requiere custodia y cifrado adicionales a los permisos de aplicación.
 
+### D-50 — Carpeta relativa y vinculación explícita por instalación
+
+- **Descripción:** Cada óptica configura volumen y carpeta relativa; un marcador privado liga carpeta/volumen/instalación a un ID persistido. Guardar configuración no prepara ni modifica carpetas; vincular requiere autorización de escritura, carpeta existente/privada y programación desactivada. Cambiar destino invalida la vinculación.
+- **Motivo:** Las letras cambian y algunos adaptadores anuncian GUID/series genéricos; no confiar en esos valores solos. Evitar rutas específicas de un negocio y conservar el origen real de cada copia histórica.
+- **Estado:** Implementada/probada con 157 casos de suite; preparación privada concreta autorizada y comprobada sólo con archivo ficticio. Migraciones y uso operativo reales pendientes.
+- **Consecuencias:** Sin marcador esperado no se escribe ni se elige otro destino; no se sobrescribe marcador ajeno/dañado. Cada ejecución conserva carpeta/vinculación y la retención no cruza destinos. BackupDestinationBinding preserva ruta histórica y desactiva programación anterior hasta revisión; no se aplicó operativamente. El marcador no es cifrado ni protección contra clones deliberados. ACL concretas y cualquier futura identidad de servicio requieren revisión autorizada.
+
 Dirección de dependencias conservada: Aplicación depende de Dominio; Infraestructura implementa contratos de Aplicación; Web invoca Aplicación y compone Infraestructura. Las reglas no dependen de la interfaz ni de SQLite. No se requiere una API separada para los celulares en el alcance inicial.

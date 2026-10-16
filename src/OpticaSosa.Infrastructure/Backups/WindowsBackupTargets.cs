@@ -12,7 +12,9 @@ public sealed record ResolvedBackupTarget(string Directory, long FreeBytes);
 public interface IBackupTargets
 {
     IReadOnlyList<BackupTarget> Inspect();
-    ResolvedBackupTarget Resolve(string volumeId, Guid installationId, bool prepare);
+    ResolvedBackupTarget Resolve(string volumeId, Guid installationId, bool prepare,
+        string relativeFolder = "Respaldos", Guid? bindingId = null);
+    Guid Bind(string volumeId, Guid installationId, string relativeFolder);
 }
 
 public sealed class WindowsBackupTargets(StoragePaths paths) : IBackupTargets
@@ -40,27 +42,37 @@ public sealed class WindowsBackupTargets(StoragePaths paths) : IBackupTargets
         return result;
     }
 
-    public ResolvedBackupTarget Resolve(string volumeId, Guid installationId, bool prepare)
+    public ResolvedBackupTarget Resolve(string volumeId, Guid installationId, bool prepare,
+        string relativeFolder = "Respaldos", Guid? bindingId = null)
+    {
+        var parent = ResolveParent(volumeId, relativeFolder);
+        BackupTargetBinding.Validate(parent.Directory, volumeId, installationId, bindingId);
+        var root = BackupFileSafety.Child(parent.Directory, installationId.ToString("N"));
+        if (prepare) Directory.CreateDirectory(root);
+        if (OperatingSystem.IsWindows() && Directory.Exists(root)) RequirePrivateAcl(root);
+        return new(root, parent.FreeBytes);
+    }
+
+    public Guid Bind(string volumeId, Guid installationId, string relativeFolder)
+    {
+        var parent = ResolveParent(volumeId, relativeFolder);
+        return BackupTargetBinding.Bind(parent.Directory, volumeId, installationId);
+    }
+
+    private ResolvedBackupTarget ResolveParent(string volumeId, string relativeFolder)
     {
         if (!OperatingSystem.IsWindows()) throw new IOException("Destino Windows no disponible.");
-        var target = Inspect().SingleOrDefault(x => x.VolumeId == volumeId);
-        if (target is null) throw new IOException("El disco configurado está desconectado, bloqueado o no puede verificarse. No se usará otro destino.");
+        var matches = Inspect().Where(x => x.VolumeId == volumeId).ToArray();
+        if (matches.Length != 1) throw new IOException("El disco configurado está desconectado, bloqueado o su identidad es ambigua. No se usará otro destino.");
+        var target = matches[0];
         if (!target.Compatible) throw new IOException("Se requiere NTFS y un disco físico independiente del origen.");
         // Se resuelve la letra actual a partir del GUID, no se persiste una letra como identidad.
         var drive = DriveInfo.GetDrives().First(x => x.IsReady && Volume(x.Name) == volumeId);
-        var parent = Path.Combine(drive.RootDirectory.FullName, "OpticaSosaBackups");
+        var parent = BackupFileSafety.Child(drive.RootDirectory.FullName, OpticaSosa.Domain.Backups.BackupFolder.Normalize(relativeFolder));
         BackupFileSafety.RejectLinks(parent);
-        if (prepare && !Directory.Exists(parent))
-        {
-            Directory.CreateDirectory(parent);
-            StorageProtection.RestrictToCurrentWindowsUser(parent);
-        }
         if (!Directory.Exists(parent)) throw new IOException("La carpeta privada de respaldos aún no fue preparada con autorización.");
         RequirePrivateAcl(parent);
-        var root = BackupFileSafety.Child(parent, installationId.ToString("N"));
-        if (prepare) Directory.CreateDirectory(root);
-        if (Directory.Exists(root)) RequirePrivateAcl(root);
-        return new(root, drive.AvailableFreeSpace);
+        return new(parent, drive.AvailableFreeSpace);
     }
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]

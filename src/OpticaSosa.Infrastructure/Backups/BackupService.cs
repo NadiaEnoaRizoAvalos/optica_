@@ -17,5 +17,7 @@ public sealed class BackupService(BackupCoordinator coordinator, ICurrentUser cu
     public Task<BackupAction> ConfigureAsync(BackupConfiguration input, CancellationToken ct = default) =>
         coordinator.ConfigureAsync(input, Demand(Permissions.ManageBackups), ct);
     public Task<BackupAction> RequestAsync(CancellationToken ct = default) => coordinator.RequestAsync(Demand(Permissions.ManageBackups), ct);
+    public Task<BackupAction> BindDestinationAsync(Guid version, CancellationToken ct = default) =>
+        coordinator.BindDestinationAsync(version, Demand(Permissions.ManageBackups), ct);
     public Task<BackupAction> VerifyAsync(Guid runId, CancellationToken ct = default) => coordinator.VerifyAsync(runId, Demand(Permissions.VerifyBackups), ct);
 }

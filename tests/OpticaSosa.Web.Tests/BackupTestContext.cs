@@ -20,10 +20,20 @@ internal sealed class FakeBackupTargets : IBackupTargets
     public const string Volume = "ficticio-volume-guid";
     public IReadOnlyList<BackupTarget> Inspect() => Connected ? [new(Volume, "Disco ficticio", "NTFS", "Disco ficticio independiente",
         long.MaxValue, FreeBytes, true, true, "Sólo prueba aislada; no representa hardware real")] : [];
-    public ResolvedBackupTarget Resolve(string volumeId, Guid installationId, bool prepare)
+    private string Parent(string relativeFolder) => relativeFolder == "Respaldos" ? Root : BackupFileSafety.Child(Root, relativeFolder);
+    public Guid Bind(string volumeId, Guid installationId, string relativeFolder)
     {
         if (!Connected || volumeId != Volume) throw new IOException("Disco ficticio desconectado.");
-        var root = Path.Combine(Root, installationId.ToString("N"));
+        var parent = Parent(relativeFolder); Directory.CreateDirectory(parent);
+        return BackupTargetBinding.Bind(parent, volumeId, installationId);
+    }
+    public ResolvedBackupTarget Resolve(string volumeId, Guid installationId, bool prepare,
+        string relativeFolder = "Respaldos", Guid? bindingId = null)
+    {
+        if (!Connected || volumeId != Volume) throw new IOException("Disco ficticio desconectado.");
+        var parent = Parent(relativeFolder);
+        BackupTargetBinding.Validate(parent, volumeId, installationId, bindingId);
+        var root = Path.Combine(parent, installationId.ToString("N"));
         if (prepare) { Preparations++; Directory.CreateDirectory(root); }
         return new(root, FreeBytes);
     }
@@ -49,14 +59,24 @@ internal sealed class BackupTestContext : IAsyncDisposable
     public async Task<BackupAction> ConfigureAsync(bool enabled = false, int keep = 30, int days = 1)
     {
         var view = await Coordinator.OverviewAsync(default);
-        return await Coordinator.ConfigureAsync(new(enabled, days, "13:00", "UTC", FakeBackupTargets.Volume, keep,
+        var result = await Coordinator.ConfigureAsync(new(false, days, "13:00", "UTC", FakeBackupTargets.Volume, keep,
             view.Configuration.Version), "admin.ficticio", default);
+        if (!result.Succeeded) return result;
+        view = await Coordinator.OverviewAsync(default);
+        if (!view.Configuration.DestinationBound && view.ExternalWritesAuthorized)
+        {
+            result = await Coordinator.BindDestinationAsync(view.Configuration.Version, "admin.ficticio", default);
+            if (!result.Succeeded) return result;
+            view = await Coordinator.OverviewAsync(default);
+        }
+        return enabled ? await Coordinator.ConfigureAsync(view.Configuration with { Enabled = true }, "admin.ficticio", default) : result;
     }
     public async Task<BackupRunView> CopyAsync()
     {
         Xunit.Assert.True((await Coordinator.RequestAsync("admin.ficticio", default)).Succeeded);
+        var queuedId = Xunit.Assert.Single((await Coordinator.OverviewAsync(default)).Runs, x => x.Status == "Queued").Id;
         await Coordinator.TickAsync();
-        return (await Coordinator.OverviewAsync(default)).Runs.First();
+        return (await Coordinator.OverviewAsync(default)).Runs.Single(x => x.Id == queuedId);
     }
     public ValueTask DisposeAsync() => App.DisposeAsync();
 }

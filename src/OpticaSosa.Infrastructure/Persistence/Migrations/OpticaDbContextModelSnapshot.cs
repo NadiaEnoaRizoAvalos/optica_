@@ -155,6 +155,9 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
                         .HasMaxLength(450)
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("BindingId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("DirectoryName")
                         .HasMaxLength(32)
                         .HasColumnType("TEXT");
@@ -174,6 +177,11 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
 
                     b.Property<int>("MissedPeriods")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("RelativeFolder")
+                        .IsRequired()
+                        .HasMaxLength(240)
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("RetryUtc")
                         .HasColumnType("TEXT");
@@ -207,6 +215,9 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
                     b.Property<int>("Id")
                         .HasColumnType("INTEGER");
 
+                    b.Property<Guid?>("BindingId")
+                        .HasColumnType("TEXT");
+
                     b.Property<bool>("Enabled")
                         .HasColumnType("INTEGER");
 
@@ -224,6 +235,11 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("NextUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RelativeFolder")
+                        .IsRequired()
+                        .HasMaxLength(240)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("TimeZoneId")

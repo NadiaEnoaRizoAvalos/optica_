@@ -18,6 +18,7 @@ public sealed class BackupsModel(IBackupService backups) : PageModel
     [BindProperty] public string? VolumeId { get; set; }
     [BindProperty] public int KeepCopies { get; set; } = 30;
     [BindProperty] public Guid Version { get; set; }
+    [BindProperty] public string RelativeFolder { get; set; } = OpticaSosa.Domain.Backups.BackupFolder.Default;
     [TempData] public string? Message { get; set; }
 
     public async Task OnGetAsync()
@@ -25,6 +26,7 @@ public sealed class BackupsModel(IBackupService backups) : PageModel
         await LoadAsync(); var s = Overview.Configuration;
         Enabled = s.Enabled; EveryDays = s.EveryDays; LocalTime = s.LocalTime; TimeZoneId = s.TimeZoneId;
         VolumeId = s.VolumeId; KeepCopies = s.KeepCopies; Version = s.Version;
+        RelativeFolder = s.RelativeFolder;
     }
     public async Task<IActionResult> OnPostInspectAsync()
     {
@@ -39,7 +41,7 @@ public sealed class BackupsModel(IBackupService backups) : PageModel
         if (ModelState.IsValid)
         {
             var result = await backups.ConfigureAsync(new(Enabled, EveryDays, LocalTime, TimeZoneId,
-                string.IsNullOrWhiteSpace(VolumeId) ? null : VolumeId, KeepCopies, Version), HttpContext.RequestAborted);
+                string.IsNullOrWhiteSpace(VolumeId) ? null : VolumeId, KeepCopies, Version, RelativeFolder), HttpContext.RequestAborted);
             Message = result.Message;
             if (result.Succeeded) return RedirectToPage();
         }
@@ -47,7 +49,21 @@ public sealed class BackupsModel(IBackupService backups) : PageModel
     }
     public async Task<IActionResult> OnPostManualAsync()
     { Message = (await backups.RequestAsync(HttpContext.RequestAborted)).Message; return RedirectToPage(); }
+    public async Task<IActionResult> OnPostBindAsync()
+    { Message = (await backups.BindDestinationAsync(Version, HttpContext.RequestAborted)).Message; return RedirectToPage(); }
     public async Task<IActionResult> OnPostVerifyAsync(Guid runId)
     { Message = (await backups.VerifyAsync(runId, HttpContext.RequestAborted)).Message; return RedirectToPage(); }
     private async Task LoadAsync() => Overview = await backups.OverviewAsync(HttpContext.RequestAborted);
+
+    public string DisplayDate(DateTime? utc)
+    {
+        if (utc is null) return "Sin registro";
+        try
+        {
+            var zone = TimeZoneInfo.FindSystemTimeZoneById(Overview.Configuration.TimeZoneId);
+            var local = TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(utc.Value, DateTimeKind.Utc), zone);
+            return local.ToString("dd/MM/yyyy HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture) + " (" + zone.Id + ")";
+        }
+        catch (TimeZoneNotFoundException) { return utc.Value.ToString("u"); }
+    }
 }
