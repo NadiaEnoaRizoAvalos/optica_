@@ -28,13 +28,16 @@ public sealed class BackupHttpTests
         await Assert.ThrowsAsync<UnauthorizedAccessException>(() => service.BindDestinationAsync(Guid.NewGuid()));
     }
 
-    [Fact]
-    public async Task AdminFormConfiguresWithoutTouchingDiskAndRequiresCsrf()
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task AdminFormConfiguresWithoutTouchingDiskAndRequiresCsrf(bool externalWritesAuthorized)
     {
-        await using var test = new BackupTestContext(); await test.InitializeAsync();
+        await using var test = new BackupTestContext(authorized: externalWritesAuthorized); await test.InitializeAsync();
         using var client = test.App.Browser(); await BrowserForms.LoginAsync(client, "admin.ficticio");
         var html = await client.GetStringAsync("/admin/respaldos");
         Assert.Contains("Respaldos y recuperación", html); Assert.DoesNotContain("value=\"20:00\"", html);
+        Assert.DoesNotContain("<fieldset disabled", html);
         Assert.Equal(HttpStatusCode.BadRequest, (await client.PostAsync("/admin/respaldos?handler=Save", new FormUrlEncodedContent(new Dictionary<string,string>()))).StatusCode);
         Assert.Equal(HttpStatusCode.BadRequest, (await client.PostAsync("/admin/respaldos?handler=Bind", new FormUrlEncodedContent(new Dictionary<string,string>()))).StatusCode);
         var view = await test.Coordinator.OverviewAsync(default);
@@ -42,7 +45,11 @@ public sealed class BackupHttpTests
         { ["Enabled"] = "false", ["EveryDays"] = "7", ["LocalTime"] = "07:30", ["TimeZoneId"] = "UTC",
           ["VolumeId"] = FakeBackupTargets.Volume, ["KeepCopies"] = "3", ["RelativeFolder"] = "Respaldos", ["Version"] = view.Configuration.Version.ToString() });
         Assert.Equal(HttpStatusCode.Redirect, saved.StatusCode);
-        Assert.Equal(7, (await test.Coordinator.OverviewAsync(default)).Configuration.EveryDays);
+        var stored = await test.Coordinator.OverviewAsync(default);
+        Assert.Equal(7, stored.Configuration.EveryDays); Assert.Equal("07:30", stored.Configuration.LocalTime);
+        Assert.Equal(3, stored.Configuration.KeepCopies); Assert.Equal(FakeBackupTargets.Volume, stored.Configuration.VolumeId);
+        Assert.Equal(externalWritesAuthorized, stored.ExternalWritesAuthorized);
+        Assert.False(stored.Configuration.Enabled); Assert.Null(stored.NextUtc);
         Assert.False(Directory.Exists(test.Targets.Root));
         Assert.Equal(HttpStatusCode.Redirect, (await client.GetAsync("/clinica/profesionales")).StatusCode);
     }
