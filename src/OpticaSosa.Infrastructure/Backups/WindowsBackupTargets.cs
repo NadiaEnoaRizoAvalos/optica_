@@ -9,9 +9,11 @@ using OpticaSosa.Infrastructure.Persistence;
 namespace OpticaSosa.Infrastructure.Backups;
 
 public sealed record ResolvedBackupTarget(string Directory, long FreeBytes);
+public sealed record ResolvedBackupVolume(string Root, BackupTarget Disk);
 public interface IBackupTargets
 {
     IReadOnlyList<BackupTarget> Inspect();
+    ResolvedBackupVolume ResolveVolume(string volumeId);
     ResolvedBackupTarget Resolve(string volumeId, Guid installationId, bool prepare,
         string relativeFolder = "Respaldos", Guid? bindingId = null);
     Guid Bind(string volumeId, Guid installationId, string relativeFolder);
@@ -61,22 +63,29 @@ public sealed class WindowsBackupTargets(StoragePaths paths) : IBackupTargets
 
     private ResolvedBackupTarget ResolveParent(string volumeId, string relativeFolder)
     {
+        var volume = ResolveVolume(volumeId);
+        var parent = BackupFileSafety.Child(volume.Root, OpticaSosa.Domain.Backups.BackupFolder.Normalize(relativeFolder));
+        if (!Directory.Exists(parent)) throw new IOException("La carpeta privada de respaldos aún no fue preparada con autorización.");
+        if (!OperatingSystem.IsWindows()) throw new IOException("Destino Windows no disponible.");
+        RequirePrivateAcl(parent);
+        return new(parent, volume.Disk.FreeBytes);
+    }
+
+    public ResolvedBackupVolume ResolveVolume(string volumeId)
+    {
         if (!OperatingSystem.IsWindows()) throw new IOException("Destino Windows no disponible.");
         var matches = Inspect().Where(x => x.VolumeId == volumeId).ToArray();
         if (matches.Length != 1) throw new IOException("El disco configurado está desconectado, bloqueado o su identidad es ambigua. No se usará otro destino.");
         var target = matches[0];
-        if (!target.Compatible) throw new IOException("Se requiere NTFS y un disco físico independiente del origen.");
+        if (!target.Compatible || !target.Independent) throw new IOException("Se requiere NTFS y un disco físico independiente del origen.");
         // Se resuelve la letra actual a partir del GUID, no se persiste una letra como identidad.
-        var drive = DriveInfo.GetDrives().First(x => x.IsReady && Volume(x.Name) == volumeId);
-        var parent = BackupFileSafety.Child(drive.RootDirectory.FullName, OpticaSosa.Domain.Backups.BackupFolder.Normalize(relativeFolder));
-        BackupFileSafety.RejectLinks(parent);
-        if (!Directory.Exists(parent)) throw new IOException("La carpeta privada de respaldos aún no fue preparada con autorización.");
-        RequirePrivateAcl(parent);
-        return new(parent, drive.AvailableFreeSpace);
+        var drive = DriveInfo.GetDrives().FirstOrDefault(x => x.IsReady && Volume(x.Name) == volumeId)
+            ?? throw new IOException("El disco se desconectó durante la consulta. No se usará otro destino.");
+        return new(drive.RootDirectory.FullName, target);
     }
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    private static void RequirePrivateAcl(string directory)
+    internal static void RequirePrivateAcl(string directory)
     {
         var allowed = new[] { WindowsIdentity.GetCurrent().User!.Value, "S-1-5-18", "S-1-5-32-544" };
         var acl = new DirectoryInfo(directory).GetAccessControl();

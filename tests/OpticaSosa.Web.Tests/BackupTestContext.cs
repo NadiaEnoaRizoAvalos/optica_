@@ -14,6 +14,7 @@ internal sealed class BackupClock : TimeProvider
 internal sealed class FakeBackupTargets : IBackupTargets
 {
     public string Root { get; set; } = "";
+    public string ServerRoot { get; set; } = "";
     public bool Connected { get; set; } = true;
     public long FreeBytes { get; set; } = long.MaxValue;
     public int Preparations { get; private set; }
@@ -21,6 +22,11 @@ internal sealed class FakeBackupTargets : IBackupTargets
     public string VolumeId { get; set; } = Volume;
     public IReadOnlyList<BackupTarget> Inspect() => Connected ? [new(VolumeId, "Disco ficticio", "NTFS", "Disco ficticio independiente",
         long.MaxValue, FreeBytes, true, true, "Sólo prueba aislada; no representa hardware real")] : [];
+    public ResolvedBackupVolume ResolveVolume(string volumeId)
+    {
+        if (!Connected || volumeId != VolumeId) throw new IOException("Disco ficticio desconectado.");
+        return new(ServerRoot, Inspect().Single());
+    }
     private string Parent(string relativeFolder) => relativeFolder == "Respaldos" ? Root : BackupFileSafety.Child(Root, relativeFolder);
     public Guid Bind(string volumeId, Guid installationId, string relativeFolder)
     {
@@ -57,8 +63,14 @@ internal sealed class BackupTestContext : IAsyncDisposable
             configureServices?.Invoke(services);
         });
         Targets.Root = Path.Combine(App.Root, "external-ficticio");
+        Targets.ServerRoot = Path.Combine(App.Root, "server-folders-ficticio");
     }
-    public async Task InitializeAsync() => await App.InitializeAsync();
+    public async Task InitializeAsync()
+    {
+        await App.InitializeAsync();
+        Directory.CreateDirectory(Path.Combine(Targets.ServerRoot, "Respaldos"));
+        if (OperatingSystem.IsWindows()) OpticaSosa.Infrastructure.Persistence.StorageProtection.RestrictToCurrentWindowsUser(Targets.ServerRoot);
+    }
     public async Task<BackupAction> ConfigureAsync(bool enabled = false, int keep = 30, int days = 1)
     {
         var view = await Coordinator.OverviewAsync(default);

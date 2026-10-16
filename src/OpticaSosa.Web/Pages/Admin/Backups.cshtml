@@ -32,44 +32,7 @@ else { <p><strong>Último intento:</strong> Sin intentos registrados</p> }
 @if (Model.Overview.NextRetryUtc is { } retry) { <p>Próximo reintento: @Model.DisplayDate(retry)</p> }
 <p>Zona del horario configurado: @Model.Overview.Configuration.TimeZoneId</p>
 <p><a href="/admin/archivos-clinicos">Crear copia manual local existente</a></p>
-    <section><h2>Destino y configuración</h2>
-    <fieldset disabled="@(!Model.Overview.SchemaReady)">
-    <legend>Configuración de respaldos automáticos</legend>
-    <p>Inspeccionar sólo consulta identidad y capacidad. Guardar no modifica el disco. Se identifica por GUID de volumen, no por letra.</p>
-    <form method="post" asp-page-handler="Inspect"><button type="submit">Inspeccionar discos (sólo lectura)</button></form>
-    @foreach (var disk in Model.Targets)
-    {
-        <article><h3>@disk.DisplayName</h3><p>Identidad: @disk.VolumeId</p><p>@disk.PhysicalDisks · @disk.FileSystem</p>
-        <p>Total: @(disk.TotalBytes / 1024 / 1024) MiB · Libres: @(disk.FreeBytes / 1024 / 1024) MiB · Independiente: @(disk.Independent ? "Sí" : "No")</p>
-        <p>@disk.Protection</p><p>Compatible: @(disk.Compatible ? "Sí" : "No")</p></article>
-    }
-    <form method="post" asp-page-handler="Save">
-        <div asp-validation-summary="All" role="alert"></div><input asp-for="Version" type="hidden" />
-        <label asp-for="VolumeId">Disco de destino</label>
-        <select asp-for="VolumeId"><option value="">Sin destino</option>
-            @if (Model.VolumeId is not null && !Model.Targets.Any(x => x.VolumeId == Model.VolumeId))
-            { <option value="@Model.VolumeId">Destino guardado: @Model.VolumeId</option> }
-            @foreach (var disk in Model.Targets.Where(x => x.Compatible)) { <option value="@disk.VolumeId">@disk.DisplayName — @disk.VolumeId</option> }
-        </select>
-        <label asp-for="RelativeFolder">Carpeta dentro del disco seleccionado (sin letra de unidad)</label>
-        <input asp-for="RelativeFolder" maxlength="240" placeholder="Por ejemplo: Optica/Respaldos" required />
-        <label asp-for="LocalTime">Hora local (sin valor obligatorio inicial)</label><input asp-for="LocalTime" type="time" />
-        <label asp-for="EveryDays">Frecuencia: cada cuántos días</label><input asp-for="EveryDays" type="number" min="1" max="365" />
-        <label asp-for="TimeZoneId">Zona horaria del servidor</label><select asp-for="TimeZoneId">
-            @foreach (var zone in TimeZoneInfo.GetSystemTimeZones()) { <option value="@zone.Id">@zone.DisplayName</option> }
-        </select>
-        <label asp-for="KeepCopies">Cantidad de copias válidas a conservar</label><input asp-for="KeepCopies" type="number" min="1" max="3650" />
-        <label><input asp-for="Enabled" /> Activar programación (requiere autorización de escritura de instalación)</label>
-        <p>La carpeta elegida debe existir y tener permisos privados preparados con autorización. Guardar no crea carpetas ni modifica permisos. Cada óptica elige su propio destino; la letra actual no se guarda como identidad.</p>
-        <button type="submit">Guardar configuración</button>
-    </form>
-    <p>Vinculación: @(Model.Overview.Configuration.DestinationBound ? "Carpeta vinculada con esta instalación" : "Pendiente: no se escribirán respaldos sin vincular")</p>
-    <form method="post" asp-page-handler="Bind"><input type="hidden" name="Version" value="@Model.Overview.Configuration.Version" />
-        <p>Con autorización de escritura habilitada, vincular crea únicamente un pequeño marcador de esta instalación dentro de la carpeta privada guardada. No activa la programación ni copia datos clínicos.</p>
-        <button type="submit">Vincular carpeta guardada (requiere autorización)</button>
-    </form>
-    <form method="post" asp-page-handler="Manual"><button type="submit">Encolar copia manual al destino configurado</button></form>
-    </fieldset></section>
+<partial name="_BackupConfiguration" model="Model" />
     <section><h2>Últimas ejecuciones</h2><p>Se muestran las últimas 50. El historial guardado no se elimina por este límite.</p>
     @if (!Model.Overview.SchemaReady) { <p>Historial no disponible hasta completar la actualización autorizada.</p> }
     else if (Model.Overview.Runs.Count == 0) { <p>No hay ejecuciones registradas en el módulo nuevo.</p> }

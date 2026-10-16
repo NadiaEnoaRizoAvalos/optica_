@@ -1,0 +1,68 @@
+@model OpticaSosa.Web.Pages.Admin.BackupsModel
+<section class="backup-folder-picker"><h2>Destino y configuración</h2>
+<fieldset disabled="@(!Model.Overview.SchemaReady)">
+<legend>Configuración de respaldos automáticos</legend>
+<form method="post" asp-page-handler="Save">
+    <div asp-validation-summary="All" role="alert"></div>
+    <input asp-for="Version" type="hidden" /><input asp-for="RelativeFolder" type="hidden" />
+    <input asp-for="SelectedVolumeId" type="hidden" /><input asp-for="SelectedRelativeFolder" type="hidden" />
+    <p>Se exploran carpetas del servidor Windows, aunque abras esta página desde un celular. No se muestran documentos ni archivos.</p>
+    <button type="submit" asp-page-handler="Inspect" formnovalidate>Inspeccionar discos (sólo lectura)</button>
+    <label asp-for="VolumeId">Disco de destino</label>
+    <select asp-for="VolumeId"><option value="">Sin destino</option>
+        @if (Model.VolumeId is not null && !Model.Targets.Any(x => x.VolumeId == Model.VolumeId))
+        { <option value="@Model.VolumeId">Disco guardado no disponible</option> }
+        @foreach (var disk in Model.Targets.Where(x => x.Compatible))
+        { <option value="@disk.VolumeId">@disk.DisplayName · @(disk.FreeBytes / 1024 / 1024) MiB libres</option> }
+    </select>
+    @foreach (var disk in Model.Targets.Where(x => x.VolumeId == Model.VolumeId))
+    {
+        <p>@disk.DisplayName · @disk.FileSystem · Total: @(disk.TotalBytes / 1024 / 1024) MiB · Libres: @(disk.FreeBytes / 1024 / 1024) MiB</p>
+        <details><summary>Información técnica del disco</summary><p>@disk.VolumeId · @disk.PhysicalDisks · @disk.Protection</p></details>
+    }
+    <button type="submit" asp-page-handler="Browse" asp-route-folder="" formnovalidate>Explorar carpetas</button>
+    @if (Model.FolderPage is { } browser)
+    {
+        <section aria-label="Carpetas del servidor"><h3>@browser.Disk.DisplayName</h3>
+        <p>Carpeta actual: @browser.FullPath</p>
+        <button type="submit" asp-page-handler="Browse" asp-route-folder="" formnovalidate>Raíz del disco</button>
+        @if (browser.RelativeFolder.Length > 0)
+        {
+            var index = browser.RelativeFolder.LastIndexOf('/');
+            var parent = index < 0 ? "" : browser.RelativeFolder[..index];
+            <button type="submit" asp-page-handler="Browse" asp-route-folder="@parent" formnovalidate>Subir un nivel</button>
+            <button type="submit" asp-page-handler="SelectFolder" asp-route-folder="@browser.RelativeFolder" formnovalidate>Seleccionar esta carpeta</button>
+        }
+        <ul>@foreach (var folder in browser.Items)
+        { <li><button type="submit" asp-page-handler="Browse" asp-route-folder="@folder.RelativeFolder" formnovalidate>Abrir @folder.Name</button></li> }</ul>
+        @if (browser.Items.Count == 0) { <p>No hay subcarpetas visibles y permitidas.</p> }
+        @if (browser.Page > 1)
+        { <button type="submit" asp-page-handler="Browse" asp-route-folder="@browser.RelativeFolder" asp-route-folderPage="@(browser.Page - 1)" formnovalidate>Carpetas anteriores</button> }
+        @if (browser.HasMore)
+        { <button type="submit" asp-page-handler="Browse" asp-route-folder="@browser.RelativeFolder" asp-route-folderPage="@(browser.Page + 1)" formnovalidate>Más carpetas</button> }
+        <fieldset disabled="@(!browser.CanCreate)"><legend>Nueva carpeta</legend>
+            <label asp-for="NewFolderName">Nombre de la nueva carpeta</label><input asp-for="NewFolderName" maxlength="120" />
+            <label><input name="ConfirmCreate" type="checkbox" value="true" checked="@Model.ConfirmCreate" /> Confirmo crear una carpeta nueva dentro de la carpeta actual</label>
+            <button type="submit" asp-page-handler="CreateFolder" asp-route-folder="@browser.RelativeFolder" formnovalidate>Crear carpeta</button>
+        </fieldset>
+        <p>Crear requiere autorización de instalación y permisos privados ya preparados en la carpeta padre. No se cambian permisos ni se sobrescriben carpetas existentes.</p>
+        </section>
+    }
+    <p><strong>Destino confirmado:</strong> @(Model.Selection?.FullPath ?? "Seleccioná un disco, explorá sus carpetas y confirmá una carpeta existente.")</p>
+    <label asp-for="LocalTime">Hora local (sin valor obligatorio inicial)</label><input asp-for="LocalTime" type="time" />
+    <label asp-for="EveryDays">Frecuencia: cada cuántos días</label><input asp-for="EveryDays" type="number" min="1" max="365" />
+    <label asp-for="TimeZoneId">Zona horaria del servidor</label><select asp-for="TimeZoneId">
+        @foreach (var zone in TimeZoneInfo.GetSystemTimeZones()) { <option value="@zone.Id">@zone.DisplayName</option> }
+    </select>
+    <label asp-for="KeepCopies">Cantidad de copias válidas a conservar</label><input asp-for="KeepCopies" type="number" min="1" max="3650" />
+    <label><input asp-for="Enabled" /> Activar programación (requiere autorización de escritura de instalación)</label>
+    <p>Guardar no crea carpetas, no modifica sus permisos y no activa automáticamente la programación. Cada óptica conserva su volumen y carpeta; la letra actual sólo se muestra para confirmar la ruta.</p>
+    <button type="submit">Guardar configuración</button>
+</form>
+<p>Vinculación: @(Model.Overview.Configuration.DestinationBound ? "Carpeta vinculada con esta instalación" : "Pendiente: no se escribirán respaldos sin vincular")</p>
+<form method="post" asp-page-handler="Bind"><input type="hidden" name="Version" value="@Model.Overview.Configuration.Version" />
+    <p>Vincular crea un marcador privado con autorización; no copia datos clínicos ni activa la programación.</p>
+    <button type="submit" disabled="@(!Model.Overview.ExternalWritesAuthorized)">Vincular carpeta guardada (requiere autorización)</button>
+</form>
+<form method="post" asp-page-handler="Manual"><button type="submit" disabled="@(!Model.Overview.ExternalWritesAuthorized)">Encolar copia manual al destino configurado</button></form>
+</fieldset></section>

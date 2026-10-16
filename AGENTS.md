@@ -6,7 +6,8 @@
 - Sistema interno para empleados, con base independiente por instalación. Clientes, profesionales externos, proveedores y laboratorios son registros, no cuentas automáticas.
 - Trabajar en una funcionalidad por tarea, modificar sólo archivos relacionados y conservar módulos que funcionan. Priorizar simplicidad, seguridad y mantenimiento.
 - Pedir autorización antes de instalar dependencias, ejecutar acciones destructivas o reemplazar datos. Aprobar una planificación no autoriza programar otra fase.
-- Solicitar aprobación antes de comenzar cada fase. Informar brevemente cambios, validaciones, problemas y pendientes; actualizar PLANS.md.
+- Solicitar aprobación antes de comenzar cada fase, respetando las continuidades explícitas ya autorizadas y sus condiciones de cierre. Informar brevemente cambios, validaciones, problemas y pendientes; actualizar PLANS.md.
+- Continuidad autorizada de fase 5: 5.2.A → 5.1 → 5.2.B → 5.3; no avanzar a la siguiente con el cierre anterior incompleto ni comenzar fase 6. Migraciones operativas nuevas, instalaciones, permisos Windows, servicios, cifrado, archivos del disco externo y activación real requieren sus autorizaciones específicas.
 - Cada módulo debe tener pantallas funcionales y un procedimiento práctico de prueba desde el navegador. El rediseño definitivo corresponde a la fase 12.
 
 ## Arquitectura y código

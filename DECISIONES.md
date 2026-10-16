@@ -360,4 +360,17 @@ Fuente histórica: PLANS.md del commit 94301cd. Las descripciones y motivos orig
 - **Estado:** Implementada/probada con 157 casos de suite; preparación privada concreta autorizada y comprobada sólo con archivo ficticio. Migraciones y uso operativo reales pendientes.
 - **Consecuencias:** Sin marcador esperado no se escribe ni se elige otro destino; no se sobrescribe marcador ajeno/dañado. Cada ejecución conserva carpeta/vinculación y la retención no cruza destinos. BackupDestinationBinding preserva ruta histórica y desactiva programación anterior hasta revisión; no se aplicó operativamente. El marcador no es cifrado ni protección contra clones deliberados. ACL concretas y cualquier futura identidad de servicio requieren revisión autorizada.
 
+### D-51 — Selector de carpetas del servidor y creación separada
+
+- **Descripción:** Explorar sólo directorios visibles/permitidos en un volumen NTFS físicamente independiente, identificado mediante el mecanismo existente. Confirmar ruta completa antes de guardar volumen/carpeta relativa. Revalidación de existencia y límites en servidor; handles Windows sin compartir escritura/eliminación durante navegación/selección/creación, rechazo de reparse points y rutas protegidas. Crear sólo con bandera de autorización, confirmación y padre privado; no cambiar ACL existentes, sobrescribir o borrar. No lista archivos ni abre contenido clínico.
+- **Motivo:** El navegador del visitante no representa el sistema de archivos del servidor; impedir rutas falsas/escapes y no dar privilegios de disco por ser Administrador de la aplicación.
+- **Estado:** Implementada y verificada con datos/directorios ficticios; creación real no autorizada. Migraciones previas ya aplicadas con autorización, según bitácora; D-50 conserva la evidencia histórica de su entrega original.
+- **Consecuencias:** Sin nuevas tablas ni dependencias para el selector. El guardado no activa respaldos; conserva parámetros al navegar y mensajes españoles. Se reutilizan volumen/permisos y se separa interfaz de reglas/archivos. Referencia técnica: [CreateFile y directorios](https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilea).
+
+### D-52 — Continuidad de fase 5 y cierre verificable
+
+- **Descripción:** Usuario autorizó código y pruebas en orden 5.2.A → 5.1 → 5.2.B → 5.3, sin fase 6. No se necesita otra aprobación por edición; sí las autorizaciones específicas de instalaciones, datos, migraciones operativas, permisos, disco, servicio y cifrado. No iniciar otra subfase con cierre previo incumplido.
+- **Estado:** Aprobada. Visor independiente de sólo lectura diseñado/aprobado y pendiente después de multirrol. Firmas CMS/PKCS#7 propuestas para autenticidad; paquete oficial autorizado únicamente para desarrollo/pruebas ficticias, sin claves o firmas operativas.
+- **Consecuencias:** Hashes detectan corrupción, no autenticidad frente a manipulación; 5.2.A continúa abierta mientras falten firmas/cifrado/custodia y evidencias operativas. No presentar módulos comerciales futuros ni el visor como implementados.
+
 Dirección de dependencias conservada: Aplicación depende de Dominio; Infraestructura implementa contratos de Aplicación; Web invoca Aplicación y compone Infraestructura. Las reglas no dependen de la interfaz ni de SQLite. No se requiere una API separada para los celulares en el alcance inicial.

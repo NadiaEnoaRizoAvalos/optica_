@@ -20,7 +20,7 @@ public sealed class BackupHttpTests
         Assert.Equal(HttpStatusCode.Redirect, (await client.GetAsync("/admin/respaldos")).StatusCode);
         using var scope = test.App.Services.CreateScope();
         using var actor = await ClinicalScenario.OpenAsync(test.App, name);
-        var service = new BackupService(test.Coordinator, actor.Actor);
+        var service = new BackupService(test.Coordinator, actor.Actor, test.App.Services.GetRequiredService<ServerBackupFolders>());
         await Assert.ThrowsAsync<UnauthorizedAccessException>(() => service.OverviewAsync());
         await Assert.ThrowsAsync<UnauthorizedAccessException>(() => service.InspectTargetsAsync());
         await Assert.ThrowsAsync<UnauthorizedAccessException>(() => service.RequestAsync());
@@ -43,7 +43,8 @@ public sealed class BackupHttpTests
         var view = await test.Coordinator.OverviewAsync(default);
         var saved = await BrowserForms.PostAsync(client, "/admin/respaldos", "/admin/respaldos?handler=Save", new()
         { ["Enabled"] = "false", ["EveryDays"] = "7", ["LocalTime"] = "07:30", ["TimeZoneId"] = "UTC",
-          ["VolumeId"] = FakeBackupTargets.Volume, ["KeepCopies"] = "3", ["RelativeFolder"] = "Respaldos", ["Version"] = view.Configuration.Version.ToString() });
+          ["VolumeId"] = FakeBackupTargets.Volume, ["SelectedVolumeId"] = FakeBackupTargets.Volume, ["SelectedRelativeFolder"] = "Respaldos",
+          ["KeepCopies"] = "3", ["RelativeFolder"] = "Respaldos", ["Version"] = view.Configuration.Version.ToString() });
         Assert.Equal(HttpStatusCode.Redirect, saved.StatusCode);
         var stored = await test.Coordinator.OverviewAsync(default);
         Assert.Equal(7, stored.Configuration.EveryDays); Assert.Equal("07:30", stored.Configuration.LocalTime);

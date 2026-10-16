@@ -106,4 +106,6 @@ main > .business-header, .brand-preview .business-header { padding: 0; }
 .clinical-notes { white-space: pre-wrap; }
 .file-hash { overflow-wrap: anywhere; }
 fieldset { min-width: 0; border: 1px solid #ccd7dd; border-radius: .5rem; padding: 1rem; }
+.backup-folder-picker { overflow-wrap: anywhere; }
+.backup-folder-picker ul { list-style: none; padding-left: 0; }
 @media (max-width: 560px) { .settings-grid { grid-template-columns: 1fr; gap: 0; } }
