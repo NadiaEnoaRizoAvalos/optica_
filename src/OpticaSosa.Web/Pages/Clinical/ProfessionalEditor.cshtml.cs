@@ -19,7 +19,8 @@ public sealed class ProfessionalEditorModel(IProfessionalService professionals) 
         var details = await professionals.GetAsync(id.Value, HttpContext.RequestAborted);
         if (details is null) return NotFound();
         Input = new ProfessionalInput { FullName = details.FullName, Registration = details.Registration,
-            Jurisdiction = details.Jurisdiction, IsActive = details.IsActive, Version = details.Version };
+            Jurisdiction = details.Jurisdiction, IsActive = details.IsActive, Version = details.Version,
+            Specialty = details.Specialty, Phone = details.Phone, Email = details.Email };
         return Page();
     }
 

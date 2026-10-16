@@ -7,6 +7,7 @@
 - Fase 2: aceptada al autorizar expresamente fase 3; existe una cuenta de acceso, conservada durante la actualización.
 - Fase 3 y tarea adicional de configuración/GitHub: aceptadas al pedir expresamente continuar con fase 4. Primer push realizado y verificado en main, commit 2c4d495.
 - Fase 4: recetas, antecedentes y adjuntos implementados con conservación de originales, sin cupos de cantidad y con tamaños administrables. Verificación automatizada y actualización local completadas; pendiente aceptación visual del usuario. Fase 5 no iniciada.
+- Fase 4.1 autorizada: navegación y ficha integrada, registro clínico guiado y control de calidad por pedido implementados y verificados. Fase 5 sigue pendiente de aprobación.
 - Última suite: 94 pruebas ejecutadas y aprobadas (26 Infraestructura y 68 Web), 0 fallidas, 0 omitidas; 20 pruebas nuevas respecto de la entrega de 74. Compilación: 0 errores y 0 advertencias. Todos los datos de pruebas son ficticios y están aislados de la base local.
 - Trabajar una funcionalidad por tarea; marcar cada tarea y registrar su validación al terminar.
 - El cierre de cada fase requiere cumplir sus criterios y aprobación explícita para avanzar. No encadenar fases automáticamente.
@@ -122,6 +123,25 @@ Entrega de adjuntos y conservación del historial:
 
 Criterios de aceptación: historial clínico trazable sin generación automática de diagnósticos; adjuntos inaccesibles sin permiso; ausencia de datos sensibles en logs. Aprobar antes de fase 5.
 
+## Fase 4.1 — Reorganización funcional y control de calidad (autorizada)
+
+**Objetivo:** conectar clientes, profesionales, documentos y trabajos mediante navegación consistente y controles efectivos por pedido; conservar base y funcionalidades previas.
+
+- [x] Incorporar entidades de pedido mínimo, controles/ítems, plantillas y transiciones con FKs restrictivas y concurrencia.
+- [x] Implementar permisos separados, aprobación backend, dos etapas obligatorias, rectificaciones y auditoría atómica.
+- [x] Incorporar navegación común, ficha central del cliente y vínculos profesionales/documentos.
+- [x] Incorporar formulario clínico guiado, síntomas declarados, consultas/controles informados y selección múltiple de archivos con vistas locales.
+- [x] Incorporar pantallas de pedidos, calidad, entregas y configuración de obligatoriedad.
+- [x] Completar compilación y regresiones, pruebas de bypass y concurrencia, y revisión visual de flujo con datos ficticios aislados.
+- [x] Respaldar base local, aplicar migración revisada sin pérdida y verificar preservación de datos y documentos.
+- [x] Verificar destino privado y sincronización del historial; preparar una entrega coherente. El resultado del commit y push se comunica al cierre, sin crear otro commit sólo para incluir su propio hash.
+
+**Aceptación:** ninguna entrega sin ambos controles aprobados, ningún permiso clínico nuevo para Administrador/Ventas, historial conservado, conflictos visibles, original clínico intacto y flujo completo comprobado. No avanzar a fase 5 sin aprobación.
+
+**Arquitectura:** Dominio contiene catálogo y máquina de estados; Aplicación define IWorkService/IClinicalDirectory; Infraestructura implementa consultas, permisos, EF/SQLite, concurrencia y auditoría; Razor/Blazor sólo presentan y envían operaciones. Las plantillas y cada control guardan versiones/snapshots. Un pedido fija una ClinicalRevision concreta; actualizar la receta no altera silenciosamente lo aprobado. Cambiar explícitamente el vínculo o especificaciones exige nueva ronda. No se crean inventario, precios, pagos ni un segundo módulo de ventas.
+
+**Migración QualityWorkflow:** sólo agrega columnas opcionales o con valores iniciales compatibles y seis tablas. Triggers sobre OpticalWorks refuerzan que receta y versión pertenezcan al cliente, sin reconstruir tablas clínicas anteriores. No ejecutar Down. Consultas/controles usan IsFollowUp dentro de VisualHistory para preservar tipos históricos. Profesionales relacionados conservan participación en versiones previas.
+
 ## Fase 5 — Inventario
 
 - [ ] Validar catálogo, variantes, cristales por encargo y regla de reservas.
@@ -227,6 +247,18 @@ En tareas futuras registrar aquí el alcance concreto, comandos/pruebas ejecutad
 - Aplicación explícita con `--initialize-database` completada. Comparación posterior confirmó las 8 tablas previas sin cambios de registros, una cuenta conservada, integridad correcta y tablas nuevas vacías. No se cargaron clientes ficticios en la base local.
 - Servidor reiniciado en segundo plano en localhost:5080. Ingreso, CSS y Blazor JS responden 200; clientes/nuevo y listado anónimos redirigen al ingreso (302); stderr vacío. Pruebas autenticadas de formularios completas en host aislado. Revisión visual manual pendiente; no se afirma haberla realizado.
 - Falta aceptación del usuario y autorización explícita antes de fase 4.
+
+### Entrega de fase 4.1 — 2026-10-16
+
+- Implementados navegación compartida, ficha central, directorio clínico, fichas profesionales con especialidad/contactos y vínculos históricos, consultas/controles informados y motivos declarados. El guardado clínico vuelve al historial del cliente; carga múltiple con vistas locales, retiro de selección, resultado parcial explícito y originales sujetos a la seguridad existente.
+- Pedidos mínimos, plantillas administrables, dos etapas de calidad, controles inmutables por ronda, motivos de rectificación, permisos específicos, transiciones restringidas y auditoría atómica. Ambos controles deben aprobarse antes de entregar. Cambios relevantes invalidan aprobaciones; se conserva historia. La receta vinculada queda fijada a su versión, con protección adicional de pertenencia en SQLite.
+- Compilación final: `dotnet build OpticaSosa.sln --no-restore -m:1 -nr:false -p:UseSharedCompilation=false`: **0 errores, 0 advertencias**.
+- Suite final: `dotnet test OpticaSosa.sln --no-build --no-restore --verbosity minimal -m:1 -nr:false`: **113 ejecutadas, 113 aprobadas, 0 fallidas y 0 omitidas** (33 Infraestructura y 80 Web). No se suman reejecuciones como pruebas distintas. Incluye bypass HTTP/servicio, observados/pendientes/No aplica, concurrencia, idempotencia, invalidación, separación por pedido, snapshots de rol/fecha, vínculos cruzados, documentos múltiples y regresiones anteriores.
+- `dotnet-ef migrations has-pending-model-changes --project src/OpticaSosa.Infrastructure --startup-project src/OpticaSosa.Web --no-build`: modelo sincronizado. Los primeros intentos detectaron bloqueo de DLL por servidor abierto, límite de memoria y una consulta no traducible a SQL; se corrigieron antes de la verificación final. Las pruebas se ejecutaron con permisos para comunicación local entre procesos; sin dependencias nuevas.
+- Revisión en navegador Brave instalado mediante Playwright ya disponible, con base y cuentas ficticias aisladas en un directorio temporal exclusivo: **16 comprobaciones satisfactorias**. Se recorrieron selección de cliente/profesional, consulta con archivo y vista previa, pedido, observación/corrección, aprobación técnica, aprobación previa a entrega por Ventas, rechazo de acceso técnico y entrega. Sin errores JavaScript; fichas sin desbordamiento horizontal a 390 px. Capturas inspeccionadas de escritorio (1440 px) y móvil (390 px). No equivale a probar celulares físicos ni acceso Wi-Fi; sigue en fase 8. Edge no pudo iniciar para automatización; no se instalaron navegadores.
+- Antes de migrar, copia SQLite mediante su API de backup en `data/migration-backups/pre-fase41-361984ca67f24c83bd22c08b266531f4`, con manifiesto de columnas, filas y hashes y copia de adjuntos existentes (0). Tras `--initialize-database`, verificados los valores de **las 17 tablas previas sin cambios**, integridad, claves foráneas y dos triggers nuevos. No se introdujeron pedidos ni pacientes ficticios en la base local.
+- Git: remoto `NadiaEnoaRizoAvalos/optica_` confirmado privado, rama `main`, historial remoto existente preservado. Bases, copias, capturas, logs y herramientas temporales de revisión permanecen excluidos de Git.
+- Pendientes de alcance: aceptación del usuario; inventario en fase 5 y circuito comercial completo en fase 6; operación de respaldos en fase 7 y conexión segura de celulares en fase 8. Ninguna de esas fases se inicia automáticamente.
 
 ### Confirmaciones de alcance
 

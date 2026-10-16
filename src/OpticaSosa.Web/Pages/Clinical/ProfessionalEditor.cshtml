@@ -15,6 +15,9 @@
         <div><label asp-for="Input.Registration">Matrícula informada</label><input asp-for="Input.Registration" maxlength="60" /></div>
         <div><label asp-for="Input.Jurisdiction">Ámbito o jurisdicción informada</label><input asp-for="Input.Jurisdiction" maxlength="80" /></div>
     </div>
+    <label asp-for="Input.Specialty">Profesión o especialidad</label><input asp-for="Input.Specialty" maxlength="100" />
+    <div class="settings-grid"><div><label asp-for="Input.Phone">Teléfono (opcional)</label><input asp-for="Input.Phone" maxlength="40" /></div>
+    <div><label asp-for="Input.Email">Correo (opcional)</label><input asp-for="Input.Email" type="email" maxlength="254" /></div></div>
     @if (!Model.IsNew)
     {
         <label><input asp-for="Input.IsActive" /> Activo para nuevos registros</label>

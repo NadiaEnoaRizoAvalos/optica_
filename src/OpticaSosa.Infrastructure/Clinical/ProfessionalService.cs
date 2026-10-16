@@ -17,7 +17,7 @@ public sealed class ProfessionalService(IDbContextFactory<OpticaDbContext> facto
         var key = (search ?? "").Trim().ToUpperInvariant();
         if (key.Length > 120) throw new ArgumentException("La búsqueda admite hasta 120 caracteres.");
         await using var db = await factory.CreateDbContextAsync(ct);
-        var rows = await db.Professionals.AsNoTracking().Where(x => key == "" || x.DuplicateKey.Contains(key))
+        var rows = await db.Professionals.AsNoTracking().Where(x => key == "" || x.DuplicateKey.Contains(key) || (x.Specialty != null && x.Specialty.ToUpper().Contains(key)))
             .OrderByDescending(x => x.IsActive).ThenBy(x => x.FullName).ThenBy(x => x.Id).Take(100).ToListAsync(ct);
         Audit(db, actor, "professional.searched", null);
         await db.SaveChangesAsync(ct);
@@ -54,7 +54,7 @@ public sealed class ProfessionalService(IDbContextFactory<OpticaDbContext> facto
         var row = await db.Professionals.FindAsync([targetId], ct);
         if (id is null && row is not null)
             return row.CreatedByUserId == actor && row.FullName == profile.FullName && row.Registration == profile.Registration &&
-                row.Jurisdiction == profile.Jurisdiction && row.IsActive
+                row.Jurisdiction == profile.Jurisdiction && row.Specialty == profile.Specialty && row.Phone == profile.Phone && row.Email == profile.Email && row.IsActive
                 ? new(ClinicalResultCode.Success, row.Id) : Conflict();
         if (id is not null && row is null) return new(ClinicalResultCode.NotFound, Error: "El profesional no existe.");
         if (row is not null && row.Version != input.Version) return Conflict();
@@ -72,7 +72,7 @@ public sealed class ProfessionalService(IDbContextFactory<OpticaDbContext> facto
 
     private static ClinicalResult Conflict() => ClinicalOperations.Conflict();
     private static ProfessionalDetails Details(Professional row) =>
-        new(row.Id, row.FullName, row.Registration, row.Jurisdiction, row.IsActive, row.Version);
+        new(row.Id, row.FullName, row.Registration, row.Jurisdiction, row.IsActive, row.Version, row.Specialty, row.Phone, row.Email);
     private static void Audit(OpticaDbContext db, string actor, string action, Guid? target) =>
         ClinicalOperations.Audit(db, actor, action, target);
 }

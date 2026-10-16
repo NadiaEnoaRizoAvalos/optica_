@@ -7,13 +7,19 @@ public sealed record ProfessionalProfile
     public string FullName { get; }
     public string? Registration { get; }
     public string? Jurisdiction { get; }
+    public string? Specialty { get; }
+    public string? Phone { get; }
+    public string? Email { get; }
     public string DuplicateKey => string.Join('|', FullName, Registration ?? "", Jurisdiction ?? "").ToUpperInvariant();
 
-    public ProfessionalProfile(string fullName, string? registration, string? jurisdiction)
+    public ProfessionalProfile(string fullName, string? registration, string? jurisdiction, string? specialty = null, string? phone = null, string? email = null)
     {
         FullName = Clean(fullName, 120) ?? throw new ArgumentException("El nombre del profesional es obligatorio.");
         Registration = Clean(registration, 60);
         Jurisdiction = Clean(jurisdiction, 80);
+        Specialty = Clean(specialty, 100); Phone = Clean(phone, 40); Email = Clean(email, 254);
+        if (Email is not null && !new System.ComponentModel.DataAnnotations.EmailAddressAttribute().IsValid(Email)) throw new ArgumentException("El correo no es válido.");
+        if (Phone is not null && !new System.ComponentModel.DataAnnotations.PhoneAttribute().IsValid(Phone)) throw new ArgumentException("El teléfono no es válido.");
     }
 
     private static string? Clean(string? value, int limit)
@@ -32,6 +38,9 @@ public sealed class Professional
     public string FullName { get; private set; } = "";
     public string? Registration { get; private set; }
     public string? Jurisdiction { get; private set; }
+    public string? Specialty { get; private set; }
+    public string? Phone { get; private set; }
+    public string? Email { get; private set; }
     public string DuplicateKey { get; private set; } = "";
     public bool IsActive { get; private set; } = true;
     public Guid Version { get; private set; }
@@ -54,8 +63,10 @@ public sealed class Professional
         FullName = profile.FullName;
         Registration = profile.Registration;
         Jurisdiction = profile.Jurisdiction;
+        Specialty = profile.Specialty; Phone = profile.Phone; Email = profile.Email;
         DuplicateKey = profile.DuplicateKey;
         IsActive = isActive;
-        Version = Guid.NewGuid();
+        Touch();
     }
+    public void Touch() => Version = Guid.NewGuid();
 }

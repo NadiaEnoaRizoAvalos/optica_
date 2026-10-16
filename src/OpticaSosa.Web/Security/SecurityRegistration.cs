@@ -57,7 +57,9 @@ public static class SecurityRegistration
             options.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
             foreach (var permission in new[] { Permissions.ManageUsers, Permissions.ReadAudit, Permissions.ReadClinical,
                          Permissions.WriteClinical, Permissions.ReadCustomers, Permissions.WriteCustomers,
-                         Permissions.DeactivateCustomers, Permissions.ManageBusiness })
+                         Permissions.DeactivateCustomers, Permissions.ManageBusiness, Permissions.ReadOrders, Permissions.WriteOrders,
+                         Permissions.TechnicalControl, Permissions.ApproveTechnical, Permissions.DeliveryControl,
+                         Permissions.ApproveDelivery, Permissions.DeliverOrders, Permissions.ConfigureQuality })
                 options.AddPolicy(permission, policy => policy.RequireAuthenticatedUser().RequireRole(
                     Roles.All.Where(role => Permissions.Grants(role, permission)).ToArray()));
         });

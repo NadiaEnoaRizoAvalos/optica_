@@ -1,0 +1,9 @@
+@page "/clinica/registros"
+@model OpticaSosa.Web.Pages.Clinical.DirectoryModel
+@{ ViewData["Title"] = "Recetas y antecedentes"; }
+<p class="eyebrow">Historia clínica</p><h1>Recetas y antecedentes</h1><p>Primero seleccioná al cliente. Cada receta y consulta se guarda como un registro independiente.</p>
+<section><h2>1. Buscar cliente</h2><form method="post"><div asp-validation-summary="All" role="alert"></div>
+<label asp-for="Search">Nombre, apellido, documento, teléfono o correo</label><input asp-for="Search" class="large-search" maxlength="100" /><button>Buscar cliente</button></form>
+@foreach (var c in Model.Results.Items) { <article class="visit"><h3>@c.LastName, @c.FirstName</h3><p>@c.Document</p><nav>
+<a href="/clientes/@c.Id#recetas">Consultar ficha e historial</a><a class="button-link" href="/clientes/@c.Id/clinica/nuevo">Registrar receta o antecedente</a></nav></article> }
+@if (Model.Results.HasMore) { <p>Refiná la búsqueda para ver más coincidencias.</p> }</section>

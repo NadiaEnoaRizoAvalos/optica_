@@ -18,11 +18,22 @@ public static class Permissions
     public const string WriteCustomers = "customers.write";
     public const string DeactivateCustomers = "customers.deactivate";
     public const string ManageBusiness = "business.manage";
+    public const string ReadOrders = "orders.read";
+    public const string WriteOrders = "orders.write";
+    public const string TechnicalControl = "quality.technical.write";
+    public const string ApproveTechnical = "quality.technical.approve";
+    public const string DeliveryControl = "quality.delivery.write";
+    public const string ApproveDelivery = "quality.delivery.approve";
+    public const string DeliverOrders = "orders.deliver";
+    public const string ConfigureQuality = "quality.configure";
 
     public static bool Grants(string role, string permission) => (role, permission) switch
     {
         (Roles.Administrator, ManageUsers or ReadAudit or ManageBusiness) => true,
         (Roles.Professional, ReadClinical or WriteClinical) => true,
+        (Roles.Professional, TechnicalControl or ApproveTechnical) => true,
+        (Roles.Professional or Roles.Sales, ReadOrders or WriteOrders or DeliveryControl or ApproveDelivery or DeliverOrders) => true,
+        (Roles.Administrator, ConfigureQuality) => true,
         (Roles.Administrator or Roles.Sales or Roles.Professional, ReadCustomers or WriteCustomers) => true,
         (Roles.Administrator, DeactivateCustomers) => true,
         _ => false

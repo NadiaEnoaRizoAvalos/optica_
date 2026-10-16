@@ -1,0 +1,26 @@
+@page "/pedidos/{id:guid}/control"
+@using OpticaSosa.Domain.Work
+@using OpticaSosa.Web.Pages.Work
+@model ControlModel
+@{ ViewData["Title"] = WorkDisplay.Stage(Model.Input.Stage); var w = Model.Details.Work; }
+<p class="eyebrow">Calidad · ronda @w.Round</p><h1>@ViewData["Title"]</h1><p>Pedido @w.Id · @w.CustomerName</p><p>@w.Product · @w.Frame · @WorkDisplay.Status(w.Status)</p>
+<p>Fecha del pedido: @w.CreatedAtUtc.ToLocalTime().ToString("dd/MM/yyyy HH:mm"). Responsable y fecha del control se registran al guardar desde la sesión autenticada.</p>
+<form method="post" data-quality-form data-rectifying="@(Model.Rectifying ? "true" : "false")"><div asp-validation-summary="All" role="alert"></div>
+<input asp-for="Input.SubmissionId" type="hidden" /><input asp-for="Input.WorkVersion" type="hidden" /><input asp-for="Input.TemplateVersion" type="hidden" /><input asp-for="Input.Stage" type="hidden" />
+<section><h2>Verificaciones</h2><p>Todos los ítems obligatorios deben estar conformes. No aplica exige motivo y sólo se admite cuando corresponde al tipo de trabajo.</p>
+@for (var n = 0; n < Model.Template.Items.Count; n++) {
+    var rule = Model.Template.Items[n];
+    <fieldset class="quality-check" data-required="@(rule.Required ? "true" : "false")" data-applicable="@(rule.Applicable ? "true" : "false")">
+    <legend>@rule.Label @(rule.Required ? "· obligatorio" : "")</legend>
+    <input name="Input.Items[@n].Key" value="@rule.Key" type="hidden" />
+    <label for="check-@n">Resultado</label><select name="Input.Items[@n].Status" id="check-@n" data-check-status>
+    @foreach (var s in Enum.GetValues<CheckStatus>().Where(s => s != CheckStatus.NotApplicable || !rule.Applicable)) { <option value="@((int)s)" selected="@(Model.Input.Items.ElementAtOrDefault(n)?.Status == s)">@WorkDisplay.Check(s)</option> }</select>
+    <label for="note-@n">Observaciones / justificación de No aplica</label><textarea id="note-@n" name="Input.Items[@n].Notes" maxlength="1000" data-check-notes>@Model.Input.Items.ElementAtOrDefault(n)?.Notes</textarea>
+    </fieldset>
+}</section>
+<label asp-for="Input.Notes">Observaciones generales @(Model.Rectifying ? "· motivo de rectificación obligatorio" : "")</label><textarea asp-for="Input.Notes" maxlength="2000" data-control-notes></textarea>
+@if (Model.Rectifying) { <p>Se agregará una rectificación con motivo. El control aprobado anterior se conservará íntegro.</p> }
+<p data-approval-hint role="status">La aprobación requiere completar todas las verificaciones obligatorias sin observaciones.</p>
+<div class="settings-actions"><button name="Command" value="save">Guardar control</button><button name="Command" value="observe">Marcar observado</button>
+@if (Model.CanApprove) { <button name="Command" value="approve" data-approve disabled="@(!Model.Complete)">Aprobar control</button> }
+<a href="/pedidos/@w.Id#historial">Consultar historial</a></div></form>

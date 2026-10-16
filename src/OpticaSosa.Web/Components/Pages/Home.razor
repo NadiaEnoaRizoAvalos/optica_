@@ -1,34 +1,16 @@
 @page "/"
 @attribute [Authorize]
-
+@using OpticaSosa.Web.Components.Navigation
+@inject OpticaSosa.Application.Security.ICurrentUser Current
 <BusinessPageTitle Text="Inicio" />
-
 <main>
-    <p class="eyebrow">Sistema de gestión</p>
-    <h1>Panel de gestión</h1>
-    <p>Bienvenido al sistema de gestión.</p>
-    <AuthorizeView Policy="@Permissions.ReadCustomers">
-        <p><a href="/clientes">Administrar clientes y visitas</a></p>
-    </AuthorizeView>
-    <p><a href="/cuenta/clave" data-enhance-nav="false">Cambiar mi contraseña</a></p>
-    <AuthorizeView Policy="@Permissions.ReadClinical">
-        <p><a href="/clinica/profesionales" data-enhance-nav="false">Profesionales informantes</a></p>
-    </AuthorizeView>
-    <AuthorizeView Roles="Administrador">
-        <nav aria-label="Administración">
-            <a href="/admin/usuarios" data-enhance-nav="false">Administrar usuarios</a>
-            <a href="/admin/negocio" data-enhance-nav="false">Configuración del negocio</a>
-            <a href="/admin/archivos-clinicos" data-enhance-nav="false">Almacenamiento clínico</a>
-            · <a href="/admin/auditoria" data-enhance-nav="false">Consultar auditoría</a>
-        </nav>
-    </AuthorizeView>
-    <form method="post" action="/cuenta/salir" data-enhance="false">
-        <AntiforgeryToken />
-        <button type="submit">Cerrar sesión</button>
-    </form>
-    <section aria-labelledby="status-title">
-        <h2 id="status-title">Configuración inicial</h2>
-        <p>Ya podés probar clientes y visitas administrativas. El personal con rol Profesional puede registrar recetas y antecedentes. Inventario y ventas se incorporarán en próximas fases.</p>
-        <p>Usá sólo datos ficticios durante el desarrollo.</p>
-    </section>
+    <div class="page-heading"><div><p class="eyebrow">Tu espacio de trabajo</p><h1>Todo conectado.<br />Una atención más simple.</h1>
+        <p>Comenzá por la ficha del cliente y seguí cada atención, documento y trabajo desde el mismo lugar.</p></div><span class="welcome-mark" aria-hidden="true">◈</span></div>
+    <div class="dashboard-grid">
+        @foreach (var item in NavigationItems.For(Current).Where(x => x.Path != "/"))
+        {
+            <a class="dashboard-card" href="@item.Path" data-enhance-nav="false"><span class="card-mark">@item.Mark</span><h2>@item.Label</h2><p>@item.Description</p><span class="card-action">Abrir sección <span aria-hidden="true">↗</span></span></a>
+        }
+    </div>
+    <p class="environment-note">Una base centralizada · Registros con historial · Usá sólo datos ficticios durante el desarrollo.</p>
 </main>

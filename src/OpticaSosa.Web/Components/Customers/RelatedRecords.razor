@@ -1,0 +1,54 @@
+@using OpticaSosa.Application.Clinical
+@using OpticaSosa.Application.Work
+@using Microsoft.AspNetCore.Mvc.ViewFeatures
+@inject IClinicalDirectory Directory
+@inject IWorkService Works
+@inject ICurrentUser Current
+@inject IHttpContextAccessor Context
+@inject ITempDataDictionaryFactory TempDataFactory
+@if (Message is not null) { <p class="saved-message" role="status">@Message</p> }
+@if (Overview is not null)
+{
+    <div class="stats-grid"><div><strong>@Overview.Recipes</strong> recetas</div><div><strong>@Overview.Histories</strong> antecedentes y controles</div>
+    <div>Último registro clínico <strong>@(Overview.LastDate?.ToString("dd/MM/yyyy") ?? "Sin registros")</strong></div></div>
+    @foreach (var history in new[] { false, true })
+    {
+        <section id="@(history ? "antecedentes" : "recetas")"><div class="section-heading"><h2>@(history ? "Antecedentes visuales y controles" : "Recetas y graduaciones")</h2>
+            <a class="button-link" href="/clientes/@CustomerId/clinica/nuevo?tipo=@(history ? "history" : "medical")" data-enhance-nav="false">Registrar @(history ? "antecedente" : "receta")</a></div>
+            @foreach (var row in (history ? Histories : Recipes)!.Items)
+            { <article class="visit"><a href="/clientes/@CustomerId/clinica/@row.Id" data-enhance-nav="false">@row.Date.ToString("dd/MM/yyyy") · @row.Kind</a><p>@row.ProfessionalName · versión @row.Revision</p></article> }
+            @if ((history ? Histories : Recipes)!.Items.Count == 0) { <p>Todavía no hay registros.</p> }
+            <a href="/clientes/@CustomerId/clinica" data-enhance-nav="false">Consultar todo el historial y sus versiones</a>
+        </section>
+    }
+    <section id="profesionales"><h2>Profesionales relacionados</h2><p>Emisores e informantes; son independientes de las cuentas de acceso.</p>
+    @foreach (var p in Overview.Professionals.Take(25)) { <p><a href="/clinica/profesionales/@p.Id" data-enhance-nav="false">@p.FullName</a> · @p.Specialty</p> }
+    @if (Overview.Professionals.Count > 25) { <a href="/clientes/@CustomerId/clinica" data-enhance-nav="false">Ver más profesionales en el historial completo</a> }
+    </section>
+}
+@if (Orders is not null)
+{
+    <section id="pedidos"><div class="section-heading"><h2>Pedidos de anteojos · @OrderCount</h2><a class="button-link" href="/pedidos/nuevo?cliente=@CustomerId" data-enhance-nav="false">Registrar pedido</a></div>
+    @foreach (var w in Orders.Items) { <p><a href="/pedidos/@w.Id" data-enhance-nav="false">@w.CreatedAtUtc.ToLocalTime().ToString("dd/MM/yyyy") · @w.Product</a> — @OpticaSosa.Web.Pages.Work.WorkDisplay.Status(w.Status)</p> }
+    <a href="/pedidos?cliente=@CustomerId" data-enhance-nav="false">Todos los pedidos</a></section>
+    <section id="entregas"><h2>Estado de entregas</h2><p>La entrega requiere la aprobación de ambos controles del pedido.</p><a href="/entregas?cliente=@CustomerId" data-enhance-nav="false">Consultar entregas de este cliente</a></section>
+}
+@code {
+    [Parameter] public Guid CustomerId { get; set; }
+    private CustomerClinicalOverview? Overview;
+    private ClinicalLinks? Recipes, Histories;
+    private WorkPage? Orders;
+    private int OrderCount;
+    private string? Message;
+    protected override async Task OnInitializedAsync()
+    {
+        if (Context.HttpContext is { } http) Message = TempDataFactory.GetTempData(http)["ClinicalSaveMessage"]?.ToString();
+        if (Current.HasPermission(Permissions.ReadClinical))
+        {
+            Overview = await Directory.CustomerAsync(CustomerId);
+            Recipes = await Directory.RecordsAsync(customerId: CustomerId, histories: false);
+            Histories = await Directory.RecordsAsync(customerId: CustomerId, histories: true);
+        }
+        if (Current.HasPermission(Permissions.ReadOrders)) { Orders = await Works.ListAsync(CustomerId); OrderCount = await Works.CountAsync(CustomerId); }
+    }
+}

@@ -3,6 +3,8 @@
 @attribute [Authorize(Policy = Permissions.WriteCustomers)]
 @inject ICustomerService Customers
 @inject NavigationManager Navigation
+@inject IHttpContextAccessor Context
+@inject Microsoft.AspNetCore.Mvc.ViewFeatures.ITempDataDictionaryFactory TempDataFactory
 
 <BusinessPageTitle Text="@(Id.HasValue ? "Editar cliente" : "Registrar cliente")" />
 <main>
@@ -53,6 +55,10 @@
     private async Task SaveAsync()
     {
         Result = Id.HasValue ? await Customers.UpdateAsync(Id.Value, Input!) : await Customers.CreateAsync(Input!);
-        if (Result.Succeeded) Navigation.NavigateTo($"/clientes/{Result.CustomerId}", forceLoad: true);
+        if (Result.Succeeded)
+        {
+            if (Context.HttpContext is { } http) TempDataFactory.GetTempData(http)["ClinicalSaveMessage"] = Id.HasValue ? "Datos del cliente actualizados." : "Cliente registrado. Podés iniciar una visita o registrar una receta desde su ficha; la receta es opcional.";
+            Navigation.NavigateTo($"/clientes/{Result.CustomerId}", forceLoad: true);
+        }
     }
 }

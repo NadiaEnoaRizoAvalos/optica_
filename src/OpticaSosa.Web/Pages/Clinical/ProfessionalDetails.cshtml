@@ -1,0 +1,10 @@
+@page "/clinica/profesionales/{id:guid}"
+@model OpticaSosa.Web.Pages.Clinical.ProfessionalDetailsModel
+@{ ViewData["Title"] = "Ficha profesional"; var p = Model.Professional; }
+<p class="eyebrow">Profesionales y médicos</p><h1>@p.FullName</h1><p>Emisor o informante externo. Esta ficha no es una cuenta de acceso al sistema.</p>
+<section><h2>Datos profesionales</h2><dl><dt>Matrícula / ámbito</dt><dd>@p.Registration · @p.Jurisdiction</dd><dt>Profesión o especialidad</dt><dd>@p.Specialty</dd>
+<dt>Contacto</dt><dd>@p.Phone · @p.Email</dd><dt>Estado</dt><dd>@(p.IsActive ? "Activo" : "Inactivo")</dd></dl><a href="/clinica/profesionales/editar/@p.Id">Editar ficha</a></section>
+<section><h2>Pacientes y documentos relacionados</h2><p>Incluye documentos en los que participó en versiones anteriores; se conserva la autoría de carga separada.</p>
+@foreach (var r in Model.Records.Items) { <article class="visit"><a href="/clientes/@r.CustomerId">@r.CustomerName</a><p><a href="/clientes/@r.CustomerId/clinica/@r.Id?revision=@r.Revision">@r.Kind · @r.Date.ToString("dd/MM/yyyy") · versión @r.Revision</a></p><p>Cargado por usuario @r.AuthorId</p></article> }
+@if (Model.Records.Items.Count == 0) { <p>Sin documentos relacionados.</p> }
+<nav>@if (Model.Records.Page > 1) { <a href="?pagina=@(Model.Records.Page - 1)">Más recientes</a> }@if (Model.Records.HasMore) { <a href="?pagina=@(Model.Records.Page + 1)">Más antiguos</a> }</nav></section>

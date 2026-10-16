@@ -303,6 +303,9 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
                     b.Property<DateOnly>("Date")
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("IsFollowUp")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Notes")
                         .HasMaxLength(4000)
                         .HasColumnType("TEXT");
@@ -337,6 +340,13 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("RecordedByUserId")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ReportedBy")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ReportedSymptoms")
+                        .HasMaxLength(2000)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Source")
@@ -412,6 +422,10 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
                         .HasMaxLength(262)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Email")
+                        .HasMaxLength(254)
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasMaxLength(120)
@@ -424,8 +438,16 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
                         .HasMaxLength(80)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Phone")
+                        .HasMaxLength(40)
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Registration")
                         .HasMaxLength(60)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Specialty")
+                        .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("Version")
@@ -570,6 +592,233 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
                         {
                             t.HasCheckConstraint("CK_Visits_Status", "(Status = 0 AND EndedAtUtc IS NULL AND EndedByUserId IS NULL) OR (Status IN (1, 2) AND EndedAtUtc >= StartedAtUtc AND EndedByUserId IS NOT NULL)");
                         });
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Work.OpticalWork", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CreatedByUserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("DeliveryApproved")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Frame")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("PrescriptionId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("PrescriptionRevisionId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Product")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Round")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("TechnicalApproved")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("PrescriptionId");
+
+                    b.HasIndex("PrescriptionRevisionId");
+
+                    b.HasIndex("CustomerId", "CreatedAtUtc");
+
+                    b.ToTable("OpticalWorks", t =>
+                        {
+                            t.HasCheckConstraint("CK_OpticalWork_Prescription", "(PrescriptionId IS NULL) = (PrescriptionRevisionId IS NULL)");
+
+                            t.HasCheckConstraint("CK_OpticalWork_State", "Status BETWEEN 0 AND 5 AND Round > 0 AND Type BETWEEN 0 AND 2 AND (Status NOT IN (4, 5) OR (TechnicalApproved = 1 AND DeliveryApproved = 1))");
+                        });
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Work.QualityCheckItem", b =>
+                {
+                    b.Property<Guid>("ControlId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Key")
+                        .HasMaxLength(40)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("Applicable")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("Required")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("ControlId", "Key");
+
+                    b.ToTable("QualityCheckItem", t =>
+                        {
+                            t.HasCheckConstraint("CK_QualityCheckItem_Status", "Status BETWEEN 0 AND 3 AND (Status <> 3 OR (Applicable = 0 AND Notes IS NOT NULL AND length(trim(Notes)) > 0))");
+                        });
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Work.QualityControl", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ActorId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("ApprovedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("AtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Round")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Stage")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("TemplateVersion")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("WorkId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActorId");
+
+                    b.HasIndex("WorkId", "AtUtc");
+
+                    b.ToTable("QualityControls", t =>
+                        {
+                            t.HasCheckConstraint("CK_QualityControl_Approval", "Stage IN (0, 1) AND Status IN (0, 1, 2) AND Role IN (0, 1) AND (Stage <> 0 OR Role = 0) AND (Status <> 2 OR ApprovedAtUtc IS NOT NULL)");
+                        });
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Work.QualityTemplate", b =>
+                {
+                    b.Property<int>("Type")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Stage")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Type", "Stage");
+
+                    b.ToTable("QualityTemplates");
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Work.QualityTemplateItem", b =>
+                {
+                    b.Property<int>("Type")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Stage")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Key")
+                        .HasMaxLength(40)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("Required")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Type", "Stage", "Key");
+
+                    b.ToTable("QualityTemplateItem");
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Work.WorkTransition", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ActorId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("AtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("From")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("To")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("WorkId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActorId");
+
+                    b.HasIndex("WorkId", "AtUtc");
+
+                    b.ToTable("WorkTransitions");
                 });
 
             modelBuilder.Entity("OpticaSosa.Infrastructure.Identity.ApplicationUser", b =>
@@ -875,9 +1124,92 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("OpticaSosa.Domain.Work.OpticalWork", b =>
+                {
+                    b.HasOne("OpticaSosa.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OpticaSosa.Domain.Customers.Customer", null)
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OpticaSosa.Domain.Clinical.ClinicalRecord", null)
+                        .WithMany()
+                        .HasForeignKey("PrescriptionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("OpticaSosa.Domain.Clinical.ClinicalRevision", null)
+                        .WithMany()
+                        .HasForeignKey("PrescriptionRevisionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Work.QualityCheckItem", b =>
+                {
+                    b.HasOne("OpticaSosa.Domain.Work.QualityControl", null)
+                        .WithMany("Items")
+                        .HasForeignKey("ControlId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Work.QualityControl", b =>
+                {
+                    b.HasOne("OpticaSosa.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("ActorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OpticaSosa.Domain.Work.OpticalWork", null)
+                        .WithMany()
+                        .HasForeignKey("WorkId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Work.QualityTemplateItem", b =>
+                {
+                    b.HasOne("OpticaSosa.Domain.Work.QualityTemplate", null)
+                        .WithMany("Items")
+                        .HasForeignKey("Type", "Stage")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Work.WorkTransition", b =>
+                {
+                    b.HasOne("OpticaSosa.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("ActorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OpticaSosa.Domain.Work.OpticalWork", null)
+                        .WithMany()
+                        .HasForeignKey("WorkId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("OpticaSosa.Domain.Clinical.ClinicalRevision", b =>
                 {
                     b.Navigation("Eyes");
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Work.QualityControl", b =>
+                {
+                    b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Work.QualityTemplate", b =>
+                {
+                    b.Navigation("Items");
                 });
 #pragma warning restore 612, 618
         }

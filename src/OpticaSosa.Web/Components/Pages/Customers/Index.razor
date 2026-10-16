@@ -5,12 +5,12 @@
 <BusinessPageTitle Text="Clientes" />
 <main>
     <CustomerNavigation />
-    <h1>Clientes</h1>
+    <div class="page-heading"><div><p class="eyebrow">Atención y seguimiento</p><h1>Clientes</h1><p>Encontrá una persona y abrí toda su información desde la ficha.</p></div><a class="button" href="/clientes/nuevo">Registrar cliente</a></div>
     <EditForm Model="Filter" FormName="customer-search" OnValidSubmit="SearchAsync">
         <DataAnnotationsValidator />
         <ValidationSummary />
         <label for="search">Nombre, apellido, documento, teléfono o correo</label>
-        <InputText id="search" @bind-Value="Filter!.Query" maxlength="100" />
+        <InputText id="search" class="large-search" placeholder="Buscar por nombre, documento, teléfono o correo…" @bind-Value="Filter!.Query" maxlength="100" />
         <label><InputCheckbox @bind-Value="Filter!.IncludeInactive" /> Incluir clientes inactivos</label>
         <button type="submit">Buscar</button>
     </EditForm>

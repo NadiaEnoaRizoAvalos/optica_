@@ -1,0 +1,15 @@
+@using OpticaSosa.Domain.Work
+@using OpticaSosa.Web.Pages.Work
+@model WorkListModel
+@{ ViewData["Title"] = Model.Title; }
+<p class="eyebrow">Seguimiento del trabajo</p><div class="section-heading"><h1>@Model.Title</h1><a class="button-link" href="/pedidos/nuevo?cliente=@Model.CustomerId">Registrar pedido</a></div>
+<p>Cada trabajo conserva sus verificaciones e historial. Sólo los pedidos con ambos controles aprobados pueden entregarse.</p>
+<form method="get"><input name="cliente" type="hidden" value="@Model.CustomerId" /><label for="estado">Estado</label><select id="estado" name="estado">
+<option value="">@(Model.Title == "Pedidos" ? "Todos" : "Estado inicial de esta sección")</option>
+@foreach (var s in Enum.GetValues<WorkStatus>()) { <option value="@s" selected="@(Model.Filter == s)">@WorkDisplay.Status(s)</option> }
+</select><button>Filtrar</button></form>
+<section><h2>Trabajos</h2>@if (Model.Results.Items.Count == 0) { <p>No hay pedidos para este filtro.</p> }
+@foreach (var w in Model.Results.Items) { <article class="visit"><span class="status-badge">@WorkDisplay.Status(w.Status)</span><h3><a href="/pedidos/@w.Id">@w.Product</a></h3>
+<p><a href="/clientes/@w.CustomerId">@w.CustomerName</a> · @w.CreatedAtUtc.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</p><p>@WorkDisplay.Type(w.Type) · Pedido @w.Id</p></article> }
+<nav>@if (Model.Results.Page > 1) { <a href="?cliente=@Model.CustomerId&estado=@Model.Filter&pagina=@(Model.Results.Page - 1)">Anterior</a> }
+@if (Model.Results.HasMore) { <a href="?cliente=@Model.CustomerId&estado=@Model.Filter&pagina=@(Model.Results.Page + 1)">Siguiente</a> }</nav></section>

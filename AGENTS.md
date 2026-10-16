@@ -65,6 +65,11 @@
 
 ## Verificación
 
+- En pedidos, el estado listo/entregado sólo se obtiene mediante casos de uso que comprueban ambos controles aprobados de la ronda vigente. No agregar endpoints de asignación libre de estados.
+- Conservar controles, ítems y autoría como registros históricos. Las rectificaciones generan un nuevo control con motivo; cambios de especificaciones o requisitos invalidan aprobaciones sin borrar historia.
+- Las vistas operativas de Atención/Ventas no deben consultar ni proyectar recetas, graduaciones, síntomas o controles técnicos. Administrador configura requisitos sin recibir acceso clínico.
+- Mantener navegación común entre Razor y Blazor; verificar formularios con antifalsificación, selección múltiple de archivos y diseño en tamaños de PC y celular con datos ficticios.
+
 - Crear pruebas relevantes de invariantes, permisos, persistencia, concurrencia y operaciones críticas; evitar pruebas que sólo repitan la implementación.
 - Ejecutar las pruebas necesarias para el cambio, incluyendo regresiones relacionadas. Registrar comandos y resultados en PLANS.md.
 - En cada entrega informar la compilación por separado (errores y advertencias) y el conteo de pruebas ejecutadas, aprobadas, fallidas y omitidas. No confundir cantidad de proyectos compilados con cantidad de pruebas ni sumar reejecuciones como pruebas diferentes.

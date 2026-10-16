@@ -1,0 +1,25 @@
+@page "/pedidos/nuevo/{id:guid?}"
+@using OpticaSosa.Domain.Work
+@using OpticaSosa.Web.Pages.Work
+@model EditorModel
+@{ ViewData["Title"] = Model.Editing ? "Editar pedido" : "Registrar pedido"; }
+<p class="eyebrow">Pedidos</p><h1>@ViewData["Title"]</h1><p>Trabajo operativo para control de calidad. Precios, cobros e inventario se incorporarán en sus fases correspondientes.</p>
+@if (Model.Customer is null) {
+<section><h2>Seleccionar cliente</h2><form method="post" asp-page-handler="Search"><label asp-for="Search">Nombre, documento o contacto</label><input asp-for="Search" maxlength="100" /><button formnovalidate>Buscar cliente</button></form>
+@foreach (var c in Model.Matches.Items) { <p><a href="/pedidos/nuevo?cliente=@c.Id">@c.LastName, @c.FirstName · @c.Document</a></p> }
+@if (Model.Matches.HasMore) { <p>Refiná la búsqueda para ver más coincidencias.</p> }</section> }
+else {
+<p>Cliente: <a href="/clientes/@Model.Customer.Id">@Model.Customer.LastName, @Model.Customer.FirstName</a></p>
+<form method="post"><div asp-validation-summary="All" role="alert"></div><input asp-for="Input.SubmissionId" type="hidden" /><input asp-for="Input.Version" type="hidden" /><input asp-for="Input.CustomerId" type="hidden" />
+@if (Model.Editing) { <input asp-for="Input.Type" type="hidden" /><p>@WorkDisplay.Type(Model.Input.Type). Modificar especificaciones exige nuevos controles y conserva los anteriores.</p> }
+else { <label asp-for="Input.Type">Tipo de trabajo</label><select asp-for="Input.Type">@foreach (var t in Enum.GetValues<OpticalWorkType>()) { <option value="@((int)t)">@WorkDisplay.Type(t)</option> }</select> }
+<label asp-for="Input.Product">Producto y especificaciones operativas</label><input asp-for="Input.Product" maxlength="200" required /><p class="field-help">No incluir datos clínicos en este campo visible para Atención/Ventas.</p>
+<label asp-for="Input.Frame">Armazón / identificación del trabajo</label><input asp-for="Input.Frame" maxlength="200" required />
+@if (Model.Clinical) {
+<label asp-for="Input.PrescriptionId">Receta asociada (opcional)</label><select asp-for="Input.PrescriptionId"><option value="">Sin receta vinculada</option>
+@if (Model.Input.PrescriptionId.HasValue && Model.Recipes.Items.All(x => x.Id != Model.Input.PrescriptionId)) { <option value="@Model.Input.PrescriptionId">Conservar receta seleccionada</option> }
+@foreach (var r in Model.Recipes.Items) { <option value="@r.Id">@r.Date.ToString("dd/MM/yyyy") · @r.Kind · @r.ProfessionalName</option> }</select>
+<p class="field-help">Al guardar se fija la versión actual de la receta; una edición posterior debe revisarse expresamente.</p>
+@if (!Model.Editing) { <nav>@if (Model.Recipes.Page > 1) { <a href="?cliente=@Model.Customer.Id&pagina=@(Model.Recipes.Page - 1)">Recetas más recientes</a> }@if (Model.Recipes.HasMore) { <a href="?cliente=@Model.Customer.Id&pagina=@(Model.Recipes.Page + 1)">Recetas anteriores</a> }</nav> }
+}
+<div class="settings-actions"><button>Guardar pedido</button><a href="/clientes/@Model.Customer.Id#pedidos">Volver a la ficha</a></div></form> }

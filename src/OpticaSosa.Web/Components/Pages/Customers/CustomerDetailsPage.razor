@@ -11,6 +11,12 @@
     else
     {
         <h1>@Details.Customer.LastName, @Details.Customer.FirstName</h1>
+        <p class="eyebrow">Ficha individual · @(Details.Customer.IsRecurrent ? "Cliente recurrente" : "Cliente nuevo")</p>
+        <div class="stats-grid"><div><strong>@Details.VisitCount</strong> visitas</div><div>Última atención <strong>@(Details.LastVisitUtc.HasValue ? CustomerDates.Display(Details.LastVisitUtc.Value) : "Sin visitas")</strong></div></div>
+        <nav class="section-tabs" aria-label="Secciones de la ficha"><a href="#datos">Datos personales</a><a href="#visitas">Visitas</a>
+        <AuthorizeView Policy="@Permissions.ReadClinical"><a href="#recetas">Recetas</a><a href="#antecedentes">Antecedentes</a><a href="#profesionales">Profesionales</a></AuthorizeView>
+        <AuthorizeView Policy="@Permissions.ReadOrders"><a href="#pedidos">Pedidos</a><a href="#entregas">Entregas</a></AuthorizeView></nav>
+        <section id="datos"><h2>Datos personales</h2>
         <dl>
             <dt>Documento</dt><dd>@Details.Customer.Document</dd>
             <dt>Teléfono</dt><dd>@(Details.Customer.Phone ?? "Sin informar")</dd>
@@ -18,6 +24,7 @@
             <dt>Estado</dt><dd>@(Details.Customer.IsActive ? "Activo" : "Inactivo")</dd>
             <dt>Próxima atención</dt><dd>@(Details.Customer.IsRecurrent ? "Recurrente: tiene visitas completadas" : "Nuevo: sin visitas completadas")</dd>
         </dl>
+        </section>
         <AuthorizeView Policy="@Permissions.WriteCustomers">
             <p><a href="@($"/clientes/{Id}/editar")">Editar cliente</a></p>
             @if (Details.Customer.IsActive) { <p><a href="@($"/clientes/{Id}/visitas/nueva")">Iniciar visita</a></p> }
@@ -32,7 +39,7 @@
                 <p><a href="@($"/clientes/{Id}/inactivar")">Inactivar cliente</a></p>
             }
         </AuthorizeView>
-        <section>
+        <section id="visitas">
             <h2>Historial de visitas administrativas</h2>
             <p>Este historial contiene sólo información administrativa. Fechas en hora argentina.</p>
             @foreach (var visit in Details.Visits)
@@ -62,6 +69,7 @@
                 @if (Details.HasOlderVisits) { <a href="@($"/clientes/{Id}?pagina={Details.HistoryPage + 1}")">Más antiguas</a> }
             </nav>
         </section>
+        <RelatedRecords CustomerId="Id" />
     }
 </main>
 

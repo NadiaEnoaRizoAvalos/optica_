@@ -53,7 +53,7 @@ public sealed partial class ClinicalService
         catch (ArgumentException ex) { return ClinicalOperations.Invalid(ex.Message); }
         // Participan en la misma escritura para detectar inactivaciones/ediciones concurrentes.
         customer.Touch();
-        professional.Update(new ProfessionalProfile(professional.FullName, professional.Registration, professional.Jurisdiction), professional.IsActive);
+        professional.Touch();
         ClinicalOperations.Audit(db, actor, id is null ? "clinical.created" : "clinical.corrected", record.Id);
         return await ClinicalOperations.SaveAsync(db, record.Id, ct);
     }

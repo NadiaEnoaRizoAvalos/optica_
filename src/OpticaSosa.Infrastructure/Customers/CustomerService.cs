@@ -48,10 +48,12 @@ public sealed partial class CustomerService(IDbContextFactory<OpticaDbContext> f
         var history = await db.Visits.AsNoTracking().Where(v => v.CustomerId == customerId)
             .OrderByDescending(v => v.StartedAtUtc).ThenByDescending(v => v.Id).Skip(HistoryPaging.Offset(page)).Take(HistoryPaging.Size + 1)
             .Select(v => new VisitSummary(v.Id, v.Reason, v.AdministrativeNotes, v.StartedAtUtc,
-                v.EndedAtUtc, v.Status, v.WasRecurrent, v.Version)).ToListAsync(ct);
+                v.EndedAtUtc, v.Status, v.WasRecurrent, v.Version, v.RecordedByUserId, v.EndedByUserId)).ToListAsync(ct);
         CustomerOperations.Audit(db, actor, "customer.viewed", customerId);
         await db.SaveChangesAsync(ct);
-        return new(summary, customer.Email, customer.Version, history.Take(25).ToList(), page, history.Count > 25);
+        var count = await db.Visits.CountAsync(v => v.CustomerId == customerId, ct);
+        var last = await db.Visits.Where(v => v.CustomerId == customerId && v.Status != VisitStatus.Cancelled).MaxAsync(v => (DateTime?)v.StartedAtUtc, ct);
+        return new(summary, customer.Email, customer.Version, history.Take(25).ToList(), page, history.Count > 25, customer.CreatedAtUtc, count, last);
     }
 
     private static async Task<CustomerResult?> CheckDuplicatesAsync(OpticaDbContext db, CustomerData data,

@@ -4,6 +4,7 @@ using OpticaSosa.Infrastructure.Identity;
 using OpticaSosa.Domain.Customers;
 using OpticaSosa.Domain.Business;
 using OpticaSosa.Domain.Clinical;
+using OpticaSosa.Domain.Work;
 
 namespace OpticaSosa.Infrastructure.Persistence;
 
@@ -19,6 +20,10 @@ public sealed class OpticaDbContext(DbContextOptions<OpticaDbContext> options) :
     public DbSet<EyeMeasurement> EyeMeasurements => Set<EyeMeasurement>();
     public DbSet<ClinicalAttachment> ClinicalAttachments => Set<ClinicalAttachment>();
     public DbSet<ClinicalFilePolicy> ClinicalFilePolicies => Set<ClinicalFilePolicy>();
+    public DbSet<OpticalWork> OpticalWorks => Set<OpticalWork>();
+    public DbSet<WorkTransition> WorkTransitions => Set<WorkTransition>();
+    public DbSet<QualityControl> QualityControls => Set<QualityControl>();
+    public DbSet<QualityTemplate> QualityTemplates => Set<QualityTemplate>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

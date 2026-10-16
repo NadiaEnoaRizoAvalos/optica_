@@ -14,6 +14,9 @@
     <dt>Fecha informada</dt><dd>@d.Data.Date.ToString("dd/MM/yyyy")</dd>
     <dt>Profesional informante</dt><dd>@d.ProfessionalName · @(d.ProfessionalRegistration ?? "Sin matrícula informada") · @(d.ProfessionalJurisdiction ?? "Sin ámbito informado")</dd>
     <dt>Procedencia</dt><dd>@d.Data.Source</dd>
+    <dt>Tipo de atención</dt><dd>@(d.Data.IsFollowUp ? "Consulta / control informado" : ClinicalDisplay.Kind(d.Kind))</dd>
+    <dt>Motivo o síntomas declarados</dt><dd class="clinical-notes">@(d.Data.ReportedSymptoms ?? "Sin informar")</dd>
+    @if (d.Data.ReportedSymptoms is not null) { <dt>Declarado por</dt><dd>@(d.Data.ReportedBy == ReportedBy.Patient ? "Paciente" : d.Data.ReportedBy == ReportedBy.Professional ? "Profesional" : "Documento externo")</dd> }
     <dt>Observaciones o antecedente informado</dt><dd class="clinical-notes">@(d.Data.Notes ?? "Sin informar")</dd>
     <dt>Autor del registro (identificador de usuario)</dt><dd>@d.RecordedByUserId</dd>
     <dt>Registrado</dt><dd>@d.RecordedAtUtc.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</dd>

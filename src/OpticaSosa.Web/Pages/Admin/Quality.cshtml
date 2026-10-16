@@ -1,0 +1,14 @@
+@page "/admin/calidad"
+@using OpticaSosa.Domain.Work
+@using OpticaSosa.Web.Pages.Work
+@model OpticaSosa.Web.Pages.Admin.QualityModel
+@{ ViewData["Title"] = "Requisitos de calidad"; }
+<p class="eyebrow">Configuración y administración</p><h1>Requisitos de calidad</h1>
+@if (TempData["Message"] is string message) { <p class="saved-message" role="status">@message</p> }
+<form method="get"><label asp-for="Type">Tipo de pedido</label><select asp-for="Type">@foreach (var t in Enum.GetValues<OpticalWorkType>()) { <option value="@t">@WorkDisplay.Type(t)</option> }</select>
+<label asp-for="Stage">Etapa de control</label><select asp-for="Stage">@foreach (var s in Enum.GetValues<QualityStage>()) { <option value="@s">@WorkDisplay.Stage(s)</option> }</select><button>Consultar configuración</button></form>
+<section><h2>Verificaciones obligatorias</h2><p>Las esenciales no pueden omitirse. La aplicabilidad depende del tipo de trabajo.</p><p role="note">Al guardar cambios se invalidan ambas aprobaciones de los pedidos no entregados de este tipo. El historial previo y los pedidos entregados se conservan.</p>
+<form method="post"><div asp-validation-summary="All" role="alert"></div><input asp-for="Type" type="hidden" /><input asp-for="Stage" type="hidden" /><input asp-for="Version" type="hidden" />
+@foreach (var r in Model.Template.Items) { <label><input type="checkbox" name="RequiredChecks" value="@r.Key" checked="@Model.RequiredChecks.Contains(r.Key)" disabled="@(r.Essential || !r.Applicable)" />@r.Label @(r.Essential ? "· esencial" : !r.Applicable ? "· no aplicable" : "")</label>
+@if (r.Essential) { <input type="hidden" name="RequiredChecks" value="@r.Key" /> } }
+<button>Guardar requisitos y exigir nueva revisión</button></form></section>

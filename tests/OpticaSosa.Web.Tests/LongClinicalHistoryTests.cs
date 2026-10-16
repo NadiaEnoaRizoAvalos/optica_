@@ -35,6 +35,11 @@ public sealed class LongClinicalHistoryTests
         Assert.Equal(104, seen.Count); Assert.Equal(104, seen.Select(x => x.Id).Distinct().Count());
         Assert.Equal(seen.OrderByDescending(x => x.Date).Select(x => x.Date), seen.Select(x => x.Date));
         Assert.Contains(seen, x => x.Date.Year == 2000);
+        var directory = new OpticaSosa.Infrastructure.Clinical.ClinicalDirectory(test.Scenario.Factory, test.Scenario.Actor);
+        var directoryIds = new List<Guid>();
+        for (int page = 1; ; page++) { var rows = await directory.RecordsAsync(customerId: test.CustomerId, histories: false, page: page);
+            directoryIds.AddRange(rows.Items.Select(x => x.Id)); if (!rows.HasMore) break; }
+        Assert.Equal(104, directoryIds.Distinct().Count());
         Assert.Equal(original.Data, (await test.Scenario.Clinical.GetAsync(test.CustomerId, test.RecordId))!.Data);
         using var customers = await CustomerScenario.OpenAsync(test.App);
         var visits = new List<Guid>();

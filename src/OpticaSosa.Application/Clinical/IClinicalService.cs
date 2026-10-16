@@ -26,11 +26,14 @@ public sealed class ClinicalInput
     public Guid ProfessionalId { get; set; }
     [Required, StringLength(200)] public string Source { get; set; } = "";
     [StringLength(4000)] public string? Notes { get; set; }
+    public bool IsFollowUp { get; set; }
+    [StringLength(2000)] public string? ReportedSymptoms { get; set; }
+    public ReportedBy ReportedBy { get; set; } = ReportedBy.Patient;
     public decimal? PupillaryDistance { get; set; }
     public EyeInput Right { get; set; } = new();
     public EyeInput Left { get; set; } = new();
     [StringLength(500)] public string? CorrectionReason { get; set; }
-    public ClinicalData ToData() => new(Date, ProfessionalId, Source, Notes, PupillaryDistance, Right.ToValues(), Left.ToValues());
+    public ClinicalData ToData() => new(Date, ProfessionalId, Source, Notes, PupillaryDistance, Right.ToValues(), Left.ToValues(), IsFollowUp, ReportedSymptoms, ReportedBy);
 }
 
 public sealed record ClinicalSummary(Guid Id, ClinicalKind Kind, DateOnly Date, string ProfessionalName, int RevisionNumber);

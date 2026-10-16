@@ -1,0 +1,10 @@
+@page "/administracion"
+@model OpticaSosa.Web.Pages.Admin.OverviewModel
+@{ ViewData["Title"] = "Configuración y administración"; }
+<p class="eyebrow">Administración</p><h1>Configuración y administración</h1><p>Administrá el establecimiento y los accesos desde un solo lugar.</p>
+<div class="dashboard-grid">
+@foreach (var item in new[] { ("/admin/usuarios", "Usuarios y permisos", "Cuentas individuales y roles."), ("/admin/negocio", "Datos del negocio", "Nombre, logo y datos de contacto."),
+    ("/admin/archivos-clinicos", "Almacenamiento clínico", "Límites de carga, espacio y copias verificadas."), ("/admin/calidad", "Requisitos de calidad", "Verificaciones obligatorias según tipo de pedido."),
+    ("/admin/auditoria", "Auditoría", "Operaciones y responsables, sin contenido clínico.") })
+{ <a class="dashboard-card" href="@item.Item1"><h2>@item.Item2</h2><p>@item.Item3</p><span class="card-action">Configurar ↗</span></a> }
+</div>

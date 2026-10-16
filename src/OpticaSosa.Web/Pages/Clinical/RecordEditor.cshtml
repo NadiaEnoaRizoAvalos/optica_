@@ -9,19 +9,23 @@
 <p>@Model.Customer.LastName, @Model.Customer.FirstName</p>
 <p>Transcribí únicamente información aportada por el profesional. Un campo vacío significa que no fue informado. Para una consulta o control, registrá un nuevo antecedente informado y asociá la visita si corresponde; no reemplaces una receta previa.</p>
 @if (Model.Correcting) { <p>Se creará una versión nueva con motivo obligatorio; la versión anterior se conserva.</p> }
-<form method="post">
+<form method="post" enctype="multipart/form-data" data-clinical-editor>
     <div asp-validation-summary="All" role="alert"></div>
     <input asp-for="Input.SubmissionId" type="hidden" /><input asp-for="Input.Version" type="hidden" />
+    <section class="step-card"><span class="step-number">1</span><h2>Cliente e historial</h2><p>@Model.Customer.LastName, @Model.Customer.FirstName · @Model.Customer.Document</p>
+    <a href="/clientes/@Model.Customer.Id/clinica" target="_blank" rel="noopener">Consultar recetas anteriores en otra pestaña</a></section>
+    <section class="step-card"><span class="step-number">2</span><h2>Tipo y motivo declarado</h2>
     @if (Model.Correcting)
     {
-        <input asp-for="Input.Kind" type="hidden" /><input asp-for="Input.VisitId" type="hidden" />
+        <input asp-for="Input.Kind" type="hidden" /><input asp-for="Input.IsFollowUp" type="hidden" /><input asp-for="Input.VisitId" type="hidden" />
         <p>Tipo: @ClinicalDisplay.Kind(Model.Input.Kind). El cliente, tipo y vínculo de visita se conservan.</p>
     }
     else
     {
-        <label asp-for="Input.Kind">Tipo de registro</label>
-        <select asp-for="Input.Kind">
-            @foreach (var kind in Enum.GetValues<ClinicalKind>()) { <option value="@((int)kind)">@ClinicalDisplay.Kind(kind)</option> }
+        <label asp-for="RegistrationType">Tipo de registro</label>
+        <select asp-for="RegistrationType" data-record-type>
+            <option value="medical">Receta médica</option><option value="optical">Receta de óptica</option>
+            <option value="history">Antecedente visual</option><option value="followup">Consulta / control informado</option>
         </select>
         <label asp-for="Input.VisitId">Visita administrativa (opcional)</label>
         <select asp-for="Input.VisitId">
@@ -31,9 +35,13 @@
         <p class="field-help">Se ofrecen hasta 25 visitas recientes. La asociación es opcional.</p>
     }
     <label asp-for="Input.Date">Fecha del documento o información</label><input asp-for="Input.Date" type="date" required />
+    <label asp-for="Input.ReportedSymptoms">Síntomas o motivo de consulta declarado (opcional)</label><textarea asp-for="Input.ReportedSymptoms" maxlength="2000"></textarea>
+    <label asp-for="Input.ReportedBy">Declarado por</label><select asp-for="Input.ReportedBy"><option value="0">Paciente</option><option value="1">Profesional</option><option value="2">Documento externo</option></select>
+    <p class="field-help">Información declarada. El sistema no genera diagnósticos.</p></section>
+    <section class="step-card"><span class="step-number">3</span><h2>Profesional y procedencia</h2>
     <label asp-for="ProfessionalSearch">Filtrar profesionales por nombre, matrícula o ámbito</label>
     <input asp-for="ProfessionalSearch" maxlength="120" />
-    <button type="submit" asp-page-handler="SearchProfessionals" formnovalidate>Buscar profesionales sin guardar</button>
+    <button type="submit" asp-page-handler="SearchProfessionals" formnovalidate data-search-professionals>Buscar profesionales sin guardar</button>
     <label asp-for="Input.ProfessionalId">Profesional informante</label>
     <select asp-for="Input.ProfessionalId" required>
         <option value="">Seleccionar profesional activo</option>
@@ -44,7 +52,7 @@
     <label asp-for="Input.Source">Procedencia (obligatoria)</label><input asp-for="Input.Source" maxlength="200" required />
     <label asp-for="Input.Notes">Observaciones o antecedente informado (obligatorio para antecedentes)</label>
     <textarea asp-for="Input.Notes" maxlength="4000"></textarea>
-    <section>
+    </section><section class="step-card" data-graduations><span class="step-number">4</span>
         <h2>Graduaciones de recetas</h2>
         <p>Para antecedentes visuales dejá estos campos vacíos. Dioptrías con hasta 3 decimales; eje entero de 0 a 180°; prisma en dioptrías prismáticas. No se exige un incremento de 0,25.</p>
         <div class="settings-grid">
@@ -54,6 +62,11 @@
         <label asp-for="Input.PupillaryDistance">Distancia pupilar binocular (mm, hasta 2 decimales)</label>
         <input asp-for="Input.PupillaryDistance" type="number" step="0.01" min="0" />
     </section>
+    <section class="step-card"><span class="step-number">5</span><h2>Fotografías y documentos</h2><p>Seleccioná los archivos para revisarlos antes de guardar. Podés añadir más después.</p>
+    <label asp-for="Documents">JPG, PNG o PDF · selección múltiple</label><input asp-for="Documents" type="file" multiple accept=".jpg,.jpeg,.png,.pdf" data-clinical-files />
+    <p class="field-help">Fotografías: @Model.Limits.PhotoMiB MiB por archivo; PDF: @Model.Limits.PdfMiB MiB. Capacidad técnica conjunta por envío: @Model.Limits.TechnicalRequestMiB MiB. No hay cupo de documentos por registro.</p>
+    <div data-file-previews class="preview-grid" aria-live="polite"></div><p class="field-help">Las vistas previas son locales. El original se valida y conserva en el servidor al guardar. Los PDF se revisan abriendo su vista local; no se comprimen.</p></section>
+    <h2>6. Revisar y guardar</h2>
     @if (Model.Correcting)
     {
         <label asp-for="Input.CorrectionReason">Motivo de corrección (obligatorio)</label>

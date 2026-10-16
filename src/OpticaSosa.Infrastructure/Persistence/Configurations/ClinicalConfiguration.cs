@@ -32,6 +32,7 @@ public sealed class ClinicalRevisionConfiguration : IEntityTypeConfiguration<Cli
         e.HasMany(x => x.Eyes).WithOne().HasForeignKey(x => x.RevisionId).OnDelete(DeleteBehavior.Restrict);
         e.Property(x => x.Source).HasMaxLength(200).IsRequired();
         e.Property(x => x.Notes).HasMaxLength(4000);
+        e.Property(x => x.ReportedSymptoms).HasMaxLength(2000);
         e.Property(x => x.CorrectionReason).HasMaxLength(500);
         e.Property(x => x.ProfessionalName).HasMaxLength(120).IsRequired();
         e.Property(x => x.ProfessionalRegistration).HasMaxLength(60);

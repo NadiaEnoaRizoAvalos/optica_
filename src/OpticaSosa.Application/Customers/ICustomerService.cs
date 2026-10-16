@@ -6,9 +6,9 @@ public sealed record CustomerSummary(Guid Id, string FirstName, string LastName,
     bool IsActive, bool IsRecurrent);
 public sealed record CustomerSearchResult(IReadOnlyList<CustomerSummary> Items, bool HasMore);
 public sealed record VisitSummary(Guid Id, string Reason, string? AdministrativeNotes, DateTime StartedAtUtc,
-    DateTime? EndedAtUtc, VisitStatus Status, bool WasRecurrent, Guid Version);
+    DateTime? EndedAtUtc, VisitStatus Status, bool WasRecurrent, Guid Version, string RecordedByUserId = "", string? EndedByUserId = null);
 public sealed record CustomerDetails(CustomerSummary Customer, string? Email, Guid Version,
-    IReadOnlyList<VisitSummary> Visits, int HistoryPage, bool HasOlderVisits);
+    IReadOnlyList<VisitSummary> Visits, int HistoryPage, bool HasOlderVisits, DateTime CreatedAtUtc = default, int VisitCount = 0, DateTime? LastVisitUtc = null);
 public enum CustomerResultCode { Success, Invalid, DuplicateDocument, PossibleDuplicate, Conflict, NotFound }
 public sealed record CustomerResult(CustomerResultCode Code, Guid? CustomerId = null, string? Error = null,
     IReadOnlyList<CustomerSummary>? PossibleDuplicates = null)

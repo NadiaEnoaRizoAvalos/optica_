@@ -13,6 +13,9 @@ public sealed class ProfessionalConfiguration : IEntityTypeConfiguration<Profess
         entity.Property(x => x.FullName).HasMaxLength(120).IsRequired();
         entity.Property(x => x.Registration).HasMaxLength(60);
         entity.Property(x => x.Jurisdiction).HasMaxLength(80);
+        entity.Property(x => x.Specialty).HasMaxLength(100);
+        entity.Property(x => x.Phone).HasMaxLength(40);
+        entity.Property(x => x.Email).HasMaxLength(254);
         entity.Property(x => x.DuplicateKey).HasMaxLength(262).IsRequired();
         entity.Property(x => x.Version).IsConcurrencyToken();
         entity.HasIndex(x => x.DuplicateKey).IsUnique();

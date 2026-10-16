@@ -1,0 +1,20 @@
+@using OpticaSosa.Application.Security
+@inject ICurrentUser Current
+@inject IHttpContextAccessor Context
+@if (Current.Id is not null)
+{
+    <aside class="sidebar">
+        <div class="sidebar-heading"><span class="nav-symbol">◈</span><strong>Gestión de óptica</strong><span class="nav-caption">ESPACIO DE TRABAJO</span></div>
+        <nav class="primary-nav" aria-label="Navegación principal">
+            @foreach (var item in NavigationItems.For(Current))
+            {
+                var selected = item.Path == "/" ? Path == "/" : Path.StartsWith(item.Path, StringComparison.OrdinalIgnoreCase);
+                <a class="@(selected ? "is-current" : "")" href="@item.Path" aria-current="@(selected ? "page" : null)" data-enhance-nav="false"><span class="nav-marker">@item.Mark</span>@item.Label</a>
+            }
+        </nav>
+        <div class="nav-account"><a href="/cuenta/clave" data-enhance-nav="false">Mi contraseña</a>
+            <form method="post" action="/cuenta/salir" data-enhance="false"><AntiforgeryToken /><button class="button-quiet" type="submit">Cerrar sesión</button></form>
+        </div>
+    </aside>
+}
+@code { private string Path => Context.HttpContext?.Request.Path.Value ?? "/"; }

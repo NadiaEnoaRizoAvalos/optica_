@@ -2,8 +2,10 @@
 @using OpticaSosa.Application.Business
 @inject IBusinessSettingsService Business
 
-<BusinessHeader Branding="Branding" />
-@Body
+<div class="app-shell">
+    <OpticaSosa.Web.Components.Navigation.PrimaryNavigation />
+    <div class="app-content"><BusinessHeader Branding="Branding" />@Body</div>
+</div>
 
 @code {
     private BusinessBranding Branding = BusinessBranding.Default;

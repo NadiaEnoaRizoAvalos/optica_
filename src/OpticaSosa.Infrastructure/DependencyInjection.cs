@@ -53,11 +53,13 @@ public static class DependencyInjection
         services.AddScoped<IBusinessSettingsService, BusinessSettingsService>();
         services.AddScoped<IProfessionalService, ProfessionalService>();
         services.AddScoped<IClinicalService, ClinicalService>();
+        services.AddScoped<IClinicalDirectory, ClinicalDirectory>();
         services.AddScoped<IPrivateAttachmentStore, PrivateAttachmentStore>();
         services.AddScoped<IClinicalFilePolicyService, ClinicalFilePolicyService>();
         services.AddScoped<IClinicalAttachmentService, ClinicalAttachmentService>();
         services.AddScoped<ClinicalFileValidation>();
         services.AddScoped<IClinicalSnapshotService, ClinicalSnapshotService>();
+        services.AddScoped<OpticaSosa.Application.Work.IWorkService, OpticaSosa.Infrastructure.Work.WorkService>();
         return services;
     }
 }

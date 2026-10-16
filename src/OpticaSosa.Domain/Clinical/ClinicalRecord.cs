@@ -27,8 +27,10 @@ public sealed class ClinicalRecord
     public void Touch() => Version = Guid.NewGuid();
 }
 
+public enum ReportedBy { Patient, Professional, ExternalDocument }
 public sealed record ClinicalData(DateOnly Date, Guid ProfessionalId, string Source, string? Notes,
-    decimal? PupillaryDistance, EyeValues Right, EyeValues Left);
+    decimal? PupillaryDistance, EyeValues Right, EyeValues Left, bool IsFollowUp = false,
+    string? ReportedSymptoms = null, ReportedBy ReportedBy = ReportedBy.Patient);
 
 public sealed class ClinicalRevision
 {
@@ -42,6 +44,9 @@ public sealed class ClinicalRevision
     public string? ProfessionalJurisdiction { get; private set; }
     public string Source { get; private set; } = "";
     public string? Notes { get; private set; }
+    public bool IsFollowUp { get; private set; }
+    public string? ReportedSymptoms { get; private set; }
+    public ReportedBy ReportedBy { get; private set; }
     public int? PupillaryDistanceHundredths { get; private set; }
     public string? CorrectionReason { get; private set; }
     public string RecordedByUserId { get; private set; } = "";
@@ -59,6 +64,10 @@ public sealed class ClinicalRevision
         RecordId = record.Id;
         Number = record.RevisionNumber + 1;
         Date = data.Date;
+        if (!Enum.IsDefined(data.ReportedBy) || (data.IsFollowUp && record.Kind != ClinicalKind.VisualHistory)) throw new ArgumentException("Tipo de seguimiento o procedencia inválidos.");
+        IsFollowUp = data.IsFollowUp;
+        ReportedSymptoms = ClinicalText.Optional(data.ReportedSymptoms, 2000, "síntomas o motivo declarado");
+        ReportedBy = data.ReportedBy;
         ProfessionalId = professional.Id;
         ProfessionalName = professional.FullName;
         ProfessionalRegistration = professional.Registration;
@@ -85,5 +94,5 @@ public sealed class ClinicalRevision
 
     public ClinicalData ToData() => new(Date, ProfessionalId, Source, Notes, PupillaryDistanceHundredths / 100m,
         Eyes.SingleOrDefault(x => x.Side == EyeSide.Right)?.ToValues() ?? new(),
-        Eyes.SingleOrDefault(x => x.Side == EyeSide.Left)?.ToValues() ?? new());
+        Eyes.SingleOrDefault(x => x.Side == EyeSide.Left)?.ToValues() ?? new(), IsFollowUp, ReportedSymptoms, ReportedBy);
 }

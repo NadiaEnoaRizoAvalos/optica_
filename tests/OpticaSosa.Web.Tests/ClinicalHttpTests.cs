@@ -31,10 +31,13 @@ public sealed class ClinicalHttpTests
         Assert.Equal(HttpStatusCode.BadRequest, (await browser.PostAsync(path, new FormUrlEncodedContent(values))).StatusCode);
         var saved = await BrowserForms.PostAsync(browser, path, path, values);
         Assert.Equal(HttpStatusCode.Redirect, saved.StatusCode);
-        var detailsPath = saved.Headers.Location!.ToString();
+        Assert.Equal($"/clientes/{customer}#recetas", saved.Headers.Location!.ToString());
+        var hub = WebUtility.HtmlDecode(await browser.GetStringAsync($"/clientes/{customer}"));
+        Assert.Contains("Registro clínico guardado", hub);
+        var id = await scenario.Db.ClinicalRecords.Select(x => x.Id).SingleAsync();
+        var detailsPath = $"/clientes/{customer}/clinica/{id}";
         var details = WebUtility.HtmlDecode(await browser.GetStringAsync(detailsPath));
         Assert.Contains("1,125", details); Assert.Contains("-2,375", details); Assert.Contains("62,25", details);
-        var id = Guid.Parse(detailsPath.Split('/').Last());
         var correctionPath = path + "/" + id;
         var edit = await browser.GetStringAsync(correctionPath);
         Assert.Contains("value=\"1.125\"", edit);
