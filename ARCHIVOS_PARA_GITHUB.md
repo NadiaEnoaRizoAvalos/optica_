@@ -1,6 +1,6 @@
-# Inventario para aprobar el primer push
+# Inventario autorizado para el primer push
 
-Destino: repositorio privado `NadiaEnoaRizoAvalos/optica_`, rama `main`. Primer push pendiente de aprobación explícita.
+Destino: repositorio privado `NadiaEnoaRizoAvalos/optica_`, rama `main`. El usuario aprobó expresamente el primer push de este inventario el 2026-10-15. También solicitó consolidar la política permanente; esa documentación se versiona en un commit coherente separado, sin recrear fases anteriores ni reescribir el commit inicial b640541. Los 117 nombres de archivos se mantienen.
 
 Incluye el código existente de fases 0–3, la configuración del negocio, las migraciones, pruebas y documentación técnica. El remoto estaba vacío; no existe historial anterior que fusionar.
 

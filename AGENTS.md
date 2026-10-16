@@ -4,12 +4,15 @@
 
 - Al terminar una funcionalidad importante, corrección significativa o fase: revisar el diff, compilar, ejecutar pruebas pertinentes, corregir errores y actualizar PLANS.md antes de crear un commit local descriptivo.
 - Agrupar avances coherentes y comprobados; no crear commits por cada línea ni presentar entregas con pruebas fallidas como terminadas.
+- Evaluar al cerrar cada fase si existe un avance significativo y funcional para versionar. No generar commits vacíos, por archivo, sólo de formato, de pruebas temporales, de código incompleto ni de cambios sin verificar. Una actualización de política solicitada expresamente se agrupa con su documentación de entrega en un único commit coherente.
+- Antes de cada commit comprobar también organización del código, ausencia de archivos innecesarios y continuidad de funcionalidades anteriores. Compilar la solución completa y ejecutar las pruebas correspondientes; no considerar terminado el avance si una verificación falla.
 - Antes de agregar archivos y antes de publicar, revisar archivos incluidos e historial a enviar: excluir bases y auxiliares SQLite, datos médicos/personales, logos cargados, secretos, .env, respaldos, logs y artefactos locales. Los ejemplos de pruebas deben ser explícitamente ficticios.
 - Si aparece un secreto o dato privado, detener el push e informar cómo corregirlo. No reescribir historial ni borrar archivos del usuario por iniciativa propia.
 - En la primera vinculación, mostrar el inventario de archivos incluidos y pedir aprobación explícita antes del primer push. Un commit local no constituye autorización de publicación.
 - El usuario autorizó commits y pushes posteriores automáticos una vez aprobado el primer push. Después de esa aprobación, publicar cada avance satisfactorio en el mismo remoto privado si las herramientas/permisos lo permiten, sin pedir nuevamente autorización general. Confirmar visibilidad privada y destino antes de publicar. Esto no autoriza avanzar de fase ni operaciones destructivas.
 - Nunca usar force push, git reset --hard, eliminar historial ni sobrescribir trabajo remoto sin autorización expresa. Inspeccionar y preservar cualquier historial remoto preexistente.
-- Informar brevemente funcionalidades completadas, pruebas, pendientes e identificador del commit; señalar si el push sigue pendiente.
+- Comprobar el resultado de cada push: código de salida exitoso y SHA de la rama remota igual al commit local esperado. Si falla autenticación, red o aparece historial divergente, informar el bloqueo y resolver sin force push ni sobrescrituras; no afirmar que se publicó.
+- Informar brevemente funcionalidades completadas, pruebas, pendientes, identificador del commit y rama utilizada; señalar si el push sigue pendiente. No crear commits adicionales únicamente para registrar su propio hash.
 - Conservar los nombres internos de proyectos/namespaces salvo necesidad técnica. La interfaz debe usar el nombre configurado del negocio o "Sistema de Gestión para Ópticas", sin fijar una marca comercial.
 
 ## Alcance y forma de trabajo

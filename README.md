@@ -117,7 +117,7 @@ La copia privada previa a esta migración está en `data/migration-backups/pre-n
 
 Remoto origin: `https://github.com/NadiaEnoaRizoAvalos/optica_.git`, comprobado privado y con permiso de escritura. El remoto estaba vacío; el primer commit local incorpora el proyecto existente junto con esta ampliación. No se recrea historial anterior ni se fuerza la publicación.
 
-La primera publicación requiere aprobación explícita del inventario en ARCHIVOS_PARA_GITHUB.md. Hasta esa aprobación no se hace push. Después se aplican las reglas de commits/pushes automáticos de AGENTS.md para avances satisfactorios en el mismo remoto privado; esto no autoriza avanzar a otra fase.
+El usuario aprobó expresamente la primera publicación del inventario en ARCHIVOS_PARA_GITHUB.md. Se conserva el commit inicial b640541 y se agrupa la consolidación de política solicitada en una actualización documental coherente, sin inventar historial anterior. Rigen las reglas de commits/pushes automáticos de AGENTS.md para avances satisfactorios en el mismo remoto privado; esto no autoriza avanzar a otra fase. Cada publicación debe verificarse comparando el SHA local y remoto y se informa la rama utilizada.
 
 .gitignore excluye datos de cada instalación, bases/auxiliares, imágenes/documentos de usuarios, secretos, .env, respaldos, logs y binarios. Código, pruebas, migraciones y documentación técnica sí se versionan. Las credenciales GitHub permanecen en el gestor de credenciales de Windows; no se incorporan a configuración fuente ni documentación. Nunca compartir contraseñas o tokens en el chat.
 

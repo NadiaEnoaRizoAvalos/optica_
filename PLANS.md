@@ -6,7 +6,7 @@
 - Fase 1: aceptada por el usuario tras visualizar la aplicación; autorizó fase 2. No se afirma haber realizado una prueba con internet físicamente desconectado.
 - Fase 2: aceptada al autorizar expresamente fase 3; existe una cuenta de acceso, conservada durante la actualización.
 - Fase 3: implementada y verificada; pendiente de revisión del usuario en navegador. Fase 4 no iniciada.
-- Tarea adicional previa a fase 4: configuración del negocio implementada y verificada; repositorio privado vinculado e inventario listo. Primer push pendiente de aprobación explícita.
+- Tarea adicional previa a fase 4: configuración del negocio implementada y verificada; repositorio privado vinculado y primer push aprobado expresamente por el usuario. Publicación en main con verificación de SHA local/remoto al entregar. Fase 4 no iniciada.
 - Base compilada y 54 pruebas aprobadas. SkiaSharp 4.153.1 incorporado con autorización para logos; todos los datos de pruebas son ficticios y están aislados de la base de uso local.
 - Trabajar una funcionalidad por tarea; marcar cada tarea y registrar su validación al terminar.
 - El cierre de cada fase requiere cumplir sus criterios y aprobación explícita para avanzar. No encadenar fases automáticamente.
@@ -75,10 +75,12 @@ Antes de iniciar esta fase se realizará la tarea adicional autorizada de GitHub
 - [x] Compilar y ejecutar suite completa: 0 errores/advertencias, 54 aprobadas (20 Infraestructura, 34 Web), 0 fallidas/omitidas. Modelo sin diferencias respecto a migración.
 - [x] Crear copia SQLite y adjuntos antes de migrar, verificarla y aplicar BusinessConfiguration explícitamente; Up sólo crea una tabla, sin borrar registros. Comparación posterior: diez tablas previas intactas e integridad correcta. No se guardó una marca ficticia en la base local.
 - [x] Preparar entrega verificada e inventario para el commit local y revisión del primer push. El identificador del commit se informa al entregar y se consulta con git log -1; no se incluye un hash autorreferencial en estos archivos.
-- [ ] Obtener aprobación del inventario y realizar el primer push al remoto privado. Hasta entonces, no publicar.
+- [x] Obtener aprobación del inventario para el primer push al remoto privado. El usuario aprobó el commit inicial b640541 y solicitó consolidar la política de versionado; se publica junto con esa actualización documental coherente, sin reescribir el commit inicial. Verificar main local contra origin/main al entregar.
 - [ ] Obtener aceptación de esta tarea y autorización separada antes de fase 4.
 
 Verificación local: servidor dejado activo en localhost:5080; ingreso 200 con nombre genérico y sin marca fija, CSS 200, configuración/clientes anónimos 302 al ingreso, stderr vacío. La interfaz administrativa y la persistencia se comprobaron automáticamente en bases ficticias; la revisión visual manual corresponde al usuario.
+
+Configuración Git/GitHub — 2026-10-15: revisados Git, autor existente, origin y rama main; GitHub confirmó nuevamente repositorio privado y permiso de escritura. El remoto seguía vacío antes de publicar. Revisión del historial inicial: 117 archivos, inventario coincidente, sin patrones de secretos, correos personales en archivos ni rutas de datos privados; credenciales de tests ficticias. No se modifica código de aplicación en esta tarea. La política permanente agrega exclusión explícita de commits vacíos/temporales, verificación de continuidad funcional y confirmación de publicación por SHA remoto. La compilación inicial encontró DLL bloqueadas por el servidor abierto; se detuvo sólo esa instancia. La repetición de `dotnet build OpticaSosa.sln --no-restore` terminó con 0 errores y 0 advertencias; `dotnet test OpticaSosa.sln --no-build --no-restore --verbosity minimal` aprobó las 54 pruebas (20 Infraestructura y 34 Web), sin fallidas ni omitidas. Se reinicia el servidor al finalizar. No se borra ni sobrescribe código ni historial.
 
 Copia previa privada: data/migration-backups/pre-negocio-2026-10-15-54128ddd3dce4dc781c428fd527ccb62. Es una copia para esta migración, no reemplaza los respaldos operativos de fase 7. Licencias comerciales del producto, pruebas gratuitas y panel de ventas siguen pospuestos.
 
