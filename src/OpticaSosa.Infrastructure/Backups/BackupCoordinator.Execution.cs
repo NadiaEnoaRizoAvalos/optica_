@@ -72,6 +72,7 @@ public sealed partial class BackupCoordinator
             if (run is null) return;
             run.Status = "Running"; run.DirectoryName = run.Id.ToString("N");
             Audit(db, run.ActorId, "backup.started", run.Id); await db.SaveChangesAsync(ct);
+            var completionSaved = false;
             try
             {
                 var target = targets.Resolve(run.VolumeId!, settings.InstallationId, prepare: true, run.RelativeFolder, run.BindingId);
@@ -89,6 +90,7 @@ public sealed partial class BackupCoordinator
                     settings.Version = Guid.NewGuid();
                 }
                 Audit(db, run.ActorId, "backup.completed", run.Id); await db.SaveChangesAsync(ct);
+                completionSaved = true;
                 await RetainAsync(db, settings, target.Directory, run.VolumeId!, run.RelativeFolder, run.BindingId, ct);
             }
             catch (Exception ex) when (ex is IOException or InvalidDataException or UnauthorizedAccessException or SqliteException or System.Text.Json.JsonException)
@@ -104,6 +106,13 @@ public sealed partial class BackupCoordinator
             }
             catch (OperationCanceledException)
             {
+                if (completionSaved)
+                {
+                    run.Error = "La copia está verificada, pero se interrumpió la retención al detener el servicio. Revisá la conservación de copias.";
+                    Audit(db, run.ActorId, "backup.retention.interrupted", run.Id);
+                    await db.SaveChangesAsync(CancellationToken.None);
+                    throw;
+                }
                 run.Status = "Interrupted"; run.FinishedUtc = clock.GetUtcNow().UtcDateTime;
                 run.Error = "Copia interrumpida. No se considera válida hasta verificarla.";
                 Audit(db, run.ActorId, "backup.interrupted", run.Id); await db.SaveChangesAsync(CancellationToken.None);

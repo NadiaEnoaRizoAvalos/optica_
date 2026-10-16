@@ -18,19 +18,20 @@ internal sealed class FakeBackupTargets : IBackupTargets
     public long FreeBytes { get; set; } = long.MaxValue;
     public int Preparations { get; private set; }
     public const string Volume = "ficticio-volume-guid";
-    public IReadOnlyList<BackupTarget> Inspect() => Connected ? [new(Volume, "Disco ficticio", "NTFS", "Disco ficticio independiente",
+    public string VolumeId { get; set; } = Volume;
+    public IReadOnlyList<BackupTarget> Inspect() => Connected ? [new(VolumeId, "Disco ficticio", "NTFS", "Disco ficticio independiente",
         long.MaxValue, FreeBytes, true, true, "Sólo prueba aislada; no representa hardware real")] : [];
     private string Parent(string relativeFolder) => relativeFolder == "Respaldos" ? Root : BackupFileSafety.Child(Root, relativeFolder);
     public Guid Bind(string volumeId, Guid installationId, string relativeFolder)
     {
-        if (!Connected || volumeId != Volume) throw new IOException("Disco ficticio desconectado.");
+        if (!Connected || volumeId != VolumeId) throw new IOException("Disco ficticio desconectado.");
         var parent = Parent(relativeFolder); Directory.CreateDirectory(parent);
         return BackupTargetBinding.Bind(parent, volumeId, installationId);
     }
     public ResolvedBackupTarget Resolve(string volumeId, Guid installationId, bool prepare,
         string relativeFolder = "Respaldos", Guid? bindingId = null)
     {
-        if (!Connected || volumeId != Volume) throw new IOException("Disco ficticio desconectado.");
+        if (!Connected || volumeId != VolumeId) throw new IOException("Disco ficticio desconectado.");
         var parent = Parent(relativeFolder);
         BackupTargetBinding.Validate(parent, volumeId, installationId, bindingId);
         var root = Path.Combine(parent, installationId.ToString("N"));
@@ -45,13 +46,15 @@ internal sealed class BackupTestContext : IAsyncDisposable
     public FakeBackupTargets Targets { get; } = new();
     public BackupClock Clock { get; } = new();
     public BackupCoordinator Coordinator => App.Services.GetRequiredService<BackupCoordinator>();
-    public BackupTestContext(bool authorized = true)
+    public BackupTestContext(bool authorized = true, string? root = null, bool preserveData = false,
+        Action<IServiceCollection>? configureServices = null)
     {
-        App = new SecurityApp(configureServices: services =>
+        App = new SecurityApp(root, preserveData, configureServices: services =>
         {
             services.AddSingleton<IBackupTargets>(Targets);
             services.AddSingleton<TimeProvider>(Clock);
             services.Configure<BackupRuntimeOptions>(o => { o.ExternalWritesAuthorized = authorized; o.WorkerEnabled = false; });
+            configureServices?.Invoke(services);
         });
         Targets.Root = Path.Combine(App.Root, "external-ficticio");
     }
@@ -59,7 +62,7 @@ internal sealed class BackupTestContext : IAsyncDisposable
     public async Task<BackupAction> ConfigureAsync(bool enabled = false, int keep = 30, int days = 1)
     {
         var view = await Coordinator.OverviewAsync(default);
-        var result = await Coordinator.ConfigureAsync(new(false, days, "13:00", "UTC", FakeBackupTargets.Volume, keep,
+        var result = await Coordinator.ConfigureAsync(new(false, days, "13:00", "UTC", Targets.VolumeId, keep,
             view.Configuration.Version), "admin.ficticio", default);
         if (!result.Succeeded) return result;
         view = await Coordinator.OverviewAsync(default);

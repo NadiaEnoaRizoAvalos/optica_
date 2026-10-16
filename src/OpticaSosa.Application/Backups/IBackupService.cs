@@ -6,9 +6,13 @@ public sealed record BackupTarget(string VolumeId, string DisplayName, string Fi
     long TotalBytes, long FreeBytes, bool Independent, bool Compatible, string Protection);
 public sealed record BackupRunView(Guid Id, DateTime StartedUtc, DateTime? FinishedUtc, string Trigger,
     string Status, string? Error, int Files, int MissedPeriods);
+public sealed record BackupDestinationView(BackupTarget? Disk, bool? Connected, string Message);
 public sealed record BackupOverview(bool SchemaReady, BackupConfiguration Configuration,
     IReadOnlyList<BackupRunView> Runs, DateTime? NextUtc, DateTime? LastValidUtc, string? Alert, bool ExternalWritesAuthorized,
-    DateTime? NextRetryUtc = null);
+    DateTime? NextRetryUtc = null, BackupDestinationView? Destination = null)
+{
+    public BackupRunView? LatestAttempt => Runs.FirstOrDefault();
+}
 public sealed record BackupAction(bool Succeeded, string Message);
 public interface IBackupService
 {

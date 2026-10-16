@@ -7,7 +7,21 @@
 @if (Model.Message is not null) { <p role="status">@Model.Message</p> }
 @if (Model.Overview.Alert is not null) { <p role="alert">@Model.Overview.Alert</p> }
 <p><strong>Estado: @(Model.Overview.Configuration.Enabled ? "Programación activa" : "Programación desactivada")</strong></p>
-<p><strong>Última copia exitosa:</strong> @(Model.Overview.LastValidUtc is null ? "Todavía no hay copias verificadas" : Model.DisplayDate(Model.Overview.LastValidUtc))</p>
+<p><strong>Última copia exitosa y verificada:</strong> @(Model.Overview.LastValidUtc is null ? "Todavía no hay copias verificadas" : Model.DisplayDate(Model.Overview.LastValidUtc))</p>
+@if (Model.Overview.LatestAttempt is { } latest)
+{
+    <p><strong>Último intento:</strong> @OpticaSosa.Web.Pages.Admin.BackupsModel.DisplayStatus(latest.Status) · Inicio: @Model.DisplayDate(latest.StartedUtc) · Fin: @Model.DisplayDate(latest.FinishedUtc)</p>
+    @if (latest.Error is not null) { <p role="alert">@latest.Error</p> }
+}
+else { <p><strong>Último intento:</strong> Sin intentos registrados</p> }
+@if (Model.Overview.Destination is { } destination)
+{
+    <p><strong>Disco externo configurado:</strong> @(destination.Disk?.DisplayName ?? Model.Overview.Configuration.VolumeId ?? "Sin destino")</p>
+    <p><strong>Estado de conexión:</strong> @destination.Message</p>
+    @if (destination.Disk is { } connectedDisk)
+    { <p>@connectedDisk.FileSystem · Libres: @(connectedDisk.FreeBytes / 1024 / 1024) MiB · @connectedDisk.Protection</p> }
+    <p>Carpeta configurada: @Model.Overview.Configuration.RelativeFolder</p>
+}
 <p><strong>Próxima ejecución:</strong> @(Model.Overview.Configuration.Enabled ? Model.DisplayDate(Model.Overview.NextUtc) : "Sin ejecución automática: programación desactivada")</p>
 @if (Model.Overview.NextRetryUtc is { } retry) { <p>Próximo reintento: @Model.DisplayDate(retry)</p> }
 <p>Zona del horario configurado: @Model.Overview.Configuration.TimeZoneId</p>
@@ -52,7 +66,7 @@
     <section><h2>Últimas ejecuciones</h2><p>Se muestran las últimas 50. El historial guardado no se elimina por este límite.</p>
     @foreach (var run in Model.Overview.Runs)
     {
-        <article><h3>@run.StartedUtc.ToString("yyyy-MM-dd HH:mm") UTC — @run.Status</h3>
+        <article><h3>@Model.DisplayDate(run.StartedUtc) — @OpticaSosa.Web.Pages.Admin.BackupsModel.DisplayStatus(run.Status)</h3>
         <p>@run.Trigger · Adjuntos: @run.Files · Períodos adicionales perdidos: @run.MissedPeriods</p>
         <p>Inicio: @Model.DisplayDate(run.StartedUtc) · Fin: @Model.DisplayDate(run.FinishedUtc)</p>
         @if (run.Error is not null) { <p role="alert">@run.Error</p> }

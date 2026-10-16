@@ -38,6 +38,8 @@ public sealed partial class BackupCoordinator(IDbContextFactory<OpticaDbContext>
             .OrderByDescending(x => x.FinishedUtc).Select(x => x.FinishedUtc).FirstOrDefaultAsync(ct);
         var latest = rows.FirstOrDefault();
         var alert = latest?.Error;
+        var destination = InspectConfiguredDestination(settings.VolumeId);
+        if (settings.VolumeId is not null && destination.Connected != true) alert ??= destination.Message;
         if (settings.Enabled && settings.NextUtc < clock.GetUtcNow().UtcDateTime) alert ??= "La programación tiene una ejecución vencida o pendiente de recuperación.";
         if (!runtime.Value.ExternalWritesAuthorized) alert ??= "Escritura externa bloqueada hasta autorizar la instalación. No se tocará ningún disco externo.";
         else if (settings.VolumeId is not null)
@@ -48,7 +50,24 @@ public sealed partial class BackupCoordinator(IDbContextFactory<OpticaDbContext>
         }
         return new(true, Map(settings), rows.Select(x => new BackupRunView(x.Id, x.StartedUtc, x.FinishedUtc,
             x.Trigger, x.Status, x.Error, x.Files, x.MissedPeriods)).ToArray(), settings.Enabled ? settings.NextUtc : null,
-            valid, alert, runtime.Value.ExternalWritesAuthorized, settings.Enabled ? latest?.RetryUtc : null);
+            valid, alert, runtime.Value.ExternalWritesAuthorized, settings.Enabled ? latest?.RetryUtc : null, destination);
+    }
+
+    private BackupDestinationView InspectConfiguredDestination(string? volumeId)
+    {
+        if (volumeId is null) return new(null, null, "Sin disco configurado.");
+        try
+        {
+            var matches = targets.Inspect().Where(x => x.VolumeId == volumeId).ToArray();
+            if (matches.Length == 0) return new(null, false, "Disco configurado desconectado o no disponible. No se usará otro destino.");
+            if (matches.Length != 1) return new(null, null, "Identidad del destino ambigua: no se puede confirmar la conexión segura.");
+            var disk = matches[0];
+            return new(disk, true, disk.Compatible && disk.Independent
+                ? "Disco conectado. La vinculación, los permisos y la autorización de escritura se validan por separado."
+                : "Disco conectado, pero no cumple la compatibilidad o independencia requerida.");
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        { return new(null, null, "No se pudo consultar la conexión del disco configurado. Revisá los permisos y reconectalo."); }
     }
 
     public IReadOnlyList<BackupTarget> InspectTargets() => targets.Inspect();

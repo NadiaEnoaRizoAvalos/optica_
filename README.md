@@ -176,7 +176,9 @@ No hay precios, cobros ni movimientos de stock en este módulo mínimo: se incor
 
 ## Subtarea 5.2 — respaldos, revisión y habilitación pendiente
 
-Abrir [Respaldos](http://localhost:5080/admin/respaldos) como Administrador, desde Configuración y administración. La base operativa aún no tiene AutomaticBackups ni BackupDestinationBinding: la pantalla informa esta condición y no migra automáticamente. La copia manual local anterior continúa disponible. No ejecutar los comandos generales de inicialización contra la instalación de uso hasta autorizar su procedimiento de migración.
+Abrir [Respaldos](http://localhost:5080/admin/respaldos) como Administrador, desde Configuración y administración. El resumen distingue última copia exitosa y verificada, último intento incluso fallido, próxima ejecución, disco configurado y conexión consultada en sólo lectura; debajo se conservan alertas e historial. Conectado no significa autorizado para escribir ni cifrado. Cambiar hora con programación activa recalcula la próxima ejecución; guardar cambios con programación desactivada la mantiene así. Cada instalación conserva su configuración independiente.
+
+La base operativa aún no tiene AutomaticBackups ni BackupDestinationBinding: la pantalla informa esta condición y no migra automáticamente. Para probar el resumen completo usar la instancia ficticia descrita debajo, hasta aprobar la migración operativa. La copia manual local anterior continúa disponible. No ejecutar los comandos generales de inicialización contra la instalación de uso hasta autorizar su procedimiento de migración.
 
 Para revisar la pantalla con una base ficticia aislada, ejecutar estos comandos en PowerShell. El directorio debe ser exclusivo y nuevo; no apuntar a data/optica.db ni copiar pacientes reales. La cuenta de esta instancia se elige interactivamente en la terminal, usando un nombre ficticio; no hay contraseña predeterminada.
 

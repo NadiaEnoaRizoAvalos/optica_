@@ -55,6 +55,13 @@ public sealed class BackupsModel(IBackupService backups) : PageModel
     { Message = (await backups.VerifyAsync(runId, HttpContext.RequestAborted)).Message; return RedirectToPage(); }
     private async Task LoadAsync() => Overview = await backups.OverviewAsync(HttpContext.RequestAborted);
 
+    public static string DisplayStatus(string status) => status switch
+    {
+        "Complete" => "Exitoso y verificado", "Failed" => "Fallido", "Queued" => "En espera",
+        "Running" => "En curso", "Interrupted" => "Interrumpido", "Corrupt" => "Integridad inválida",
+        "Pruned" => "Retirado por conservación", _ => "Estado desconocido"
+    };
+
     public string DisplayDate(DateTime? utc)
     {
         if (utc is null) return "Sin registro";
