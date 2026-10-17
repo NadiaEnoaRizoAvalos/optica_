@@ -1,0 +1,22 @@
+@page "/clientes/{customer:guid}/recetas/{id:guid}"
+@model OpticaSosa.Viewer.Pages.RecordModel
+@{ ViewData["Title"] = "Registro clínico"; var r = Model.Record; var d = r.Data; }
+<a href="/clientes/@r.CustomerId">Volver al cliente</a>
+<h2>Registro clínico · @r.Kind · Versión @r.Number de @r.LatestNumber</h2>
+<p>Fecha de atención: @d.Date.ToString("dd/MM/yyyy") · @r.ProfessionalName · Matrícula: @r.ProfessionalRegistration · @r.ProfessionalJurisdiction</p>
+<p>Origen: @d.Source</p><p>@d.Notes</p><p>Síntomas informados: @d.ReportedSymptoms · Informados por: @d.ReportedBy</p>
+<p>Control de seguimiento: @(d.IsFollowUp ? "Sí" : "No") · Distancia pupilar binocular: @(d.PupillaryDistance?.ToString("F2") ?? "Sin informar") mm</p>
+<div class="table-scroll"><table><thead><tr><th>Ojo</th><th>Esfera (D)</th><th>Cilindro (D)</th><th>Eje (°)</th><th>Adición (D)</th><th>Prisma (Δ)</th><th>Base</th></tr></thead><tbody>
+@foreach (var eye in new[] { (Name: "OD", Values: d.Right), (Name: "OI", Values: d.Left) })
+{ <tr><th>@eye.Name</th><td>@(eye.Values.Sphere?.ToString("F3") ?? "Sin informar")</td><td>@(eye.Values.Cylinder?.ToString("F3") ?? "Sin informar")</td><td>@(eye.Values.Axis?.ToString() ?? "Sin informar")</td><td>@(eye.Values.Addition?.ToString("F3") ?? "Sin informar")</td><td>@(eye.Values.Prism?.ToString("F3") ?? "Sin informar")</td><td>@eye.Values.Base</td></tr> }
+</tbody></table></div>
+<p>Registrado por @r.RecordedByUserId el @r.RecordedAtUtc.ToLocalTime().ToString("dd/MM/yyyy HH:mm"). Motivo de corrección: @r.CorrectionReason</p>
+<h3>Versiones conservadas</h3>
+@foreach (var version in r.History) { <p><a href="?revision=@version.Number">Versión @version.Number · @version.RecordedAtUtc.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</a> · @version.CorrectionReason</p> }
+@if (r.HistoryPage > 1) { <a href="?revision=@r.Number&amp;page=@(r.HistoryPage - 1)">Versiones más recientes</a> }
+@if (r.HasOlderRevisions) { <a href="?revision=@r.Number&amp;page=@(r.HistoryPage + 1)">Versiones anteriores</a> }
+<h3>Documentos originales de esta versión</h3>
+@foreach (var file in Model.Documents.Items)
+{ <p><a target="_blank" rel="noreferrer" href="/clientes/@r.CustomerId/recetas/@r.Id/documentos/@file.Id">@file.OriginalName</a> · @file.ContentType · @file.Length bytes · @file.State</p> }
+@if (Model.Documents.Page > 1) { <a href="?revision=@r.Number&amp;documentPage=@(Model.Documents.Page - 1)">Documentos más recientes</a> }
+@if (Model.Documents.HasMore) { <a href="?revision=@r.Number&amp;documentPage=@(Model.Documents.Page + 1)">Más documentos</a> }

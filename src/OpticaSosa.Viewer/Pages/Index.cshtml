@@ -1,0 +1,10 @@
+@page "/"
+@model OpticaSosa.Viewer.Pages.IndexModel
+@{ ViewData["Title"] = "Clientes"; }
+<h2>Clientes de la copia</h2>
+<form method="get"><label asp-for="Search">Nombre, documento o contacto</label><input asp-for="Search" maxlength="100" /><button type="submit">Buscar</button></form>
+<div class="table-scroll"><table><thead><tr><th>Cliente</th><th>Documento</th><th>Teléfono</th><th>Historial</th></tr></thead><tbody>
+@foreach (var item in Model.Results.Items)
+{ <tr><td><a href="/clientes/@item.Id">@item.LastName, @item.FirstName</a></td><td>@item.Document</td><td>@item.Phone</td><td>@(item.IsRecurrent ? "Recurrente" : "Nuevo") · @(item.IsActive ? "Activo" : "Inactivo")</td></tr> }
+</tbody></table></div>
+@if (Model.Results.HasMore) { <p>Hay más resultados; precisá la búsqueda para encontrarlos.</p> }

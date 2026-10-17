@@ -1,0 +1,17 @@
+@inject OpticaSosa.Infrastructure.Viewer.ViewerSnapshot Snapshot
+@inject OpticaSosa.Application.Security.ICurrentUser Current
+<!doctype html><html lang="es"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><link rel="stylesheet" href="/viewer.css" /><title>@ViewData["Title"] · Visor de emergencia</title></head>
+<body>
+<header><h1>Visor de emergencia · Sólo lectura</h1>
+<p><strong>Prueba con datos ficticios. No habilitado para producción.</strong> Copia del @Snapshot.CreatedUtc.ToLocalTime().ToString("dd/MM/yyyy HH:mm").</p>
+<p>Los permisos corresponden a la fecha de la copia. Las revocaciones posteriores del sistema principal no se reciben sin conexión. El visor permite revocar accesos localmente.</p>
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <nav><a href="/">Clientes</a> · @if (Current.HasPermission(Permissions.ReadOrders)) { <a href="/trabajos">Trabajos y calidad</a> }
+    @if (Current.HasPermission(Permissions.ManageUsers)) { <a href="/accesos">Accesos locales</a> }</nav>
+    <p>Cuenta: @User.Identity.Name · @string.Join(" · ", Roles.All.Where(User.IsInRole).Select(Roles.Label))</p>
+    <form method="post" action="/cuenta/salir"><button type="submit">Cerrar sesión</button>@Html.AntiForgeryToken()</form>
+}
+</header><main>@RenderBody()</main>
+<footer><p>El respaldo original se conserva. Sin altas, correcciones, ventas ni cambios de cuentas.</p></footer>
+</body></html>

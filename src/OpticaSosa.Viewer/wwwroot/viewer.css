@@ -1,0 +1,11 @@
+:root { font: 16px/1.5 system-ui, sans-serif; color: #18333e; background: #f2f6f7; }
+body { max-width: 1100px; margin: auto; padding: 1rem; }
+header, main, footer { padding: 1rem; margin-bottom: 1rem; background: white; border-radius: .5rem; }
+a { color: #065c78; } a, button { overflow-wrap: anywhere; }
+input, button { font: inherit; padding: .6rem; max-width: 100%; box-sizing: border-box; }
+button { background: #075879; color: white; border: 0; border-radius: .3rem; cursor: pointer; }
+input:not([type=checkbox]) { display: block; width: min(100%, 28rem); }
+article { padding: .7rem 0; border-bottom: 1px solid #d9e3e7; overflow-wrap: anywhere; }
+.table-scroll { overflow-x: auto; } table { border-collapse: collapse; width: 100%; }
+th, td { text-align: left; padding: .6rem; border-bottom: 1px solid #d9e3e7; }
+:focus-visible { outline: 3px solid #326d90; outline-offset: 3px; }

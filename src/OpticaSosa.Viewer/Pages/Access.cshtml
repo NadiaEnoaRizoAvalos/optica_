@@ -1,0 +1,12 @@
+@page "/accesos"
+@model OpticaSosa.Viewer.Pages.AccessModel
+<h2>Accesos locales del visor</h2><p>Roles capturados al realizar el respaldo. Aquí sólo se puede revocar acceso a esta copia; no se agregan permisos, no se cambia la contraseña ni se modifica la cuenta original.</p>
+@if (Model.Message is not null) { <p role="status">@Model.Message</p> }
+@foreach (var item in Model.Accounts)
+{
+    var account = item.Account;
+    <article><h3>@account.UserName</h3><p>@string.Join(" · ", account.Roles.Select(Roles.Label)) · @(account.IsActive ? "Activa en la copia" : "Inactiva") · @(item.IsRevoked ? "Revocada localmente" : "Sin revocación local")</p>
+    @if (account.IsActive && !item.IsRevoked)
+    { <form method="post"><input type="hidden" name="userId" value="@account.Id" /><label><input type="checkbox" name="confirmed" value="true" required /> Confirmo revocar el acceso local de esta cuenta.</label><button type="submit">Revocar en este visor</button></form> }
+    </article>
+}

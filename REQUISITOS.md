@@ -67,6 +67,10 @@ Las fases 0–4.1 están completadas según las verificaciones históricas. Las 
 
 ### RF-06. Multirrol y recuperación prioritaria — fase 5
 
+- Visor auxiliar de emergencia separado y sólo de lectura: cuentas Identity/multirrol de un respaldo firmado y compatible, clientes/visitas, clínica/versiones/graduaciones/documentos originales y trabajos/calidad según los permisos existentes. No crear cuentas predeterminadas ni simular pedidos comerciales futuros. Usar loopback y runtime privado offline, sin migrar o escribir sobre el respaldo original.
+- Verificar autenticidad con confianza independiente e integridad antes de consultar una copia privada nueva. Auditar fuera del snapshot y denegar mutaciones tanto en endpoints como en EF/SQLite. Administrador sin Profesional no obtiene clínica. Permitir revocaciones locales auditadas sin modificar la cuenta original; advertir que los permisos capturados pueden ser anteriores a revocaciones desconocidas sin conexión.
+- Desarrollo de 5.2.B y luego 5.3 autorizado con datos ficticios sin esperar revisiones visuales: conservar esas revisiones y los controles operativos de 5.2.A como pendientes, sin presentar fase 5 como lista para producción.
+
 - Permitir múltiples roles explícitos por cuenta, preservando identificadores, contraseñas y asignaciones existentes. La relación Identity ya admite varios roles; revisar servicios e interfaz sin duplicar cuentas.
 - Sólo Administrador puede cambiar asignaciones, con confirmación del impacto clínico/administrativo, control de concurrencia y al menos un rol válido no repetido. No permitir quitarse el propio acceso administrativo ni dejar al sistema sin un administrador activo. Rechazar cambios en cuentas inactivas. Una edición sin cambios no invalida sesiones.
 - Cambiar roles, registrar cada alta/baja y actualizar los sellos de seguridad/concurrencia en una transacción. Las sesiones de esa cuenta se revocan en su siguiente solicitud; al volver a ingresar sólo obtiene los permisos de sus roles vigentes. No cambia su contraseña. Mantener los responsables históricos de recetas y controles aunque cambien sus roles actuales.

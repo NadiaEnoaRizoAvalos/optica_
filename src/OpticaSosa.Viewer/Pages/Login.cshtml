@@ -1,0 +1,8 @@
+@page "/cuenta/ingresar"
+@model OpticaSosa.Viewer.Pages.LoginModel
+@{ ViewData["Title"] = "Ingresar"; }
+<h2>Ingresar a la copia verificada</h2><p>Usá tu cuenta individual y la contraseña vigente al realizar este respaldo. No se crean cuentas predeterminadas.</p>
+<form method="post"><div asp-validation-summary="All" role="alert"></div>
+<p><label asp-for="UserName">Usuario</label><input asp-for="UserName" autocomplete="username" required maxlength="64" /></p>
+<p><label asp-for="Password">Contraseña</label><input asp-for="Password" type="password" autocomplete="current-password" required maxlength="256" /></p>
+<button type="submit">Ingresar</button></form>

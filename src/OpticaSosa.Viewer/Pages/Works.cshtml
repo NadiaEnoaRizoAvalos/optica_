@@ -1,0 +1,6 @@
+@page "/trabajos"
+@model OpticaSosa.Viewer.Pages.WorksModel
+<h2>Trabajos y controles de calidad</h2><p>Pedidos comerciales se incorporarán cuando exista ese módulo; aquí se conservan los trabajos actuales.</p>
+@foreach (var w in Model.Results.Items) { <article><a href="/trabajos/@w.Id">@w.CustomerName · @w.Product · @w.Status</a></article> }
+@if (Model.Results.Page > 1) { <a href="?page=@(Model.Results.Page - 1)">Más recientes</a> }
+@if (Model.Results.HasMore) { <a href="?page=@(Model.Results.Page + 1)">Anteriores</a> }

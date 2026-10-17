@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using OpticaSosa.Infrastructure.Identity;
 
-namespace OpticaSosa.Web.Security;
+namespace OpticaSosa.Infrastructure.Identity;
 
 public sealed class ActiveSignInManager(
     UserManager<ApplicationUser> users,

@@ -9,6 +9,7 @@
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" PrivateAssets="all" />
     <ProjectReference Include="../../src/OpticaSosa.Web/OpticaSosa.Web.csproj" />
+    <ProjectReference Include="../../src/OpticaSosa.Viewer/OpticaSosa.Viewer.csproj" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\OpticaSosa.Recovery\OpticaSosa.Recovery.csproj" />

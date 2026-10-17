@@ -9,7 +9,7 @@ using Xunit;
 
 namespace OpticaSosa.Web.Tests;
 
-public sealed class SecurityApp : WebApplicationFactory<Program>
+public sealed class SecurityApp : WebApplicationFactory<OpticaSosa.Web.Components.App>
 {
     internal const string TestPassword = "Ficticia-Para-Pruebas-938!";
     internal string Root { get; }

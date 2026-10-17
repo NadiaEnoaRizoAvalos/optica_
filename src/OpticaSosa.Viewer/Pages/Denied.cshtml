@@ -1,0 +1,4 @@
+@page "/cuenta/denegado"
+@attribute [Microsoft.AspNetCore.Authorization.AllowAnonymous]
+@{ Response.StatusCode = 403; }
+<h2>Acceso restringido</h2><p>Esta cuenta no tiene el rol requerido para consultar esta información.</p>

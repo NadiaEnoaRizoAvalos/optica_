@@ -1,0 +1,15 @@
+@page "/trabajos/{id:guid}"
+@model OpticaSosa.Viewer.Pages.WorkModel
+@{ var w = Model.Details; }
+<h2>@w.Work.Product · @w.Work.Status</h2><p><a href="/clientes/@w.Work.CustomerId">@w.Work.CustomerName</a> · @w.Work.Frame · Ronda @w.Work.Round</p>
+@if (w.PrescriptionId is { } prescription) { <a href="/clientes/@w.Work.CustomerId/recetas/@prescription?revision=@w.PrescriptionRevisionNumber">Versión de receta asociada</a> }
+<h3>Controles históricos autorizados</h3>
+@foreach (var control in w.Controls)
+{
+    <article><h4>@control.Stage · @control.Status · Ronda @control.Round</h4><p>@control.AtUtc.ToLocalTime().ToString("dd/MM/yyyy HH:mm") · Responsable @control.ActorId · @control.Role</p><p>@control.Notes</p>
+    @foreach (var item in control.Items) { <p>@item.Label · @item.Status · @item.Notes</p> }</article>
+}
+<h3>Historia del trabajo</h3>
+@foreach (var t in w.Transitions) { <p>@t.AtUtc.ToLocalTime().ToString("dd/MM/yyyy HH:mm") · @t.From → @t.To · @t.ActorId</p> }
+@if (w.Page > 1) { <a href="?page=@(w.Page - 1)">Historia más reciente</a> }
+@if (w.HasMoreControls || w.HasMoreTransitions) { <a href="?page=@(w.Page + 1)">Historia anterior</a> }

@@ -1,0 +1,4 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup><AssemblyName>OpticaSosa.Viewer</AssemblyName></PropertyGroup>
+  <ItemGroup><ProjectReference Include="../OpticaSosa.Infrastructure/OpticaSosa.Infrastructure.csproj" /></ItemGroup>
+</Project>

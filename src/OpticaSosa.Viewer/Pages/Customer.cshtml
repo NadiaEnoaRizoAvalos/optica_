@@ -1,0 +1,24 @@
+@page "/clientes/{id:guid}"
+@model OpticaSosa.Viewer.Pages.CustomerModel
+@{ ViewData["Title"] = "Ficha de cliente"; var c = Model.Details.Customer; }
+<h2>@c.LastName, @c.FirstName</h2><p>Documento: @c.Document · Teléfono: @c.Phone · Correo: @Model.Details.Email</p>
+<p>@(c.IsRecurrent ? "Recurrente" : "Nuevo") · Visitas registradas: @Model.Details.VisitCount</p>
+<h3>Visitas</h3>
+@foreach (var visit in Model.Details.Visits)
+{ <article><p>@visit.StartedAtUtc.ToLocalTime().ToString("dd/MM/yyyy HH:mm") · @visit.Status</p><p>@visit.Reason</p><p>@visit.AdministrativeNotes</p></article> }
+@if (Model.Details.HistoryPage > 1) { <a href="?visitsPage=@(Model.Details.HistoryPage - 1)">Visitas más recientes</a> }
+@if (Model.Details.HasOlderVisits) { <a href="?visitsPage=@(Model.Details.HistoryPage + 1)">Visitas anteriores</a> }
+@if (Model.History is { } history)
+{
+    <h3>Recetas, antecedentes y controles clínicos</h3>
+    @foreach (var r in history.Items) { <article><a href="/clientes/@c.Id/recetas/@r.Id">@r.Date.ToString("dd/MM/yyyy") · @r.Kind · @r.ProfessionalName · Versión @r.RevisionNumber</a></article> }
+    @if (history.Page > 1) { <a href="?clinicalPage=@(history.Page - 1)">Registros más recientes</a> }
+    @if (history.HasMore) { <a href="?clinicalPage=@(history.Page + 1)">Registros anteriores</a> }
+}
+@if (Model.Works is { } works)
+{
+    <h3>Trabajos y calidad</h3>
+    @foreach (var w in works.Items) { <p><a href="/trabajos/@w.Id">@w.Product · @w.Status</a></p> }
+    @if (works.Page > 1) { <a href="?workPage=@(works.Page - 1)">Trabajos más recientes</a> }
+    @if (works.HasMore) { <a href="?workPage=@(works.Page + 1)">Trabajos anteriores</a> }
+}
