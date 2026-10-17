@@ -28,7 +28,7 @@ public sealed class AuthorizationTests
             Assert.Contains("/cuenta/denegado", denied.Headers.Location!.ToString());
         }
         var post = await BrowserForms.PostAsync(browser, "/", "/admin/usuarios?handler=Create", new()
-            { ["UserName"] = "intruso.ficticio", ["Password"] = SecurityApp.TestPassword, ["Role"] = Roles.Administrator });
+            { ["UserName"] = "intruso.ficticio", ["Password"] = SecurityApp.TestPassword, ["SelectedRoles[0]"] = Roles.Administrator });
         Assert.Equal(HttpStatusCode.Redirect, post.StatusCode);
         using var scope = app.Services.CreateScope();
         Assert.Null(await scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>().FindByNameAsync("intruso.ficticio"));
@@ -42,7 +42,7 @@ public sealed class AuthorizationTests
         using var admin = app.Browser();
         await BrowserForms.LoginAsync(admin, "admin.ficticio");
         Assert.Equal(HttpStatusCode.Redirect, (await BrowserForms.PostAsync(admin, "/admin/usuarios", "/admin/usuarios?handler=Create", new()
-            { ["UserName"] = "nueva.ficticia", ["Password"] = SecurityApp.TestPassword, ["Role"] = Roles.Sales })).StatusCode);
+            { ["UserName"] = "nueva.ficticia", ["Password"] = SecurityApp.TestPassword, ["SelectedRoles[0]"] = Roles.Sales })).StatusCode);
         using var employee = app.Browser();
         Assert.Equal(HttpStatusCode.Redirect, (await BrowserForms.LoginAsync(employee, "nueva.ficticia")).StatusCode);
         string id;
@@ -62,7 +62,7 @@ public sealed class AuthorizationTests
         await BrowserForms.LoginAsync(browser, "admin.ficticio");
         foreach (var (password, role) in new[] { ("debil", Roles.Sales), (SecurityApp.TestPassword, "RolInventado") })
             Assert.Equal(HttpStatusCode.OK, (await BrowserForms.PostAsync(browser, "/admin/usuarios", "/admin/usuarios?handler=Create", new()
-                { ["UserName"] = "invalido.ficticio", ["Password"] = password, ["Role"] = role })).StatusCode);
+                { ["UserName"] = "invalido.ficticio", ["Password"] = password, ["SelectedRoles[0]"] = role })).StatusCode);
         using var scope = app.Services.CreateScope();
         var manager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         Assert.Null(await manager.FindByNameAsync("invalido.ficticio"));
@@ -84,14 +84,14 @@ public sealed class AuthorizationTests
         var users = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         var service = new AccountService(db, users, new TestUser(null, false));
         await Assert.ThrowsAsync<UnauthorizedAccessException>(() => service.ListAsync());
-        await Assert.ThrowsAsync<UnauthorizedAccessException>(() => service.CreateAsync("no.ficticio", SecurityApp.TestPassword, Roles.Sales));
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(() => service.CreateAsync("no.ficticio", SecurityApp.TestPassword, [Roles.Sales]));
         await Assert.ThrowsAsync<UnauthorizedAccessException>(() => service.DeactivateAsync("any"));
         await Assert.ThrowsAsync<UnauthorizedAccessException>(() => service.ReadAuditAsync());
         var administrator = (await users.FindByNameAsync("admin.ficticio"))!;
         var own = new AccountService(db, users, new TestUser(administrator.Id, true));
         Assert.False((await own.DeactivateAsync(administrator.Id)).Succeeded);
         var different = new AccountService(db, users, new TestUser("different-operator", true));
-        Assert.False((await different.DeactivateAsync(administrator.Id)).Succeeded);
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(() => different.DeactivateAsync(administrator.Id));
         Assert.True(administrator.IsActive);
     }
 

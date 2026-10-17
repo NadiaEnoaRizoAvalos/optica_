@@ -13,10 +13,12 @@
         <input asp-for="UserName" maxlength="64" autocomplete="off" required />
         <label asp-for="Password">Contraseña inicial</label>
         <input asp-for="Password" type="password" minlength="12" maxlength="256" autocomplete="new-password" required />
-        <label asp-for="Role">Rol</label>
-        <select asp-for="Role">
-            @foreach (var role in Roles.All) { <option value="@role">@role</option> }
-        </select>
+        <fieldset><legend>Roles (seleccioná al menos uno)</legend>
+            @foreach (var role in Roles.All)
+            {
+                <label><input type="checkbox" name="SelectedRoles" value="@role" checked="@Model.SelectedRoles.Contains(role)" /> @Roles.Label(role)</label>
+            }
+        </fieldset>
         <button type="submit">Crear usuario</button>
     </form>
 </section>
@@ -24,14 +26,30 @@
     <h2>Cuentas registradas</h2>
     <div class="table-scroll">
         <table>
-            <thead><tr><th>Usuario</th><th>Rol</th><th>Estado</th><th>Acción</th></tr></thead>
+            <thead><tr><th>Usuario</th><th>Roles asignados</th><th>Estado</th><th>Acciones</th></tr></thead>
             <tbody>
             @foreach (var account in Model.Accounts)
             {
                 <tr>
-                    <td>@account.UserName</td><td>@account.Role</td><td>@(account.IsActive ? "Activo" : "Inactivo")</td>
+                    <td>@account.UserName</td><td>@string.Join(" · ", account.Roles.Select(Roles.Label))</td><td>@(account.IsActive ? "Activo" : "Inactivo")</td>
                     <td>@if (account.IsActive)
                     {
+                        <details>
+                            <summary>Editar roles de @account.UserName</summary>
+                            <form method="post" asp-page-handler="Roles">
+                                <input type="hidden" name="userId" value="@account.Id" />
+                                <input type="hidden" name="concurrencyStamp" value="@account.ConcurrencyStamp" />
+                                <fieldset><legend>Permisos de la cuenta</legend>
+                                    @foreach (var role in Roles.All)
+                                    {
+                                        <label><input type="checkbox" name="SelectedRoles" value="@role" checked="@account.Roles.Contains(role)" /> @Roles.Label(role)</label>
+                                    }
+                                </fieldset>
+                                <p>Profesional concede acceso clínico. Administrador permite gestionar cuentas y respaldos, sin acceso clínico por sí solo. Quitar un rol revoca sus permisos y cierra las sesiones de la cuenta.</p>
+                                <label><input type="checkbox" name="confirmed" value="true" required /> Revisé los permisos clínicos y administrativos y confirmo este cambio.</label>
+                                <button type="submit">Guardar roles</button>
+                            </form>
+                        </details>
                         <form method="post" asp-page-handler="Deactivate">
                             <input type="hidden" name="userId" value="@account.Id" />
                             <button type="submit">Inactivar</button>

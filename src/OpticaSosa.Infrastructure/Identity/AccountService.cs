@@ -5,34 +5,37 @@ using OpticaSosa.Infrastructure.Persistence;
 
 namespace OpticaSosa.Infrastructure.Identity;
 
-public sealed class AccountService(OpticaDbContext db, UserManager<ApplicationUser> users, ICurrentUser current) : IAccountService
+public sealed partial class AccountService(OpticaDbContext db, UserManager<ApplicationUser> users, ICurrentUser current) : IAccountService
 {
     public async Task<IReadOnlyList<AccountSummary>> ListAsync(CancellationToken cancellationToken = default)
     {
         Demand(Permissions.ManageUsers);
-        var rows = await (from user in db.Users.AsNoTracking()
-                          join membership in db.UserRoles on user.Id equals membership.UserId
+        var accounts = await db.Users.AsNoTracking().OrderBy(x => x.UserName).ToListAsync(cancellationToken);
+        var memberships = await (from membership in db.UserRoles.AsNoTracking()
                           join role in db.Roles on membership.RoleId equals role.Id
-                          orderby user.UserName
-                          select new AccountSummary(user.Id, user.UserName!, user.IsActive, role.Name!))
+                          select new { membership.UserId, Name = role.Name! })
                           .ToListAsync(cancellationToken);
         await AddAuditAsync("users.viewed", null, cancellationToken);
-        return rows;
+        var byUser = memberships.ToLookup(x => x.UserId, x => x.Name);
+        return accounts.Select(x => new AccountSummary(x.Id, x.UserName!, x.IsActive,
+            byUser[x.Id].Order().ToArray(), x.ConcurrencyStamp!)).ToArray();
     }
 
-    public async Task<AccountResult> CreateAsync(string userName, string password, string role, CancellationToken cancellationToken = default)
+    public async Task<AccountResult> CreateAsync(string userName, string password, IReadOnlyCollection<string> roles, CancellationToken cancellationToken = default)
     {
         Demand(Permissions.ManageUsers);
-        if (!Roles.All.Contains(role) || string.IsNullOrWhiteSpace(userName) || userName.Length > 64)
-            return new(false, "Revisá el nombre de usuario y el rol.");
+        if (!ValidRoles(roles) || string.IsNullOrWhiteSpace(userName) || userName.Length > 64 || password.Length > 256)
+            return new(false, "Revisá el nombre de usuario y seleccioná uno o varios roles válidos, sin repetir.");
 
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
+        await DemandActiveAdministratorAsync(cancellationToken);
         var user = new ApplicationUser { UserName = userName.Trim() };
         var created = await users.CreateAsync(user, password);
         if (!created.Succeeded) return new(false, "No se pudo crear la cuenta. Revisá el nombre y los requisitos de contraseña.");
-        if (!(await users.AddToRoleAsync(user, role)).Succeeded)
-            throw new InvalidOperationException("No se pudo asignar el rol.");
+        if (!(await users.AddToRolesAsync(user, roles)).Succeeded)
+            throw new InvalidOperationException("No se pudieron asignar los roles.");
         await AddAuditAsync("user.created", user.Id, cancellationToken);
+        foreach (var role in roles.Order()) await AddAuditAsync("user.role.added." + role, user.Id, cancellationToken);
         await transaction.CommitAsync(cancellationToken);
         return new(true);
     }
@@ -42,6 +45,7 @@ public sealed class AccountService(OpticaDbContext db, UserManager<ApplicationUs
         Demand(Permissions.ManageUsers);
         if (current.Id == userId) return new(false, "No podés inactivar tu propia cuenta.");
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
+        await DemandActiveAdministratorAsync(cancellationToken);
         var user = await users.FindByIdAsync(userId);
         if (user is null || !user.IsActive) return new(false, "La cuenta no está activa.");
         if (await users.IsInRoleAsync(user, Roles.Administrator))

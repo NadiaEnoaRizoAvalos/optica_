@@ -57,7 +57,7 @@ Las fases 0–4.1 están completadas según las verificaciones históricas. Las 
 ### RF-05. Acceso, negocio y respaldo manual
 
 - Mantener Identity, cuentas individuales, ingreso/cierre de sesión, bloqueo o desactivación, recuperación administrativa y protección del último administrador. No incorporar claves predeterminadas.
-- La administración actual asigna un rol por cuenta: Administrador, Atención/Ventas o Profesional. Administrador por sí solo no obtiene información clínica; Profesional gestiona clínica y control técnico; Atención/Ventas gestiona operación y control de entrega.
+- Las cuentas admiten uno o varios roles explícitos: Administrador, Atención/Ventas y Profesional, mediante casillas en Administración → Usuarios. Una fila muestra todos los roles de cada cuenta. Administrador por sí solo no obtiene información clínica; Profesional gestiona clínica y control técnico; Atención/Ventas gestiona operación y control de entrega.
 - Mantener configuración del negocio y marca genérica adaptable. Nombre y logo pueden presentarse donde corresponda; la configuración completa requiere administración.
 - Conservar los datos opcionales del negocio, domicilio/localidad/provincia, contactos, WhatsApp, correo, CUIT e información complementaria. La validación de once dígitos del CUIT no constituye una validación fiscal.
 - Conservar logo JPG/PNG de hasta 2 MiB y 2048 píxeles, normalizado a PNG de hasta 512 píxeles, sin metadatos, almacenado privadamente con versión y auditoría.
@@ -68,6 +68,8 @@ Las fases 0–4.1 están completadas según las verificaciones históricas. Las 
 ### RF-06. Multirrol y recuperación prioritaria — fase 5
 
 - Permitir múltiples roles explícitos por cuenta, preservando identificadores, contraseñas y asignaciones existentes. La relación Identity ya admite varios roles; revisar servicios e interfaz sin duplicar cuentas.
+- Sólo Administrador puede cambiar asignaciones, con confirmación del impacto clínico/administrativo, control de concurrencia y al menos un rol válido no repetido. No permitir quitarse el propio acceso administrativo ni dejar al sistema sin un administrador activo. Rechazar cambios en cuentas inactivas. Una edición sin cambios no invalida sesiones.
+- Cambiar roles, registrar cada alta/baja y actualizar los sellos de seguridad/concurrencia en una transacción. Las sesiones de esa cuenta se revocan en su siguiente solicitud; al volver a ingresar sólo obtiene los permisos de sus roles vigentes. No cambia su contraseña. Mantener los responsables históricos de recetas y controles aunque cambien sus roles actuales.
 - Aplicar permisos del servidor, mínimo privilegio, auditoría, protección del último administrador, concurrencia e invalidación de sesiones cuando corresponda. No otorgar acceso clínico por el mero rol administrativo.
 - Implementar respaldos automáticos y manuales consistentes de SQLite, documentos y configuración necesaria; verificar manifiesto, integridad, espacio, retención y alertas.
 - Programación administrativa activable/desactivable, hora local, zona, frecuencia cada N días y retención configurables. Iniciar desactivada y sin horario obligatorio. Mantener copia manual aunque el cronograma esté desactivado.

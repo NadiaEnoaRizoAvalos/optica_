@@ -7,7 +7,7 @@
 - Trabajar en una funcionalidad por tarea, modificar sólo archivos relacionados y conservar módulos que funcionan. Priorizar simplicidad, seguridad y mantenimiento.
 - Pedir autorización antes de instalar dependencias, ejecutar acciones destructivas o reemplazar datos. Aprobar una planificación no autoriza programar otra fase.
 - Solicitar aprobación antes de comenzar cada fase, respetando las continuidades explícitas ya autorizadas y sus condiciones de cierre. Informar brevemente cambios, validaciones, problemas y pendientes; actualizar PLANS.md.
-- Continuidad autorizada de fase 5: 5.2.A → 5.1 → 5.2.B → 5.3; no avanzar a la siguiente con el cierre anterior incompleto ni comenzar fase 6. Migraciones operativas nuevas, instalaciones, permisos Windows, servicios, cifrado, archivos del disco externo y activación real requieren sus autorizaciones específicas.
+- Continuidad de fase 5: 5.2.A → 5.1 → 5.2.B → 5.3. Excepción explícita del 17/10/2026: desarrollar/probar 5.1 en rama separada mientras 5.2.A permanece PENDIENTE DE VERIFICACIÓN OPERATIVA; kit del simulacro congelado. No iniciar 5.2.B ni fase 6. Migraciones operativas nuevas, instalaciones, permisos Windows, servicios, cifrado, archivos del disco externo y activación real requieren sus autorizaciones específicas.
 - Cada módulo debe tener pantallas funcionales y un procedimiento práctico de prueba desde el navegador. El rediseño definitivo corresponde a la fase 12.
 
 ## Arquitectura y código
@@ -32,7 +32,7 @@
 ## Seguridad y recuperación
 
 - Autorizar en el servidor con mínimo privilegio. Usar Identity, cuentas individuales, protección de sesión y CSRF; nunca contraseñas predeterminadas o criptografía propia.
-- Hoy la gestión de cuentas asigna un rol por cuenta. Multirrol está aprobado para planificar en fase 5; conservar cuentas y permisos hasta implementar y verificar la transición.
+- Gestión multirrol con Identity: sólo Administrador asigna/revoca roles explícitos; mínimo un rol por cuenta activa, último administrador activo protegido y sin quitarse el propio acceso administrativo. Conservar cuentas, credenciales y permisos anteriores hasta un cambio explícito. Actualizar sello de seguridad, concurrencia y auditoría atómicamente; la siguiente solicitud exige una nueva sesión tras cambios. La transición operativa requiere procedimiento autorizado.
 - Administrador no implica acceso clínico. Profesional no implica acceso financiero. Atención/Ventas no accede a historia clínica completa ni modifica graduaciones.
 - Una futura proyección técnica comercial será explícita, mínima, de sólo lectura y ligada a una versión autorizada por el Profesional. Resolver sus campos conforme a PLANS.md antes de implementarla.
 - Usar exclusivamente datos ficticios en desarrollo y pruebas. No usar datos clínicos reales hasta verificar seguridad, cifrado, autorizaciones y recuperación.

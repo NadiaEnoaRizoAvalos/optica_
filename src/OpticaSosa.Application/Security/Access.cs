@@ -6,6 +6,7 @@ public static class Roles
     public const string Sales = "AtencionVentas";
     public const string Professional = "Profesional";
     public static IReadOnlyList<string> All { get; } = Array.AsReadOnly(new[] { Administrator, Sales, Professional });
+    public static string Label(string role) => role == Sales ? "Atención/Ventas" : role;
 }
 
 public static class Permissions
