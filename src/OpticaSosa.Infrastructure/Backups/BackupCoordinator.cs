@@ -11,7 +11,7 @@ namespace OpticaSosa.Infrastructure.Backups;
 
 public sealed partial class BackupCoordinator(IDbContextFactory<OpticaDbContext> factory, StoragePaths paths,
     IBackupTargets targets, ClinicalSnapshotWriter writer, BackupVerifier verifier, BackupExecutionGate gate,
-    IOptions<BackupRuntimeOptions> runtime, TimeProvider clock)
+    IOptions<BackupRuntimeOptions> runtime, TimeProvider clock, BackupProtectionGuard protection)
 {
     public async Task<bool> ReadyAsync(CancellationToken ct)
     {
@@ -34,7 +34,9 @@ public sealed partial class BackupCoordinator(IDbContextFactory<OpticaDbContext>
             SignaturesRequired: runtime.Value.RequireSignature, SigningEnabled: runtime.Value.SigningEnabled);
         await using var db = await factory.CreateDbContextAsync(ct);
         var settings = await db.BackupSettings.AsNoTracking().SingleOrDefaultAsync(ct) ?? defaults;
-        var rows = await db.BackupRuns.AsNoTracking().OrderByDescending(x => x.StartedUtc).ThenBy(x => x.Id).Take(50).ToListAsync(ct);
+        // rowid desempata por orden de inserción si dos intentos comparten el mismo instante.
+        var rows = await db.BackupRuns.FromSqlRaw("SELECT * FROM BackupRuns ORDER BY StartedUtc DESC, rowid DESC LIMIT 50")
+            .AsNoTracking().ToListAsync(ct);
         var valid = await db.BackupRuns.AsNoTracking().Where(x => x.Status == "Complete")
             .OrderByDescending(x => x.FinishedUtc).Select(x => x.FinishedUtc).FirstOrDefaultAsync(ct);
         var latest = rows.FirstOrDefault();

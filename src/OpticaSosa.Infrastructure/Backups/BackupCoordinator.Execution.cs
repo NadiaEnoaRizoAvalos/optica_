@@ -75,6 +75,7 @@ public sealed partial class BackupCoordinator
             var completionSaved = false;
             try
             {
+                await protection.DemandAsync(run.VolumeId!, ct);
                 var target = targets.Resolve(run.VolumeId!, settings.InstallationId, prepare: true, run.RelativeFolder, run.BindingId);
                 var required = writer.EstimateBytes();
                 if (target.FreeBytes < required + runtime.Value.ReserveBytes) throw new IOException("Espacio insuficiente en el destino.");

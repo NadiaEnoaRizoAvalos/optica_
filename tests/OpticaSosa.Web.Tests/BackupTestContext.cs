@@ -5,6 +5,13 @@ using OpticaSosa.Infrastructure.Backups;
 
 namespace OpticaSosa.Web.Tests;
 
+internal sealed class FakeBackupProtection : IBackupProtectionProbe
+{
+    public BackupProtectionReport Report { get; set; } = new("Windows ficticio", true, "Running", "Auto", 123,
+        [new(FakeBackupTargets.Volume, 1, 1, 0, 1)], null);
+    public Task<BackupProtectionReport> InspectAsync(CancellationToken ct = default) => Task.FromResult(Report);
+}
+
 internal sealed class BackupClock : TimeProvider
 {
     public DateTimeOffset Now { get; set; } = new(2026, 10, 20, 12, 0, 0, TimeSpan.Zero);
@@ -51,6 +58,7 @@ internal sealed class BackupTestContext : IAsyncDisposable
     public SecurityApp App { get; }
     public FakeBackupTargets Targets { get; } = new();
     public BackupClock Clock { get; } = new();
+    public FakeBackupProtection Protection { get; } = new();
     public BackupCoordinator Coordinator => App.Services.GetRequiredService<BackupCoordinator>();
     public BackupTestContext(bool authorized = true, string? root = null, bool preserveData = false,
         Action<IServiceCollection>? configureServices = null)
@@ -59,6 +67,7 @@ internal sealed class BackupTestContext : IAsyncDisposable
         {
             services.AddSingleton<IBackupTargets>(Targets);
             services.AddSingleton<TimeProvider>(Clock);
+            services.AddSingleton<IBackupProtectionProbe>(Protection);
             services.Configure<BackupRuntimeOptions>(o => { o.ExternalWritesAuthorized = authorized; o.WorkerEnabled = false; });
             configureServices?.Invoke(services);
         });

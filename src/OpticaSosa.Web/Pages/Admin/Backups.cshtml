@@ -35,6 +35,19 @@ else { <p><strong>Último intento:</strong> Sin intentos registrados</p> }
 <p>Zona del horario configurado: @Model.Overview.Configuration.TimeZoneId</p>
 <p><a href="/admin/archivos-clinicos">Crear copia manual local existente</a></p>
 <partial name="_BackupConfiguration" model="Model" />
+<section><h2>Protección y servicio Windows</h2>
+<form method="post" asp-page-handler="Protection"><button type="submit">Consultar protección y servicio (sólo lectura)</button></form>
+<p>Consulta la configuración guardada: guardá tus cambios antes de consultar. No cifra, desbloquea, instala servicios ni muestra claves. Recuperación en otra PC y custodias se verifican por separado.</p>
+@if (Model.Protection is { } protection)
+{
+    <p>Edición: @protection.Edition · Proveedor BitLocker: @(protection.ProviderAvailable ? "consultable" : "no comprobado")</p>
+    <p>Servicio OpticaSosa: @protection.ServiceState · Inicio: @protection.ServiceStartMode · Proceso actual como servicio: @(protection.ServiceProcessId == Environment.ProcessId ? "sí" : "no")</p>
+    @if (protection.Alert is not null) { <p role="alert">@protection.Alert</p> }
+    var volume = protection.Volumes.SingleOrDefault(x => string.Equals(x.VolumeId, Model.VolumeId, StringComparison.OrdinalIgnoreCase));
+    <p>Destino configurado: @(volume?.Protected == true ? "Cifrado completo, protección activa, desbloqueado y con protector de recuperación." : "Protección no acreditada. No se permite copiar datos al externo en este estado.")</p>
+    <p>Un protector existente no demuestra que sus claves estén custodiadas o probadas en otra PC.</p>
+}
+</section>
     <section><h2>Últimas ejecuciones</h2><p>Se muestran las últimas 50. El historial guardado no se elimina por este límite.</p>
     @if (!Model.Overview.SchemaReady) { <p>Historial no disponible hasta completar la actualización autorizada.</p> }
     else if (Model.Overview.Runs.Count == 0) { <p>No hay ejecuciones registradas en el módulo nuevo.</p> }

@@ -65,6 +65,9 @@ public static class DependencyInjection
         services.AddSingleton<OpticaSosa.Infrastructure.Backups.ServerBackupFolders>();
         services.AddSingleton<OpticaSosa.Infrastructure.Backups.IBackupSigningCertificate, OpticaSosa.Infrastructure.Backups.WindowsBackupSigningCertificate>();
         services.AddSingleton<OpticaSosa.Infrastructure.Backups.BackupAuthenticity>();
+        services.AddSingleton<OpticaSosa.Infrastructure.Backups.IBackupProtectionProbe, OpticaSosa.Infrastructure.Backups.WindowsBackupProtectionProbe>();
+        services.AddSingleton<OpticaSosa.Infrastructure.Backups.BackupProtectionGuard>();
+        services.AddScoped<OpticaSosa.Application.Backups.IBackupProtectionService, OpticaSosa.Infrastructure.Backups.BackupProtectionService>();
         services.AddScoped<OpticaSosa.Application.Backups.IBackupFolderService, OpticaSosa.Infrastructure.Backups.BackupFolderService>();
         services.AddSingleton<OpticaSosa.Infrastructure.Backups.BackupVerifier>();
         services.AddSingleton<OpticaSosa.Infrastructure.Backups.BackupCoordinator>();

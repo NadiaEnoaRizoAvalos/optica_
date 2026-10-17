@@ -12,7 +12,10 @@ public sealed partial class BackupsModel : PageModel
 {
     private readonly IBackupService backups;
     private readonly IBackupFolderService folders;
-    public BackupsModel(IBackupService backups, IBackupFolderService folders) { this.backups = backups; this.folders = folders; }
+    private readonly IBackupProtectionService protection;
+    public BackupsModel(IBackupService backups, IBackupFolderService folders, IBackupProtectionService protection)
+    { this.backups = backups; this.folders = folders; this.protection = protection; }
+    public BackupProtectionReport? Protection { get; private set; }
     public BackupOverview Overview { get; private set; } = null!;
     public IReadOnlyList<BackupTarget> Targets { get; private set; } = [];
     [BindProperty, Required(ErrorMessage = "Revisá la activación de la programación.")] public bool Enabled { get; set; }
@@ -38,6 +41,11 @@ public sealed partial class BackupsModel : PageModel
     {
         await RefreshFoldersAsync(); ModelState.Clear();
         return Page();
+    }
+    public async Task<IActionResult> OnPostProtectionAsync()
+    {
+        Protection = await protection.InspectAsync(HttpContext.RequestAborted);
+        await OnGetAsync(); ModelState.Clear(); return Page();
     }
     public async Task<IActionResult> OnPostSaveAsync()
     {
