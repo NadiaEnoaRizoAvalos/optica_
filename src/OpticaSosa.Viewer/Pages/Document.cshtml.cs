@@ -12,7 +12,9 @@ public sealed class DocumentModel(IViewerReader reader) : PageModel
 {
     public async Task<IActionResult> OnGetAsync(Guid customer, Guid record, Guid id)
     {
-        var document = await reader.DocumentAsync(customer, record, id, HttpContext.RequestAborted);
+        OpticaSosa.Application.Clinical.AttachmentDownload? document;
+        try { document = await reader.DocumentAsync(customer, record, id, HttpContext.RequestAborted); }
+        catch (NotSupportedException) { return StatusCode(415, "Formato no permitido. El documento original se conserva intacto."); }
         if (document is null) return NotFound();
         Response.Headers.ContentDisposition = new ContentDispositionHeaderValue("inline") { FileNameStar = document.FileName }.ToString();
         return File(document.Content, document.ContentType);

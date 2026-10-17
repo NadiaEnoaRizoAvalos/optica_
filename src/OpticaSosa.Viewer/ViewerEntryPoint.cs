@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.Mvc;
 using OpticaSosa.Application.Clinical;
 using OpticaSosa.Application.Security;
 using OpticaSosa.Application.Viewer;
@@ -65,7 +66,10 @@ public partial class ViewerEntryPoint
 
     private static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
+        var instance = Guid.NewGuid().ToString("N");
         services.AddSingleton(TimeProvider.System);
+        services.AddAntiforgery(options => options.Cookie.Name = "OpticaViewer.Antiforgery." + instance);
+        services.Configure<CookieTempDataProviderOptions>(options => options.Cookie.Name = "OpticaViewer.TempData." + instance);
         services.AddRateLimiter(options =>
         {
             options.RejectionStatusCode = 429;
@@ -93,7 +97,7 @@ public partial class ViewerEntryPoint
         services.AddDataProtection().UseEphemeralDataProtectionProvider();
         services.ConfigureApplicationCookie(options =>
         {
-            options.Cookie.Name = "OpticaViewer." + Guid.NewGuid().ToString("N");
+            options.Cookie.Name = "OpticaViewer." + instance;
             var original = options.Events.OnValidatePrincipal;
             options.Events.OnValidatePrincipal = async context =>
             {
@@ -109,7 +113,7 @@ public partial class ViewerEntryPoint
         services.AddSingleton(p => new StoragePaths(p.GetRequiredService<ViewerSnapshot>().Directory,
             Path.Combine(Path.GetTempPath(), "OpticaViewer-public-unused")));
         services.AddOptions<ClinicalFileOptions>(); services.AddSingleton<ClinicalFileGate>();
-        services.AddScoped<IPrivateAttachmentStore, PrivateAttachmentStore>();
+        services.AddScoped<IPrivateAttachmentStore, ViewerAttachmentStore>();
         services.AddScoped<IClinicalFilePolicyService, ClinicalFilePolicyService>();
         services.AddScoped<ClinicalFileValidation>(); services.AddScoped<ClinicalAttachmentService>();
         services.AddScoped<CustomerService>(); services.AddScoped<ClinicalService>(); services.AddScoped<WorkService>();

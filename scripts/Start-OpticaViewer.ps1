@@ -1,6 +1,11 @@
 [CmdletBinding()]
 param([string]$SignerSha256, [string]$BackupSignerSha256, [string]$Backup, [string]$Workspace, [int]$Port=5092, [switch]$NonInteractive, [switch]$VerifyOnly)
 $ErrorActionPreference='Stop'
+# Usar los módulos de este Windows PowerShell, aunque el proceso padre herede
+# un PSModulePath de PowerShell 7/Codex. No instalar ni cambiar perfiles/políticas.
+foreach ($module in @('Microsoft.PowerShell.Utility','Microsoft.PowerShell.Management')) {
+    Import-Module -Name (Join-Path $PSHOME ('Modules\'+$module+'\'+$module+'.psd1')) -ErrorAction Stop
+}
 $kit=[IO.Path]::GetFullPath($PSScriptRoot)
 function Child([string]$Relative) {
     if ([IO.Path]::IsPathRooted($Relative)) { throw 'Ruta inválida en el kit.' }

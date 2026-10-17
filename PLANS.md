@@ -36,7 +36,7 @@ Estado que condiciona las próximas fases: transición multirrol sin alterar cue
 
 ### Fase 5 — Multirrol, seguridad y recuperación prioritaria
 
-**Estado: 5.2.A PENDIENTE DE VERIFICACIÓN OPERATIVA; 5.1 y 5.2.B implementadas/validadas automáticamente, pruebas manuales pendientes; 5.3 autorizada a continuación. Fase 5 abierta.**
+**Estado: 5.2.A PENDIENTE DE VERIFICACIÓN OPERATIVA; 5.1 y 5.2.B implementadas/validadas automáticamente; 5.3 con revisión/correcciones automáticas verificadas. Pruebas manuales y autorizaciones operativas pendientes. Fase 5 abierta, no lista para producción.**
 
 Continuidad original: 5.2.A → 5.1 → 5.2.B → 5.3. Autorización posterior del 17/10/2026 permite completar 5.2.B y luego 5.3 tras sus pruebas automatizadas, sin esperar ensayos visuales/físicos pendientes. Conservar 5.1 en su rama y comprobar integración sin fusionar cambios incompatibles a main. Las autorizaciones operativas sensibles siguen separadas; no iniciar fase 6.
 
@@ -143,6 +143,14 @@ Implementación del diseño aprobado: auxiliar ASP.NET Core/Razor Pages separado
 Distribución ficticia separada: `scripts/New-OpticaViewerKit.ps1`, runtime privado ya instalado, arranque guiado `INICIAR-VISOR.cmd`, huella pública externa, CMS y hashes. Exportación del fixture limitada a data/visor-emergencia-52b-*; nunca reutiliza ni altera el kit 5.2.A. No modifica ACL operativas/globales: el visor exige un padre local NTFS ya privado; ensayos usan carpetas temporales ficticias. Guía: [VISOR-EMERGENCIA.md](docs/VISOR-EMERGENCIA.md). La distribución no está habilitada para datos reales; Windows físico/offline, revisión visual, cifrado/custodias y adopción operativa pendientes.
 
 #### Subtarea 5.3 — Verificación integral de seguridad
+
+**Estado: revisión automática implementada y verificada en rama `codex/fase-5-3-verificacion-seguridad`, integrada por ascendencia con 5.2.B/5.1.** Compilación completa **0 errores/0 advertencias**; suite **291 ejecutadas/aprobadas, 0 fallidas/omitidas** (49 Infraestructura, 242 Web; 10 casos nuevos de seguridad/integración). NuGet con transitivas: 8 proyectos, 0 paquetes con vulnerabilidades conocidas informadas. EF sin diferencias de modelo; ninguna migración generada/aplicada.
+
+Hallazgos reproducidos/corregidos: almacén interno de documentos ahora rechaza escritura incluso sin endpoints; tipos/extensiones legados no admitidos se auditan y responden 415; cookies de autenticación/CSRF/TempData independientes por instancia. Verificados también claims obsoletos, revocaciones locales opuestas, esquema incompatible, historial extenso, Unicode/espacios e independencia del servidor principal/cuentas ficticias. Informe: [SEGURIDAD-FASE-5.md](docs/SEGURIDAD-FASE-5.md).
+
+Comprobación nativa adicional local: Windows PowerShell desde system32, runtime privado sin SDK, CMS/hashes, ingreso, versiones/graduaciones, PNG/PDF originales, rol administrativo sin clínica, CSS, loopback y rechazo de endpoint heredado. Corregido autoload de módulos ante entorno PowerShell 7 heredado, sin instalaciones o políticas globales. Esto no acredita red físicamente desconectada ni ensayo en otra PC. Paquete nuevo separado del kit congelado, sin escritura externa.
+
+Pendientes manuales: interfaz de 5.1, visor/legibilidad/Windows físico de 5.2.B, prueba física/custodias/cifrado/servicio/activación real de 5.2.A y aceptación integral de seguridad operativa. No se declaran realizadas. Fase 6 puede recomendarse como desarrollo ficticio tras su autorización; no se inicia ni se desbloquea producción.
 
 1. **Funcionalidades propuestas:** comprobar los controles existentes y los resultados de 5.1/5.2, corregir exclusivamente hallazgos dentro del alcance aprobado y emitir informe de evidencias y pendientes. Verificar acceso por rol, sesiones, CSRF, archivos privados, auditoría sin datos sensibles, permisos Windows, respaldos y recuperación. No crear un tablero que afirme seguridad por detectar configuraciones, ni un sistema de seguridad paralelo. Cifrado se inventaría y evalúa, nunca se activa en esta subtarea sin aprobación específica.
 2. **Archivos/componentes previstos:** ampliar tests/OpticaSosa.Web.Tests/AuthenticationTests.cs, AuthorizationTests.cs, ClinicalHttpTests.cs, AttachmentHttpTests.cs, AttachmentBackupTests.cs, QualityHttpTests.cs y las nuevas pruebas 5.1/5.2; tests/OpticaSosa.Infrastructure.Tests/StorageProtectionTests.cs. Revisar Web/Security/SecurityRegistration.cs, HttpCurrentUser.cs, Infrastructure/Identity/SecurityAudit.cs y persistencia/almacenamiento privado; tocar producción sólo si una prueba demuestra un defecto y documentar el archivo concreto. Registrar informe en BITACORA.md y resultado en PLANS.md; decisiones nuevas en DECISIONES.md si corresponde.

@@ -31,7 +31,7 @@ internal sealed class ViewerFixture : IAsyncDisposable
 
     public ViewerFixture()
     {
-        Source = new SecurityApp(configureServices: services =>
+        Source = new SecurityApp(preserveData: !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("OPTICA_VIEWER_EXPORT_ROOT")), configureServices: services =>
         {
             services.AddSingleton<IBackupSigningCertificate>(signer);
             services.Configure<BackupRuntimeOptions>(o =>
@@ -82,6 +82,13 @@ internal sealed class ViewerFixture : IAsyncDisposable
             var roles = Roles.All.Where((_, index) => (mask & (1 << index)) != 0).ToArray();
             Assert.True((await accounts.Accounts.CreateAsync($"mixta{mask}.ficticia", SecurityApp.TestPassword, roles)).Succeeded);
         }
+        Backup = (await Source.Services.GetRequiredService<ClinicalSnapshotWriter>().CreateAsync(Path.Combine(Source.Root, "signed-backup"))).Directory;
+        Viewer = new(Backup, Workspace, Fingerprint);
+    }
+
+    public async Task RefreshAsync()
+    {
+        await Viewer.DisposeAsync();
         Backup = (await Source.Services.GetRequiredService<ClinicalSnapshotWriter>().CreateAsync(Path.Combine(Source.Root, "signed-backup"))).Directory;
         Viewer = new(Backup, Workspace, Fingerprint);
     }

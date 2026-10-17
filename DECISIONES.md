@@ -21,6 +21,13 @@ Estado interpretado según evidencia: «implementada» refiere a funciones exist
 - **Distribución:** kit nuevo ficticio con runtime privado/licencias, versión, respaldo de pruebas, CMS/hashes y lanzador guiado. Confianza recibida por canal externo; no incluir claves privadas. No se descarga SDK ni se toca el kit 5.2.A; no se cambian permisos Windows desde el visor. Ensayo físico y cifrado real siguen pendientes.
 - **Fuentes técnicas:** [URI/immutable de SQLite](https://www.sqlite.org/uri.html), [cadenas Microsoft.Data.Sqlite](https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/connection-strings). Sus condiciones se respaldan con prueba de rechazo de escrituras y conservación de hashes; no equivalen a verificar hardware o custodia real.
 
+### D-58 — Cierre automático diferenciado del cierre operativo de seguridad
+
+- **Estado:** revisión/correcciones de código 5.3 verificadas con datos ficticios; verificaciones manuales/operativas pendientes. No equivale a producción ni a cierre global de fase 5.
+- **Correcciones:** almacén de adjuntos exclusivo de lectura; extensión/MIME validado también antes de entrega inline de legado firmado, con rechazo auditado; cookies separadas por instancia. Backend comprueba rol capturado/estado local al administrar revocaciones. La interfaz principal mantiene su comportamiento y cuentas.
+- **Evidencia:** solución 0 errores/advertencias, 291/291 pruebas, NuGet con transitivas sin paquetes vulnerables informados. Arranque portátil local desde system32 con Windows PowerShell y runtime privado sin SDK; credenciales/versiones/documentos/permisos/loopback comprobados. Importar módulos integrados de ese proceso resuelve PSModulePath heredado sin instalar/cambiar perfiles. No afirmar desconexión física u otra PC por ese ensayo local.
+- **Continuidad:** usuario permite avanzar código con revisiones visuales pendientes. Conservar 5.1/5.2.B/5.3 en ramas encadenadas, sin fusionar a main ni modificar base operativa. Recomendar fase 6 ficticia, con autorización explícita y P-06 aplicable, mientras permanecen abiertos custodia, cifrado, servicio, respaldos reales y ensayos manuales.
+
 ## Decisiones anteriores D-01 a D-36
 
 ### D-01 — Monolito modular por capas

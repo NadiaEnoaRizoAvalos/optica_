@@ -36,6 +36,8 @@ Se autentica el manifiesto con una huella confiable fuera del respaldo; se copia
 
 La copia verificada usa SQLite ReadOnly/immutable y handles Windows que niegan escritura/reemplazo. Un interceptor permite exclusivamente redirigir las auditorías de las consultas existentes a `viewer-audit.jsonl`, fuera de `snapshot/`; rechaza otros cambios de EF. SQLite también rechaza SQL de escritura. Las revocaciones se guardan fuera del snapshot en `revocations.jsonl`. No hay rutas web para descargar bases, logs, claves o explorar carpetas. La consulta se limita a loopback, con CSRF, no-store, límites de carga y cabeceras de protección.
 
+El almacén del visor rechaza también escrituras internas y no crea carpetas al leer. La entrega inline exige tipos/extensiones admitidos; un formato legado distinto responde 415 y conserva el documento original. Autenticación, CSRF y TempData tienen cookies independientes por instancia. Informe de revisión: docs/SEGURIDAD-FASE-5.md en el proyecto.
+
 Una falla conserva material parcial privado para revisión, sin borrar automáticamente. No equivale a un respaldo recuperable ni debe usarse si la verificación no termina. No hay respaldo alternativo silencioso, edición o restauración sobre instalaciones existentes.
 
 ## Desarrollo y verificación

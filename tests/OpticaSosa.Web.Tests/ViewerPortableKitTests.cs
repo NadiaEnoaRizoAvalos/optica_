@@ -39,6 +39,8 @@ public sealed class ViewerPortableKitTests
         Assert.True(File.Exists(Path.Combine(folder.FullName, "app", "OpticaSosa.Viewer.dll")));
         Assert.True(File.Exists(Path.Combine(folder.FullName, "runtime", "dotnet.exe")));
         await ExportAsync(fixture, folder.FullName);
+        await File.WriteAllTextAsync(Path.Combine(project.FullName, "data", "latest-viewer-test-parent.json"),
+            JsonSerializer.Serialize(new { Parent = fixture.Source.Root, Fictitious = true }));
     }
 
     private static async Task ExportAsync(ViewerFixture fixture, string root)
