@@ -14,11 +14,11 @@ public static class RecoveryConsole
         {
             if (args.Length == 0 || args[0] == "--help")
             {
-                Console.WriteLine("verify|restore --backup RUTA --trust HUELLA_SHA256 --workspace CARPETA_VACIA; check-key --pfx ARCHIVO --trust HUELLA_SHA256. Contraseña sólo interactiva; nunca argumentos.");
+                Console.WriteLine("verify|restore|inventory --backup RUTA --trust HUELLA_SHA256 --workspace CARPETA_VACIA; check-key --pfx ARCHIVO --trust HUELLA_SHA256. Contraseña sólo interactiva; nunca argumentos.");
                 return 0;
             }
             if (!OperatingSystem.IsWindows()) throw new InvalidOperationException("La recuperación requiere Windows.");
-            if (args.Length == 0 || args[0] is not ("verify" or "restore" or "check-key"))
+            if (args.Length == 0 || args[0] is not ("verify" or "restore" or "inventory" or "check-key"))
                 throw new ArgumentException("Uso: verify|restore --backup RUTA --trust HUELLA --workspace CARPETA_VACIA; check-key --pfx ARCHIVO --trust HUELLA. Sin contraseñas por argumentos.");
             var options = Parse(args[1..]);
             var fingerprint = Required(options, "--trust");
@@ -48,6 +48,11 @@ public static class RecoveryConsole
             var authenticity = new BackupAuthenticity(runtime, new WindowsBackupSigningCertificate(runtime), TimeProvider.System);
             var verifier = new BackupVerifier(paths, new StorageCapacity(paths), runtime, authenticity);
             await verifier.VerifyAsync(source);
+            if (args[0] == "inventory")
+            {
+                Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(await BackupInventory.ReadAsync(source)));
+                return 0;
+            }
             if (args[0] == "restore") Console.WriteLine("Restauración aislada verificada: " + await verifier.RestoreIsolatedAsync(source));
             else Console.WriteLine("Firma, hashes, SQLite, relaciones y originales verificados. No se escribió en la copia.");
             Console.WriteLine("No se inició servidor ni se activó programación. Esta herramienta local no es el visor de emergencia.");
