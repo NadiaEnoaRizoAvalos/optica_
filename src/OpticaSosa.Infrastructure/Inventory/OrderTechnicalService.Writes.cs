@@ -34,6 +34,8 @@ public sealed partial class OrderTechnicalService
             if (previous?.Id != input.PreviousAssignmentId) return SalesOperations.Conflict();
             if (await db.StockReservations.AnyAsync(x => x.LineId == lineId && x.Status != ReservationStatus.Released, ct))
                 return SalesOperations.Invalid("Liberá las reservas anteriores; el material consumido requiere su circuito de corrección o devolución.");
+            if (await db.LaboratoryOrders.AnyAsync(x => x.LineId == lineId && x.Quantity - x.ReceivedQuantity - x.CancelledQuantity > 0, ct))
+                return SalesOperations.Invalid("Cancelá lo pendiente de los encargos anteriores, con confirmación del laboratorio si se enviaron, antes de cambiar la vinculación técnica.");
             var assignment = new OrderTechnicalAssignment(input.SubmissionId, lineId, input.PublicationId, input.Eyes,
                 previous?.Id, input.ReplacementReason, actor, clock.GetUtcNow().UtcDateTime);
             if (previous is not null) { previous.Supersede(); await db.SaveChangesAsync(ct); }

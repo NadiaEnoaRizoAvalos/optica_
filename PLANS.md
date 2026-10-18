@@ -224,7 +224,9 @@ Pruebas: importes/redondeo, pago repetido o anulado, reserva concurrente de últ
 
 ### Fase 8 — Encargos simples y recepción de laboratorio
 
-**Estado: pendiente.**
+**Estado: backend implementado y verificado automáticamente. Compilación 0 errores/advertencias y modelo EF sincronizado. Regresión final nueva: 405 ejecutadas/aprobadas, 0 fallidas/omitidas (79 Infraestructura, 326 Web); 22 casos nuevos respecto de 383, sin sumar repeticiones específicas. Pantallas/impresión y aceptación manual pendientes.**
+
+Autorización comercial explícita y técnica vinculada cuando corresponde; envío registrado separado de documentación, recepción parcial/idempotente al mismo libro de stock, observado en cuarentena y cancelación sólo de lo no recibido (confirmación del laboratorio tras enviar). Fechas estimadas/reales, demoras y reprogramaciones históricas. Cristales de laboratorio en líneas separadas OD/OI, según confirmación posterior; no dividir pedidos confirmados automáticamente. Técnica corregida/revocada permite registrar únicamente llegada en cuarentena; nuevas especificaciones requieren nuevo encargo autorizado. Stock recibido queda asociado a su línea/autorización, sin reasignarlo a otros pedidos. Migración `20261018031522_LaboratoryOrders`: sólo tres tablas nuevas/índices, no aplicada a la base operativa. Pantallas definitivas, impresión/PDF desde frontend y aceptación manual pendientes; no mensajes automáticos ni dependencias nuevas.
 
 Tareas: laboratorio, materiales/cantidades, autorización técnica y comercial, fechas estimadas/reales y estados del encargo; demoras, observaciones/correcciones y recepción por material. Documentación mínima exportable sin mensajería automática.
 
@@ -292,7 +294,7 @@ Actualización de P-01: autorizada y completada sólo la creación/protección d
 ## Seguimiento de esta entrega y próxima acción
 
 - Sección backend de fase 6 terminada y verificada en `codex/fase-6-catalogo-proveedores`, con 326/326 pruebas finales y compilación sin errores/advertencias. Publicación como avance coherente según autorización permanente; hash y resultado de push se informan al cierre. Base operativa y ZIP congelado conservan sus hashes; sin operaciones externas, cuentas, servicios o cifrado reales.
-- Incrementos 7.1 y 7.2 publicados/verificados en sus ramas (`c545cfd`, `0a29832`). 7.3 verificado con 383/383 y compilación sin errores/advertencias; publicar sección coherente antes de seguir. Próxima sección autorizada: encargos/recepción de fase 8 con reglas P-06 confirmadas, incluida llegada en cuarentena si cambió la técnica. Conservar 5.2.A pendiente de verificación operativa y las pantallas definitivas para Figma; no confundir validación backend con aceptación manual o producción.
+- Incrementos 7.1, 7.2 y 7.3 publicados/verificados en sus ramas (`c545cfd`, `0a29832`, `ef8f7c4`). Fase 8 verificada con 405/405 y compilación sin errores/advertencias; publicar sección coherente antes de seguir. Próxima sección autorizada: inventario ampliado de fase 9, con ajustes/devoluciones/revisión según reglas confirmadas D-69. Conservar 5.2.A pendiente de verificación operativa y las pantallas definitivas para Figma; no confundir validación backend con aceptación manual o producción.
 
 ### Entregas anteriores — contexto histórico
 

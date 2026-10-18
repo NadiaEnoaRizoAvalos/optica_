@@ -93,6 +93,20 @@ Estado interpretado según evidencia: «implementada» refiere a funciones exist
 - **Roles:** técnico Profesional obligatorio en cristales/contactos/reparación óptica; Atención/Ventas o Profesional en técnico no clínico y entrega. Administrador necesita los roles explícitos correspondientes, sin acceso clínico implícito.
 - **Entrega:** inicialmente completa, sin parciales; identidad, pedido completo, estado, documentación/instrucciones y saldo cero. Reutilizar motor de fase 4.1 y conservar aprobaciones/versiones anteriores; revisar restricciones de dominio/SQLite y ensayar migración/reversión aisladas antes de adopción operativa.
 
+### D-68 — Encargos trazables sobre el inventario existente
+
+- **Estado:** backend implementado en fase 8; verificación en BITACORA.md. Reglas iniciales D-65 aprobadas; usuario confirmó posteriormente líneas OD/OI separadas para cristales de laboratorio. Stock compatible y cajas de contactos compartidas conservan las reglas previas. Sin división automática de pedidos confirmados ni cambios operativos.
+- **Modelo:** encargo propio vinculado a línea, laboratorio y asignación técnica original; autorización comercial, envío real registrado, cantidades recibidas/observadas/canceladas y fechas. Recepciones se vinculan 1:1 con batches del libro existente, no con un segundo inventario. Reprogramaciones/cancelaciones conservan motivo, autor y confirmación del laboratorio cuando se envió.
+- **Seguridad:** revalidar técnica en crear/enviar/documentar/recibir utilizable; tras corrección/revocación sólo llegada en cuarentena. Cambiar asignación exige resolver encargos pendientes. Nueva fabricación usa nuevo encargo, sin cambiar versiones anteriores. Un SKU con graduación explícita distinta se rechaza; no descartar parámetros que el producto no representa, incluido prisma en cajas estándar de contactos.
+- **Cantidades y recuperación:** no sobreencargar la línea ya cubierta por pendientes/material utilizable/consumido. Observados o vencidos no cubren nueva fabricación; conservarlos físicamente para revisión/devolución. Material recibido sólo se reserva para su línea y asignación; no usarlo como stock genérico. Integridad, idempotencia, versiones, auditoría y recepción comparten transacción; copias existentes incluyen todas sus relaciones.
+- **Documento:** contrato mínimo con unidades/presentación, producto y proyección técnica por ojo, sin historia clínica general ni importes. Generar documentación no registra envío. Impresión/PDF y pantallas quedan para integración visual; no instalar generadores ni enviar mensajes automáticamente.
+
+### D-69 — Ajustes y devoluciones físicas con revisión
+
+- **Estado:** reglas iniciales confirmadas por el usuario durante fase 8; implementación pendiente de fase 9.
+- **Permisos e integridad:** sólo Administrador realiza ajustes/bajas con motivo y movimientos, sin editar saldos ni retirar reservado/consumido como libre. Devoluciones físicas y monetarias son operaciones distintas, sin compensaciones automáticas.
+- **Revisión:** ingresar devoluciones físicas en cuarentena. Profesional revisa cristales/contactos y Atención/Ventas o Profesional productos no clínicos. Contactos abiertos o vencidos no vuelven a utilizable. Cristales personalizados conservan ojo y autorización originales, sin stock genérico automático. Mantener trazabilidad y reintentos sin duplicación.
+
 ## Decisiones anteriores D-01 a D-36
 
 ### D-01 — Monolito modular por capas

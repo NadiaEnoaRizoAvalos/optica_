@@ -1565,6 +1565,182 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("OpticaSosa.Domain.Laboratory.LaboratoryChange", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ActorUserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("CancelledQuantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Kind")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("LaboratoryConfirmation")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("LaboratoryOrderId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly?>("NewEstimatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("OccurredAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly?>("PreviousEstimatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActorUserId");
+
+                    b.HasIndex("LaboratoryOrderId", "OccurredAtUtc", "Id");
+
+                    b.ToTable("LaboratoryChanges", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_LaboratoryChanges_Profile", "length(trim(Reason)) BETWEEN 1 AND 500 AND typeof(CancelledQuantity) = 'integer' AND ((Kind = 1 AND CancelledQuantity = 0 AND LaboratoryConfirmation IS NULL) OR (Kind = 2 AND CancelledQuantity > 0 AND PreviousEstimatedDate IS NULL AND NewEstimatedDate IS NULL))");
+                        });
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Laboratory.LaboratoryOrder", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("AuthorizedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AuthorizedByUserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("CancelledQuantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("DispatchReference")
+                        .HasMaxLength(160)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly?>("EstimatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("LastReceivedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("LineId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("QuarantinedQuantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ReceivedQuantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("SentAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SentByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("SupplierId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("TechnicalAssignmentId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorizedByUserId");
+
+                    b.HasIndex("SentByUserId");
+
+                    b.HasIndex("SupplierId");
+
+                    b.HasIndex("TechnicalAssignmentId");
+
+                    b.HasIndex("AuthorizedAtUtc", "Id");
+
+                    b.HasIndex("LineId", "AuthorizedAtUtc", "Id");
+
+                    b.ToTable("LaboratoryOrders", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_LaboratoryOrders_Counts", "typeof(Quantity) = 'integer' AND Quantity > 0 AND typeof(ReceivedQuantity) = 'integer' AND ReceivedQuantity >= 0 AND typeof(CancelledQuantity) = 'integer' AND CancelledQuantity >= 0 AND ReceivedQuantity + CancelledQuantity <= Quantity AND typeof(QuarantinedQuantity) = 'integer' AND QuarantinedQuantity BETWEEN 0 AND ReceivedQuantity");
+
+                            t.HasCheckConstraint("CK_LaboratoryOrders_Dispatch", "(SentAtUtc IS NULL AND SentByUserId IS NULL AND DispatchReference IS NULL AND ReceivedQuantity = 0 AND LastReceivedAtUtc IS NULL) OR (SentAtUtc IS NOT NULL AND SentByUserId IS NOT NULL AND DispatchReference IS NOT NULL AND length(trim(DispatchReference)) BETWEEN 1 AND 160)");
+
+                            t.HasCheckConstraint("CK_LaboratoryOrders_ReceiptTime", "(ReceivedQuantity = 0 AND LastReceivedAtUtc IS NULL) OR (ReceivedQuantity > 0 AND LastReceivedAtUtc IS NOT NULL)");
+                        });
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Laboratory.LaboratoryReceipt", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ActorUserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("BatchId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("LaboratoryOrderId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("QuarantinedQuantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("ReceivedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Reference")
+                        .HasMaxLength(160)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActorUserId");
+
+                    b.HasIndex("BatchId")
+                        .IsUnique();
+
+                    b.HasIndex("LaboratoryOrderId", "ReceivedAtUtc", "Id");
+
+                    b.ToTable("LaboratoryReceipts", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_LaboratoryReceipts_Profile", "typeof(Quantity) = 'integer' AND Quantity > 0 AND typeof(QuarantinedQuantity) = 'integer' AND QuarantinedQuantity BETWEEN 0 AND Quantity AND length(trim(Reason)) BETWEEN 1 AND 500");
+                        });
+                });
+
             modelBuilder.Entity("OpticaSosa.Domain.Technical.TechnicalPublication", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2427,6 +2603,73 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("TechnicalAssignmentId")
                         .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Laboratory.LaboratoryChange", b =>
+                {
+                    b.HasOne("OpticaSosa.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("ActorUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OpticaSosa.Domain.Laboratory.LaboratoryOrder", null)
+                        .WithMany()
+                        .HasForeignKey("LaboratoryOrderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Laboratory.LaboratoryOrder", b =>
+                {
+                    b.HasOne("OpticaSosa.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("AuthorizedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OpticaSosa.Domain.Commerce.SalesLine", null)
+                        .WithMany()
+                        .HasForeignKey("LineId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OpticaSosa.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("SentByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("OpticaSosa.Domain.Catalog.Supplier", null)
+                        .WithMany()
+                        .HasForeignKey("SupplierId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OpticaSosa.Domain.Inventory.OrderTechnicalAssignment", null)
+                        .WithMany()
+                        .HasForeignKey("TechnicalAssignmentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Laboratory.LaboratoryReceipt", b =>
+                {
+                    b.HasOne("OpticaSosa.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("ActorUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OpticaSosa.Domain.Inventory.StockBatch", null)
+                        .WithMany()
+                        .HasForeignKey("BatchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OpticaSosa.Domain.Laboratory.LaboratoryOrder", null)
+                        .WithMany()
+                        .HasForeignKey("LaboratoryOrderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("OpticaSosa.Domain.Technical.TechnicalPublication", b =>

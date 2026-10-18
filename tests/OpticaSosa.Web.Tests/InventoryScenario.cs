@@ -30,7 +30,7 @@ internal sealed class InventoryScenario : IAsyncDisposable
         var test = await TechnicalTestContext.CreateAsync(); var catalog = await CatalogScenario.OpenAsync(test.App);
         var sales = await CommerceScenario.OpenAsync(test.App, "ventas.ficticio");
         var item = await SalesOrderTests.VariantAsync(catalog, category);
-        if (category == ProductCategory.Lens)
+        if (category == ProductCategory.Lens && source == FulfilmentSource.Stock)
         {
             var current = (await catalog.Catalog.VariantAsync(item.Product, item.Variant))!;
             var input = await CatalogTests.InputAsync(catalog, item.Product);

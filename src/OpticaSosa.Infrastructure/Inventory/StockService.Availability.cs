@@ -31,16 +31,25 @@ public sealed partial class StockService
         var selected = lines.Take(50).ToArray(); var ids = selected.Select(x => x.Id).ToArray();
         var variants = selected.Select(x => x.VariantId).Distinct().ToArray(); var today = Today;
         var availability = await db.StockBatches.AsNoTracking().Where(x => variants.Contains(x.VariantId) && (x.ExpiresOn == null || x.ExpiresOn >= today) &&
+            !db.LaboratoryReceipts.Any(r => r.BatchId == x.Id) &&
             db.ProductVariants.Any(v => v.Id == x.VariantId && v.IsActive && db.Products.Any(p => p.Id == v.ProductId && p.IsActive)))
             .GroupBy(x => x.VariantId).Select(g => new { Id = g.Key, Available = g.Sum(x => (long)x.OnHand - x.Reserved - x.Quarantined) }).ToDictionaryAsync(x => x.Id, x => x.Available, ct);
         var reserved = await db.StockReservations.AsNoTracking().Where(x => ids.Contains(x.LineId) && x.Status != ReservationStatus.Released)
             .GroupBy(x => x.LineId).Select(g => new { Id = g.Key, Quantity = g.Sum(x => (long)x.Quantity) }).ToDictionaryAsync(x => x.Id, x => x.Quantity, ct);
         var assignments = await db.OrderTechnicalAssignments.AsNoTracking().Where(x => ids.Contains(x.LineId) && x.IsCurrent).ToListAsync(ct);
+        var laboratoryAvailable = await (from receipt in db.LaboratoryReceipts.AsNoTracking()
+            join lab in db.LaboratoryOrders.AsNoTracking() on receipt.LaboratoryOrderId equals lab.Id
+            join batch in db.StockBatches.AsNoTracking() on receipt.BatchId equals batch.Id
+            where ids.Contains(lab.LineId) && (batch.ExpiresOn == null || batch.ExpiresOn >= today) &&
+                (lab.TechnicalAssignmentId == null || db.OrderTechnicalAssignments.Any(a => a.Id == lab.TechnicalAssignmentId && a.IsCurrent)) &&
+                db.ProductVariants.Any(v => v.Id == batch.VariantId && v.IsActive && db.Products.Any(p => p.Id == v.ProductId && p.IsActive))
+            group batch by lab.LineId into g
+            select new { Id = g.Key, Available = g.Sum(x => (long)x.OnHand - x.Reserved - x.Quarantined) }).ToDictionaryAsync(x => x.Id, x => x.Available, ct);
         var result = new List<OrderAvailabilityLine>();
         foreach (var line in selected)
         {
             var used = reserved.GetValueOrDefault(line.Id); var pending = line.Quantity - used;
-            var available = line.Source == FulfilmentSource.Stock ? availability.GetValueOrDefault(line.VariantId) : 0;
+            var available = line.Source == FulfilmentSource.Stock ? availability.GetValueOrDefault(line.VariantId) : laboratoryAvailable.GetValueOrDefault(line.Id);
             var required = OrderTechnicalRules.Required(line.Category); var valid = !required;
             var assignment = assignments.SingleOrDefault(x => x.LineId == line.Id);
             if (assignment is not null) valid = (await OrderTechnicalRules.LoadAsync(db, assignment.PublicationId, ct))?.Status == PublicationStatus.Current;

@@ -23,10 +23,14 @@ public sealed partial class StockService
                 return SalesOperations.Invalid("La reserva requiere un pedido confirmado de cliente activo.");
             var line = await db.SalesLines.SingleOrDefaultAsync(x => x.Id == lineId && x.OrderId == orderId && x.DraftNumber == order.DraftNumber, ct);
             if (line is null) return SalesOperations.Missing();
-            if (line.Source != FulfilmentSource.Stock) return SalesOperations.Invalid("El material encargado sólo se reserva mediante su recepción de laboratorio validada.");
             var batch = await db.StockBatches.SingleOrDefaultAsync(x => x.Id == input.BatchId && x.VariantId == line.VariantId, ct);
             if (batch is null) return SalesOperations.Invalid("Seleccioná existencias recibidas de la variante exacta del pedido.");
             if (batch.Version != input.BatchVersion) return SalesOperations.Conflict();
+            var origin = await (from receipt in db.LaboratoryReceipts join lab in db.LaboratoryOrders on receipt.LaboratoryOrderId equals lab.Id
+                where receipt.BatchId == batch.Id select lab).AsNoTracking().SingleOrDefaultAsync(ct);
+            if ((line.Source == FulfilmentSource.Stock && origin is not null) || (line.Source == FulfilmentSource.Laboratory &&
+                (origin is null || origin.LineId != line.Id || origin.TechnicalAssignmentId != input.TechnicalAssignmentId)))
+                return SalesOperations.Invalid("El material de laboratorio debe haberse recibido para esta línea y autorización; no se sustituye con stock genérico ni otra fabricación.");
             var variant = await db.ProductVariants.SingleAsync(x => x.Id == line.VariantId, ct);
             if (!variant.IsActive || !await db.Products.AnyAsync(x => x.Id == variant.ProductId && x.IsActive, ct)) return SalesOperations.Invalid("El producto está inactivo.");
             var assigned = await db.OrderTechnicalAssignments.AsNoTracking().SingleOrDefaultAsync(x => x.LineId == lineId && x.IsCurrent, ct);

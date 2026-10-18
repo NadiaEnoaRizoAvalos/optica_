@@ -2,6 +2,16 @@
 
 Registro de entregas, cambios, verificaciones e incidentes. El estado vigente está en [PLANS.md](PLANS.md); los requisitos en [REQUISITOS.md](REQUISITOS.md) y las decisiones en [DECISIONES.md](DECISIONES.md).
 
+## Fase 8 — backend de laboratorio — 2026-10-18
+
+- Rama `codex/fase-8-laboratorios` desde `ef8f7c4`; encargos por línea y asignación técnica original, autorización comercial explícita, registro de envío, recepción parcial/idempotente y material observado en cuarentena. Cancelación sólo de no recibido con confirmación del laboratorio tras envío; reprogramaciones históricas y demoras.
+- Reutilizados motor de entradas y libro de stock, extrayendo InventoryReceiptWriter y el formador de proyección mínima; sin segundo inventario ni endpoints redundantes. Stock de laboratorio sólo para línea/autorización correspondiente, sin sustitución genérica. Recepcionar no aprueba calidad ni entrega y cancelar no devuelve dinero automáticamente. Bloqueo de pedido/asignación mientras haya encargos pendientes.
+- Confirmación posterior del usuario: cristales de laboratorio en líneas separadas OD/OI; no dividir confirmados automáticamente. Mantener ambos ojos en stock compatible/cajas compatibles. Tras cambio/revocación técnica sólo llegada en cuarentena; nuevas especificaciones requieren nueva autorización/encargo conservando lo anterior. SKU explícito no se modifica para fabricar otra graduación; no ignorar parámetros que el producto no representa.
+- Migración `20261018031522_LaboratoryOrders`: tres tablas nuevas/índices y FK restrictivas; sin aplicación operativa. Contratos y acciones de pantallas documentados; documento mínimo sin clínica general ni importes, sin envío automático. Impresión/PDF y aceptación manual pendientes de frontend, sin dependencias nuevas.
+- Compilación completa nueva: **0 errores y 0 advertencias**. Regresión final nueva: **405 ejecutadas/aprobadas, 0 fallidas/omitidas** (79 Infraestructura, 326 Web), **22 casos nuevos** respecto de 383. Informes privados en data/verification-8-full. Matriz específica inicial 7/7 y ampliada 39/39 aprobadas, sin sumarlas de nuevo. Incluye recepción concurrente, rollback con auditoría fallida, permisos, cambios técnicos, stock/recepciones y recuperación aislada conjunta. EF confirmó modelo sincronizado; sin fallos pendientes.
+- Reglas iniciales de inventario ampliado confirmadas por el usuario y registradas en D-69, sin presentarlas como implementadas todavía.
+- No se modificaron base/cuentas operativas, disco externo, claves, cifrado, servicios Windows o respaldos/programación reales. 5.2.A sigue PENDIENTE DE VERIFICACIÓN OPERATIVA y el kit permanece congelado.
+
 ## Incremento 7.3 — stock mínimo y vínculo técnico — 2026-10-18
 
 - Rama `codex/fase-7-stock-reservas` desde `0a29832`; entradas de variante exacta, movimientos reconciliables, cuarentena, lotes/vencimientos y reservas/liberaciones explícitas. Disponible separado de físico/reservado, fecha local y precisión mes/año inclusiva; no venta suelta de contactos, sustitución ni reservas automáticas al cobrar.

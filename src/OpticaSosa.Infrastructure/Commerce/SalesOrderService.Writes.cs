@@ -92,6 +92,9 @@ public sealed partial class SalesOrderService
             if (await db.StockReservations.AnyAsync(x => x.Status != OpticaSosa.Domain.Inventory.ReservationStatus.Released &&
                 db.SalesLines.Any(l => l.Id == x.LineId && l.OrderId == orderId), ct))
                 return SalesOperations.Invalid("Liberá explícitamente las reservas antes de cancelar; el material consumido requiere devolución.");
+            if (await db.LaboratoryOrders.AnyAsync(x => x.Quantity - x.ReceivedQuantity - x.CancelledQuantity > 0 &&
+                db.SalesLines.Any(l => l.Id == x.LineId && l.OrderId == orderId), ct))
+                return SalesOperations.Invalid("Cancelá expresamente los encargos pendientes; si se enviaron, registrá la confirmación del laboratorio.");
             row.Cancel(actor, clock.GetUtcNow().UtcDateTime, input.Reason);
             return null;
         }, ct);

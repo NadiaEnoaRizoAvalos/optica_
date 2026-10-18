@@ -37,6 +37,6 @@ public sealed partial class TechnicalPublicationService
         return null;
     }
     private static bool MatchesContact(ProductVariant variant, ContactSelection fit, EyeValues powers) =>
-        variant.Sphere == powers.Sphere && variant.Cylinder == powers.Cylinder && variant.Addition == powers.Addition &&
+        powers.Prism is null or 0 && variant.Sphere == powers.Sphere && variant.Cylinder == powers.Cylinder && variant.Addition == powers.Addition &&
         (powers.Cylinder is null or 0 || variant.Axis == powers.Axis) && variant.ContactBaseCurveMm == fit.BaseCurveMm && variant.ContactDiameterMm == fit.DiameterMm;
 }

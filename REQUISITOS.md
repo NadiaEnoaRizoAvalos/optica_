@@ -148,6 +148,7 @@ Estas etapas no postergan controles críticos: seguridad, permisos, integridad y
 - Separar autorización técnica y comercial. Una exportación no prueba envío efectivo; no enviar mensajes automáticamente.
 - Circuito inicial confirmado: Profesional autoriza técnica; Administrador/Atención autorizan comercialmente y registran envío explícito. Admitir recepción parcial. Material observado queda en cuarentena, sin disponibilidad. Cancelar sólo cantidades no recibidas; después de enviar, exigir confirmación registrada del laboratorio. Conservar lo recibido y sus movimientos; devoluciones de material y dinero son operaciones separadas.
 - Si la receta se corrige/revoca tras el envío, bloquear fabricación y recepción utilizable. Una llegada puede registrarse sólo en cuarentena, manteniendo encargo/versión originales. Continuar con nuevas especificaciones exige autorización profesional y nuevo encargo; cancelar pendientes del anterior con confirmación del laboratorio cuando corresponda. Nunca reescribir silenciosamente el encargo enviado.
+- Confirmación posterior: cristales de laboratorio en líneas separadas OD/OI, para identificar exactamente qué ojo llegó, se observó o quedó pendiente. No dividir automáticamente pedidos confirmados; mantener la regla previa de ambos ojos para stock compatible y cajas de contactos compatibles. Cantidades/documentos conservan unidad individual o caja cerrada y cantidad declarada; no sustituir la graduación explícita de un SKU por otra al encargar.
 - Preparar documentación/PDF con la información mínima autorizada por destinatario, sin exponer historia clínica. Cualquier dependencia nueva requiere autorización.
 - No introducir PurchaseAllocation, agrupaciones complejas ni circuitos de compras que no necesite el encargo simple.
 
@@ -160,6 +161,7 @@ Estas etapas no postergan controles críticos: seguridad, permisos, integridad y
 - En contactos el lote y el vencimiento son obligatorios. La fecha indicada es el último día válido: desde el siguiente no se reserva ni entrega. Conservar la precisión mes/año cuando ésa sea la del envase y utilizar el último día de ese mes, sin inventar fechas ni omitir el vencimiento.
 - No sustituir automáticamente marca, modelo, graduación, curva base o diámetro. Gestionar paquetes/unidades mediante conversiones exactas y sólo cuando se necesiten.
 - Reservar no consume; cancelar libera sólo reservas no consumidas. Reponer una devolución exige revisión; no duplicar existencias al abrir un paquete o reintentar recepción/entrega.
+- Reglas confirmadas de fase 9: sólo Administrador ajusta o da de baja con motivo, movimientos explícitos y sin tratar reservado/consumido como libre. Devoluciones físicas separadas del dinero e ingreso en cuarentena hasta revisión. Contactos abiertos o vencidos no vuelven a utilizable. Profesional revisa cristales/contactos; Atención/Ventas o Profesional, productos no clínicos. Cristales personalizados conservan ojo/autorización originales, sin conversión automática a stock genérico.
 
 ### RF-11. Calidad y entrega adaptadas — fase 10
 

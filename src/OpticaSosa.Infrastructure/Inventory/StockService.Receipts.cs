@@ -29,15 +29,7 @@ public sealed partial class StockService
             if (variant is null || !await db.Products.AnyAsync(x => x.Id == variant.ProductId && x.IsActive, ct))
                 return new(false, Error: "Seleccioná una variante y producto activos.");
             if (variant.Version != input.VariantVersion) return new(false, Error: "La variante cambió; recargala.", Conflict: true);
-            var batch = new StockBatch(input.SubmissionId, variant, input.Quantity, input.Quarantined, input.Lot,
-                input.Expiry, input.ExpiryPrecision, actor, clock.GetUtcNow().UtcDateTime);
-            if (batch.LotKey is not null && await db.StockBatches.AnyAsync(x => x.VariantId == batch.VariantId && x.LotKey == batch.LotKey &&
-                (x.ExpiresOn != batch.ExpiresOn || x.ExpiryPrecision != batch.ExpiryPrecision), ct))
-                return new(false, Error: "El lote ya registrado tiene otro vencimiento o precisión; verificá el envase.");
-            var movement = new StockMovement(input.SubmissionId, batch.Id, null, StockMovementKind.Receipt,
-                input.Quantity, 0, input.Quarantined, input.Reason, hash, actor, clock.GetUtcNow().UtcDateTime);
-            variant.LockSpecification(); db.StockBatches.Add(batch); db.StockMovements.Add(movement);
-            db.AuditEntries.Add(new() { ActorId = actor, Action = "inventory.received", TargetId = batch.Id.ToString(), OccurredAt = clock.GetUtcNow() });
+            var batch = await InventoryReceiptWriter.AddAsync(db, variant, input, actor, clock, ct);
             await db.SaveChangesAsync(ct); await tx.CommitAsync(ct);
             return new(true, batch.Id);
         }

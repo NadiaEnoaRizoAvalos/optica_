@@ -37,14 +37,8 @@ public sealed partial class OrderTechnicalService(IDbContextFactory<OpticaDbCont
         if (assignment is null) return null;
         var source = await OrderTechnicalRules.LoadAsync(db, assignment.PublicationId, ct);
         if (source is null) return null;
-        var p = source.Publication; var r = p.Request; var m = r.Mounting;
-        var right = assignment.Eyes.HasFlag(TechnicalEyes.Right); var left = assignment.Eyes.HasFlag(TechnicalEyes.Left);
         db.AuditEntries.Add(new() { ActorId = actor, Action = "sales.technical.read", TargetId = lineId.ToString(), OccurredAt = clock.GetUtcNow() });
         await db.SaveChangesAsync(ct);
-        return new(orderId, lineId, assignment.Id, p.Id, p.SourceRevisionId, source.RevisionNumber, source.Status, assignment.Eyes,
-            r.Purpose, r.Product, r.Material, r.RefractiveIndex, r.Treatment, right ? p.Right : new EyeValues(), left ? p.Left : new EyeValues(),
-            p.PupillaryDistanceHundredths / 100m, new(right ? m.RightHeightMm : null, left ? m.LeftHeightMm : null,
-                right ? m.RightMonocularDistanceMm : null, left ? m.LeftMonocularDistanceMm : null, m.FrameVariantId, m.FrameReference, m.Instructions),
-            right ? r.RightContact : null, left ? r.LeftContact : null);
+        return TechnicalProjectionFactory.Create(orderId, lineId, assignment, source);
     }
 }

@@ -28,6 +28,8 @@ internal static class OrderTechnicalRules
         var request = publication.Request;
         if (!Required(line.Category) || request.RequestedCategory != line.Category || eyes is not (TechnicalEyes.Right or TechnicalEyes.Left or TechnicalEyes.Both))
             return "Indicá una autorización correspondiente al producto y a los ojos del trabajo.";
+        if (line.Category == ProductCategory.Lens && line.Source == FulfilmentSource.Laboratory && eyes == TechnicalEyes.Both)
+            return "Los cristales de laboratorio requieren líneas separadas para OD y OI, sin dividir automáticamente pedidos confirmados.";
         var right = eyes.HasFlag(TechnicalEyes.Right); var left = eyes.HasFlag(TechnicalEyes.Left);
         if ((right && !request.IncludeRight) || (left && !request.IncludeLeft)) return "La publicación no autoriza todos los ojos seleccionados.";
         if (request.ProductId is { } product && product != variant.ProductId) return "El producto no coincide con el autorizado.";
@@ -44,6 +46,11 @@ internal static class OrderTechnicalRules
                     return "Material, índice o tratamiento no coinciden con lo autorizado.";
                 if (line.Source == FulfilmentSource.Stock && (!SamePowers(variant, values) || values.Prism is not (null or 0)))
                     return "El cristal de stock no describe exactamente la graduación autorizada (incluido prisma); requiere otra selección o fabricación validada.";
+                if (line.Source == FulfilmentSource.Laboratory &&
+                    ((variant.Sphere is { } sphere && sphere != values.Sphere) || (variant.Cylinder is { } cylinder && cylinder != values.Cylinder) ||
+                     (variant.Addition is { } addition && addition != values.Addition) ||
+                     (variant.Axis is { } axis && values.Cylinder is not (null or 0) && axis != values.Axis)))
+                    return "La variante tiene una graduación explícita distinta de la autorizada; no se sustituye automáticamente al encargar.";
             }
         }
         return null;
