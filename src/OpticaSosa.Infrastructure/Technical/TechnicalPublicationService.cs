@@ -45,8 +45,7 @@ public sealed partial class TechnicalPublicationService(IDbContextFactory<Optica
     }
     private static TechnicalPublicationDetails Details(TechnicalPublication p, Guid customer, Guid record, int revision, int currentRevision, bool active)
     {
-        var status = p.RevokedAtUtc is not null ? PublicationStatus.Revoked : p.SupersededById is not null ? PublicationStatus.Superseded
-            : revision != currentRevision ? PublicationStatus.SourceChanged : !active ? PublicationStatus.CustomerInactive : PublicationStatus.Current;
+        var status = p.Status(revision, currentRevision, active);
         return new(p.Id, customer, record, p.SourceRevisionId, revision, p.Request, p.Right, p.Left, p.PupillaryDistanceHundredths / 100m,
             p.PublishedByUserId, p.PublishedAtUtc, p.Version, status, p.PreviousId, p.SupersededById, p.CorrectionReason, p.RevokedAtUtc, p.RevocationReason);
     }

@@ -68,6 +68,11 @@ public sealed class SalesOrder
         Status = SalesOrderStatus.Cancelled; CancelledByUserId = actor; CancelledAtUtc = utcNow; Touch();
     }
     private void Touch() => Version = Guid.NewGuid();
+    public void RegisterOperationalChange()
+    {
+        if (Status != SalesOrderStatus.Confirmed) throw new ArgumentException("La operación requiere un pedido confirmado.");
+        Touch();
+    }
     internal static void ValidateActor(string actor, DateTime utcNow)
     {
         if (string.IsNullOrWhiteSpace(actor) || utcNow.Kind != DateTimeKind.Utc) throw new ArgumentException("Actor o fecha inválidos.");

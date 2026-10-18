@@ -2,6 +2,15 @@
 
 Registro de entregas, cambios, verificaciones e incidentes. El estado vigente está en [PLANS.md](PLANS.md); los requisitos en [REQUISITOS.md](REQUISITOS.md) y las decisiones en [DECISIONES.md](DECISIONES.md).
 
+## Incremento 7.3 — stock mínimo y vínculo técnico — 2026-10-18
+
+- Rama `codex/fase-7-stock-reservas` desde `0a29832`; entradas de variante exacta, movimientos reconciliables, cuarentena, lotes/vencimientos y reservas/liberaciones explícitas. Disponible separado de físico/reservado, fecha local y precisión mes/año inclusiva; no venta suelta de contactos, sustitución ni reservas automáticas al cobrar.
+- Vinculación por Profesional a una línea y ojos explícitos; cola sin importes y proyección comercial limitada al trabajo, con vigencia y sin síntomas, antecedentes, documentos o motivos clínicos. Revalidación al reservar frente a cambios de receta/revocación. Cancelar exige liberar; consumidos no se reponen al cancelar. Material encargado no puede reservarse desde stock genérico antes de fase 8.
+- Migración `20261018025415_StockReservationsAndTechnicalAssignments`: sólo cuatro tablas nuevas e índices, con FK restrictivas y controles de saldos/movimientos. Sin cambios a base/cuentas operativas, disco externo, servicios, dependencias o cifrado. Kit 5.2.A intacto; sigue PENDIENTE DE VERIFICACIÓN OPERATIVA.
+- Primera matriz específica 17/17 aprobada. Matriz ampliada posterior: 26 ejecutadas, 25 aprobadas y 1 fallo; detectó instancia compartida de selección de contactos OD/OI incompatible con owned entities de EF. Se corrigió copiando valores a instancias independientes en el dominio, sin alterar graduaciones ni esquema clínico. Repetición corregida 26/26 aprobada; sin fallos pendientes.
+- Compilación completa posterior a la corrección: **0 errores/advertencias**. Regresión final nueva: **383 ejecutadas/aprobadas, 0 fallidas/omitidas** (76 Infraestructura, 307 Web); **26 casos nuevos** respecto de 357, sin sumar repeticiones específicas. Informes privados en data/verification-73-full. EF confirmó modelo sincronizado con la última migración. Pruebas incluyen última unidad concurrente, cuarentena, liberación/cancelación, cambios técnicos, ambos ojos/caja cerrada, zona horaria, paginación y recuperación aislada conjunta de stock/pedidos/clínica. No declarar aceptación manual/operativa ni entrega comercial completa.
+- Matriz inicial de calidad, roles y entrega completa aprobada por el usuario para fase 10, registrada en D-67/P-05. No se cambiaron todavía el motor, sus permisos ni controles históricos.
+
 ## Incremento 7.2 — pedidos y señas — 2026-10-17
 
 - Rama `codex/fase-7-pedidos-senas` desde `c545cfd`; publicación técnica y catálogo conservados en ramas anteriores. Pedido comercial independiente de recetas/trabajos existentes, borradores con revisiones de líneas, precios/moneda/descuentos exactos y confirmación sin exigir compra para clínica ni técnica antes de la seña.

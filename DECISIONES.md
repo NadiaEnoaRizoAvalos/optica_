@@ -76,6 +76,22 @@ Estado interpretado según evidencia: «implementada» refiere a funciones exist
 - **Estado:** circuito inicial confirmado por el usuario durante 7.2; implementación pendiente de fase 8.
 - **Reglas:** autorización técnica Profesional y comercial Administrador/Atención; registrar envío expresamente, sin mensajes automáticos. Recepción parcial permitida; observado queda en cuarentena sin disponibilidad. Cancelar sólo cantidades no recibidas y exigir confirmación registrada del laboratorio si ya se enviaron. Lo recibido conserva movimientos; material y dinero se devuelven mediante operaciones separadas.
 - **Integración:** reutilizar stock/recepción idempotente del núcleo de fase 7 y proyección técnica vigente. No crear un segundo inventario ni reinterpretar recibir como aprobar calidad o entregar.
+- **Confirmación posterior:** corrección/revocación tras envío bloquea nueva fabricación y recepción utilizable. Se permite registrar llegada sólo en cuarentena, conservando encargo/versión originales; nuevas especificaciones requieren autorización y nuevo encargo, con cancelación confirmada de pendientes del anterior cuando corresponda. Sin actualización silenciosa de encargos enviados.
+
+### D-66 — Stock mínimo y asignación técnica por trabajo
+
+- **Estado:** implementado en 7.3; evidencia de verificación en BITACORA.md. Sin migraciones operativas, cambios al kit o entregas comerciales habilitadas.
+- **Stock:** batch por entrada trazable, variante exacta y presentación aprobada; movimientos separados de físico, reservado y cuarentena. Contactos necesitan lote/vencimiento; precisión día/mes conservada, último día inclusive según fecha local. Un lote de una variante no puede registrarse con vencimientos contradictorios. Expirar no libera reservas silenciosamente. No reservar cuarentena ni material no recibido; no hay sustitución automática ni salida física al reservar.
+- **Técnica:** Profesional vincula explícitamente publicación/versión, línea y ojos; su cola no expone precios. Atención/Admin comerciales reciben únicamente proyección del trabajo asociado, con vigencia, sin motivos clínicos o historia general. Una caja cerrada compatible puede cubrir ambos ojos; cristales individuales requieren dos unidades para ambos y coincidencia de graduaciones. Para stock no inferir equivalencia entre vacío/cero ni convertir graduaciones; el SKU actual no describe prisma, por lo que prisma distinto de cero requiere fabricación validada o ampliar atributos antes de admitirlo como stock.
+- **Concurrencia e historia:** transacciones SQLite y versiones de pedido, batch y reserva; reintentos no duplican entradas/reservas/liberaciones. Cambiar vinculación técnica exige liberar reservas anteriores y conserva asignaciones históricas. Cancelar exige liberación expresa y devoluciones monetarias según 7.2; un consumo posterior no se revierte con cancelación. Fase 9 amplía el mismo libro, no crea otro inventario.
+- **Recuperación y alcance:** usar el mecanismo de respaldo existente para copiar conjuntamente relaciones de catálogo, clínica, técnica, pedidos, stock y movimientos. Comandos de consumo/entrega siguen sujetos a fase 10 y sus controles. Encargos/recepción de laboratorio se incorporan en fase 8 sobre este núcleo.
+
+### D-67 — Matriz inicial de calidad y entrega completa
+
+- **Estado:** aprobada por el usuario durante 7.3 para implementar en fase 10; controles actuales aún conservados, sin cambios operativos.
+- **Aplicabilidad:** conservar dos etapas e historia. Cristales: receta vigente, graduación, material, montaje/centrado y estado. Contactos: producto/parámetros autorizados, lote, vencimiento y envase íntegro. Armazones/accesorios/reparación mecánica: correspondencia, integridad y trabajo realizado. Reparación con efecto en graduación/montaje usa controles de cristales. No «No aplica» para un control esencial.
+- **Roles:** técnico Profesional obligatorio en cristales/contactos/reparación óptica; Atención/Ventas o Profesional en técnico no clínico y entrega. Administrador necesita los roles explícitos correspondientes, sin acceso clínico implícito.
+- **Entrega:** inicialmente completa, sin parciales; identidad, pedido completo, estado, documentación/instrucciones y saldo cero. Reutilizar motor de fase 4.1 y conservar aprobaciones/versiones anteriores; revisar restricciones de dominio/SQLite y ensayar migración/reversión aisladas antes de adopción operativa.
 
 ## Decisiones anteriores D-01 a D-36
 

@@ -89,6 +89,9 @@ public sealed partial class SalesOrderService
             if (row.Version != input.Version) return SalesOperations.Conflict();
             if (row.ReceivedMinor > 0 && !current.HasPermission(Permissions.RefundPayments))
                 throw new UnauthorizedAccessException("Sólo Administrador puede cancelar un pedido que recibió pagos.");
+            if (await db.StockReservations.AnyAsync(x => x.Status != OpticaSosa.Domain.Inventory.ReservationStatus.Released &&
+                db.SalesLines.Any(l => l.Id == x.LineId && l.OrderId == orderId), ct))
+                return SalesOperations.Invalid("Liberá explícitamente las reservas antes de cancelar; el material consumido requiere devolución.");
             row.Cancel(actor, clock.GetUtcNow().UtcDateTime, input.Reason);
             return null;
         }, ct);

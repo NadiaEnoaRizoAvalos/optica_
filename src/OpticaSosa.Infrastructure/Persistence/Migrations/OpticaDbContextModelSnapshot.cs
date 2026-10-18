@@ -1327,6 +1327,244 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("OpticaSosa.Domain.Inventory.OrderTechnicalAssignment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("AssignedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AssignedByUserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Eyes")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsCurrent")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("LineId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("PreviousId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("PublicationId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ReplacementReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssignedByUserId");
+
+                    b.HasIndex("LineId")
+                        .IsUnique()
+                        .HasFilter("IsCurrent = 1");
+
+                    b.HasIndex("PreviousId")
+                        .IsUnique();
+
+                    b.HasIndex("PublicationId");
+
+                    b.ToTable("OrderTechnicalAssignments", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_OrderTechnicalAssignments_Profile", "Eyes IN (1,2,3) AND IsCurrent IN (0,1) AND (PreviousId IS NULL OR (PreviousId <> Id AND ReplacementReason IS NOT NULL AND length(trim(ReplacementReason)) > 0))");
+                        });
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Inventory.StockBatch", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Category")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateOnly?>("ExpiresOn")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ExpiryPrecision")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Lot")
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LotKey")
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("OnHand")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Quarantined")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("ReceivedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ReceivedByUserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Reserved")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("VariantId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReceivedByUserId");
+
+                    b.HasIndex("VariantId", "LotKey");
+
+                    b.HasIndex("VariantId", "ExpiresOn", "Id");
+
+                    b.ToTable("StockBatches", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_StockBatches_Contact", "Category BETWEEN 1 AND 4 AND (Category <> 3 OR (Lot IS NOT NULL AND length(trim(Lot)) > 0 AND LotKey IS NOT NULL AND ExpiresOn IS NOT NULL))");
+
+                            t.HasCheckConstraint("CK_StockBatches_Counts", "typeof(OnHand) = 'integer' AND OnHand >= 0 AND typeof(Reserved) = 'integer' AND Reserved >= 0 AND typeof(Quarantined) = 'integer' AND Quarantined >= 0 AND Reserved + Quarantined <= OnHand");
+
+                            t.HasCheckConstraint("CK_StockBatches_Expiry", "(ExpiryPrecision = 0 AND ExpiresOn IS NULL) OR (ExpiryPrecision IN (1,2) AND ExpiresOn IS NOT NULL AND (ExpiryPrecision <> 2 OR ExpiresOn = date(ExpiresOn, 'start of month', '+1 month', '-1 day')))");
+                        });
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Inventory.StockMovement", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ActorUserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("BatchId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Kind")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("OccurredAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("PhysicalDelta")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("QuarantineDelta")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RequestHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("ReservationId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ReservedDelta")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActorUserId");
+
+                    b.HasIndex("ReservationId");
+
+                    b.HasIndex("BatchId", "OccurredAtUtc", "Id");
+
+                    b.ToTable("StockMovements", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_StockMovements_Deltas", "typeof(PhysicalDelta) = 'integer' AND typeof(ReservedDelta) = 'integer' AND typeof(QuarantineDelta) = 'integer' AND ((Kind = 1 AND ReservationId IS NULL AND PhysicalDelta > 0 AND ReservedDelta = 0 AND QuarantineDelta BETWEEN 0 AND PhysicalDelta) OR (Kind = 2 AND ReservationId IS NOT NULL AND PhysicalDelta = 0 AND ReservedDelta > 0 AND QuarantineDelta = 0) OR (Kind = 3 AND ReservationId IS NOT NULL AND PhysicalDelta = 0 AND ReservedDelta < 0 AND QuarantineDelta = 0) OR (Kind = 4 AND ReservationId IS NOT NULL AND PhysicalDelta < 0 AND PhysicalDelta = ReservedDelta AND QuarantineDelta = 0))");
+
+                            t.HasCheckConstraint("CK_StockMovements_Metadata", "length(trim(Reason)) BETWEEN 1 AND 500 AND length(RequestHash) = 64 AND RequestHash NOT GLOB '*[^0-9A-F]*'");
+                        });
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Inventory.StockReservation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("BatchId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("ClosedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ClosedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ClosureReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CreatedByUserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("LineId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid?>("TechnicalAssignmentId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BatchId");
+
+                    b.HasIndex("ClosedByUserId");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("TechnicalAssignmentId");
+
+                    b.HasIndex("LineId", "Status");
+
+                    b.ToTable("StockReservations", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_StockReservations_Closure", "(Status = 1 AND ClosedAtUtc IS NULL AND ClosedByUserId IS NULL AND ClosureReason IS NULL) OR (Status IN (2,3) AND ClosedAtUtc IS NOT NULL AND ClosedByUserId IS NOT NULL AND ClosureReason IS NOT NULL AND length(trim(ClosureReason)) > 0)");
+
+                            t.HasCheckConstraint("CK_StockReservations_Quantity", "typeof(Quantity) = 'integer' AND Quantity > 0");
+                        });
+                });
+
             modelBuilder.Entity("OpticaSosa.Domain.Technical.TechnicalPublication", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2097,6 +2335,98 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
                         .HasForeignKey("RecordedByUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Inventory.OrderTechnicalAssignment", b =>
+                {
+                    b.HasOne("OpticaSosa.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("AssignedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OpticaSosa.Domain.Commerce.SalesLine", null)
+                        .WithMany()
+                        .HasForeignKey("LineId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OpticaSosa.Domain.Inventory.OrderTechnicalAssignment", null)
+                        .WithMany()
+                        .HasForeignKey("PreviousId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("OpticaSosa.Domain.Technical.TechnicalPublication", null)
+                        .WithMany()
+                        .HasForeignKey("PublicationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Inventory.StockBatch", b =>
+                {
+                    b.HasOne("OpticaSosa.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("ReceivedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OpticaSosa.Domain.Catalog.ProductVariant", null)
+                        .WithMany()
+                        .HasForeignKey("VariantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Inventory.StockMovement", b =>
+                {
+                    b.HasOne("OpticaSosa.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("ActorUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OpticaSosa.Domain.Inventory.StockBatch", null)
+                        .WithMany()
+                        .HasForeignKey("BatchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OpticaSosa.Domain.Inventory.StockReservation", null)
+                        .WithMany()
+                        .HasForeignKey("ReservationId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Inventory.StockReservation", b =>
+                {
+                    b.HasOne("OpticaSosa.Domain.Inventory.StockBatch", null)
+                        .WithMany()
+                        .HasForeignKey("BatchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OpticaSosa.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("ClosedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("OpticaSosa.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OpticaSosa.Domain.Commerce.SalesLine", null)
+                        .WithMany()
+                        .HasForeignKey("LineId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OpticaSosa.Domain.Inventory.OrderTechnicalAssignment", null)
+                        .WithMany()
+                        .HasForeignKey("TechnicalAssignmentId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("OpticaSosa.Domain.Technical.TechnicalPublication", b =>

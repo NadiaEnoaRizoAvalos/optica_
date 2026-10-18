@@ -27,7 +27,10 @@ public sealed class TechnicalPublication
     {
         if (id == Guid.Empty || revisionId == Guid.Empty || previousId == Guid.Empty || previousId == id ||
             string.IsNullOrWhiteSpace(actor) || utcNow.Kind != DateTimeKind.Utc) throw new ArgumentException("Identificación o fecha inválida.");
-        Id = id; SourceRevisionId = revisionId; Request = request; PreviousId = previousId;
+        Id = id; SourceRevisionId = revisionId;
+        Request = new(request.Purpose, request.IncludeRight, request.IncludeLeft, request.Product, request.ProductId,
+            request.Material, request.RefractiveIndex, request.Treatment, request.Mounting, request.RightContact, request.LeftContact);
+        PreviousId = previousId;
         CorrectionReason = previousId is not null ? CatalogText.Required(correctionReason, 500, "el motivo de corrección") : null;
         Right = request.IncludeRight ? ValidateEye(source.Right) : new();
         Left = request.IncludeLeft ? ValidateEye(source.Left) : new();
@@ -52,6 +55,9 @@ public sealed class TechnicalPublication
             throw new InvalidOperationException("La publicación ya fue reemplazada o la referencia no es válida.");
         SupersededById = successor; Version = Guid.NewGuid();
     }
+    public PublicationStatus Status(int sourceNumber, int currentNumber, bool customerActive) =>
+        RevokedAtUtc is not null ? PublicationStatus.Revoked : SupersededById is not null ? PublicationStatus.Superseded
+            : sourceNumber != currentNumber ? PublicationStatus.SourceChanged : !customerActive ? PublicationStatus.CustomerInactive : PublicationStatus.Current;
     public void Revoke(string actor, DateTime utcNow, string reason)
     {
         if (string.IsNullOrWhiteSpace(actor) || utcNow.Kind != DateTimeKind.Utc || RevokedAtUtc is not null)

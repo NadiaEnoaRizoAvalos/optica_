@@ -147,6 +147,7 @@ Estas etapas no postergan controles críticos: seguridad, permisos, integridad y
 - Una recepción válida incorpora material una sola vez mediante el inventario mínimo existente. Recibir no equivale a aprobar calidad ni entregar al cliente.
 - Separar autorización técnica y comercial. Una exportación no prueba envío efectivo; no enviar mensajes automáticamente.
 - Circuito inicial confirmado: Profesional autoriza técnica; Administrador/Atención autorizan comercialmente y registran envío explícito. Admitir recepción parcial. Material observado queda en cuarentena, sin disponibilidad. Cancelar sólo cantidades no recibidas; después de enviar, exigir confirmación registrada del laboratorio. Conservar lo recibido y sus movimientos; devoluciones de material y dinero son operaciones separadas.
+- Si la receta se corrige/revoca tras el envío, bloquear fabricación y recepción utilizable. Una llegada puede registrarse sólo en cuarentena, manteniendo encargo/versión originales. Continuar con nuevas especificaciones exige autorización profesional y nuevo encargo; cancelar pendientes del anterior con confirmación del laboratorio cuando corresponda. Nunca reescribir silenciosamente el encargo enviado.
 - Preparar documentación/PDF con la información mínima autorizada por destinatario, sin exponer historia clínica. Cualquier dependencia nueva requiere autorización.
 - No introducir PurchaseAllocation, agrupaciones complejas ni circuitos de compras que no necesite el encargo simple.
 
@@ -167,6 +168,8 @@ Estas etapas no postergan controles críticos: seguridad, permisos, integridad y
 - Conservar controles, rondas, versiones, autores y entregas históricas. No reinterpretar aprobaciones anteriores con plantillas nuevas.
 - Para entregar exigir materiales preparados, utilizables y vigentes, todos los controles aplicables aprobados y la regla de pago acordada. No usar “no aplica” para omitir controles esenciales.
 - Registrar quién entrega y cuándo, impedir duplicación y definir tratamiento de entregas parciales antes de habilitarlas.
+- Matriz inicial confirmada: conservar ambas etapas/historia. Técnico de cristales verifica receta vigente, graduación, material, montaje/centrado y estado; de contactos verifica producto/parámetros autorizados, lote, vencimiento y envase íntegro; armazones/accesorios/reparaciones mecánicas verifican correspondencia, integridad y trabajo realizado. Reparación que afecta graduación o montaje sigue cristales.
+- Profesional obligatorio para técnico de cristales, contactos y reparación óptica; Atención/Ventas o Profesional para técnico no clínico y entrega. Administrador sin esos roles no obtiene permisos por administrar. Entrega inicial completa, sin parciales; identidad, pedido completo, estado, documentación/instrucciones y saldo cero. Ningún ítem esencial admite «No aplica». Implementar revisando dominio/SQLite y conservando controles anteriores.
 
 ### RF-12. Caja, informes y experiencia final — fases 11 y 12
 

@@ -36,6 +36,10 @@ public sealed class OpticaDbContext(DbContextOptions<OpticaDbContext> options) :
     public DbSet<OpticaSosa.Domain.Commerce.SalesLine> SalesLines => Set<OpticaSosa.Domain.Commerce.SalesLine>();
     public DbSet<OpticaSosa.Domain.Commerce.OrderMoneyEntry> OrderMoneyEntries => Set<OpticaSosa.Domain.Commerce.OrderMoneyEntry>();
     public DbSet<OpticaSosa.Domain.Commerce.OrderCommandReceipt> OrderCommandReceipts => Set<OpticaSosa.Domain.Commerce.OrderCommandReceipt>();
+    public DbSet<OpticaSosa.Domain.Inventory.StockBatch> StockBatches => Set<OpticaSosa.Domain.Inventory.StockBatch>();
+    public DbSet<OpticaSosa.Domain.Inventory.StockReservation> StockReservations => Set<OpticaSosa.Domain.Inventory.StockReservation>();
+    public DbSet<OpticaSosa.Domain.Inventory.StockMovement> StockMovements => Set<OpticaSosa.Domain.Inventory.StockMovement>();
+    public DbSet<OpticaSosa.Domain.Inventory.OrderTechnicalAssignment> OrderTechnicalAssignments => Set<OpticaSosa.Domain.Inventory.OrderTechnicalAssignment>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

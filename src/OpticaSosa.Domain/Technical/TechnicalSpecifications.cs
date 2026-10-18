@@ -73,7 +73,10 @@ public sealed record TechnicalRequest
         Material = CatalogText.Optional(material, 100); Treatment = CatalogText.Optional(treatment, 160);
         if (refractiveIndex <= 0) throw new ArgumentException("El índice debe ser positivo.");
         EyeMeasurement.Scale(refractiveIndex, 1000, "índice"); RefractiveIndex = refractiveIndex;
-        Mounting = mounting ?? new(); RightContact = rightContact; LeftContact = leftContact;
+        // Los valores pueden coincidir, pero cada navegación owned de EF necesita su propia instancia.
+        Mounting = mounting is null ? new() : mounting with { };
+        RightContact = rightContact is null ? null : rightContact with { };
+        LeftContact = leftContact is null ? null : leftContact with { };
         if ((!includeRight && (Mounting.RightHeightMm is not null || Mounting.RightMonocularDistanceMm is not null || rightContact is not null)) ||
             (!includeLeft && (Mounting.LeftHeightMm is not null || Mounting.LeftMonocularDistanceMm is not null || leftContact is not null)))
             throw new ArgumentException("No se pueden informar datos para un ojo excluido.");
