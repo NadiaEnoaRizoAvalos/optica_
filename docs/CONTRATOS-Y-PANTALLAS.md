@@ -121,7 +121,7 @@ Estas rutas ya existen en la aplicación principal y se conservan hasta integrar
 | 7 | Pedido comercial y líneas, reserva/disponibilidad/faltantes, señas/pagos/saldo y publicación técnica autorizada. | P-02 y P-03; inventario mínimo seguro y separación de información clínica/comercial. |
 | 8 | Encargos, seguimiento, recepción parcial/observada y documentación mínima para laboratorio. | Autorizaciones técnica/comercial, estados, recepción y cancelación de P-06; reutilizar entradas idempotentes de inventario. |
 | 9 | Movimientos, ajustes justificados, bajas, devoluciones, lotes, vencimientos y alertas. | Ampliar el núcleo de fase 7; no duplicar existencias ni ocultar ajustes editando saldos. |
-| 10 | Calidad y entrega integradas con producto/trabajo/materiales. | P-05: matriz de aplicabilidad y transición segura. Reutilizar motor e historia de fase 4.1. |
+| 10 | 10.1 matriz/roles verificados reutilizando WorkService/OpticalWork/QualityControl y páginas existentes; 10.2 agrupación y entrega comercial pendiente. | D-67/D-72/D-73; procedimientos y campos en docs/fase10/MATRIZ-Y-PRUEBAS.md. Sin endpoints nuevos ni cambios a contratos de clientes/productos/ventas/inventario en 10.1. |
 | 11 | Caja, ingresos/medios de pago, cierres e informes reconciliables. | Reglas monetarias y permisos explícitos; sin contabilidad integral. |
 
 La entrega consolidada para Figma se realiza al completar la lógica principal: inventario final de módulos, contratos, endpoints necesarios, datos/acciones por pantalla y flujos de navegación. Este documento inicial no sustituye esa entrega ni la aprobación del prototipo.

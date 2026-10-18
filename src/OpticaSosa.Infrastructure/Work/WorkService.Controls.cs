@@ -32,10 +32,12 @@ public sealed partial class WorkService
         var responsibleRoles = await (from ur in db.UserRoles join r in db.Roles on ur.RoleId equals r.Id
                                       join u in db.Users on ur.UserId equals u.Id where u.Id == actor && u.IsActive select r.Name).ToListAsync(ct);
         var role = responsibleRoles.Contains(Roles.Professional) ? ResponsibleRole.Professional : ResponsibleRole.Sales;
-        if (!responsibleRoles.Any(x => x is Roles.Professional or Roles.Sales) || input.Stage == QualityStage.Technical && role != ResponsibleRole.Professional)
+        if (!responsibleRoles.Any(x => x is Roles.Professional or Roles.Sales))
             throw new UnauthorizedAccessException();
         var work = await db.OpticalWorks.FindAsync([id], ct);
         if (work is null) return ClinicalOperations.Missing();
+        if (input.Stage == QualityStage.Technical && QualityCatalog.RequiresProfessional(work.Type) && role != ResponsibleRole.Professional)
+            throw new UnauthorizedAccessException();
         var previous = await db.QualityControls.Include(x => x.Items).SingleOrDefaultAsync(x => x.Id == input.SubmissionId, ct);
         if (previous is not null)
             return previous.WorkId == id && previous.ActorId == actor && previous.Stage == input.Stage && previous.Notes == input.Notes?.Trim() &&

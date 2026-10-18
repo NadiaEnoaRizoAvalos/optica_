@@ -250,7 +250,9 @@ Pruebas: reconciliación, ajuste/compensación, reintentos, última unidad concu
 
 ### Fase 10 — Calidad y entrega según producto/trabajo
 
-**Estado: pendiente.**
+**Estado: 10.1 (matriz y permisos) implementado/verificado automáticamente: compilación 0 errores/advertencias; 433 pruebas ejecutadas/aprobadas, 0 fallidas/omitidas (83 Infraestructura, 350 Web). 10.2 (trabajos por conjunto y entrega comercial) pendiente. Fase 10 no cerrada.**
+
+10.1 reutiliza el motor de 4.1 y conserva tipos/listas históricas. Agrega matriz explícita de contactos, cristales, armazones, accesorios y reparaciones; Profesional obligatorio para técnico clínico, Atención/Profesional para no clínico y entrega. Ítems nuevos esenciales sin «No aplica». Migración `20261018040139_ProductQualityMatrix` sólo ensayada en bases ficticias, con conservación de triggers clínicos y rollback ante retroceso incompatible. Desarrollo exclusivo en `equipo/fase10-calidad`; solicitudes compartidas/evidencia en docs/fase10. 10.2 seguirá D-72: agrupación explícita, técnica compatible, disponibilidad, saldo cero y entrega completa; sin implementar caja ni modificar su rama.
 
 Tareas: aprobar matriz de controles aplicables y roles; adaptar circuito existente sin duplicarlo; revisar restricciones de dominio y SQLite, compatibilidad y migración; preparación y entrega con materiales válidos y regla de pago acordada.
 

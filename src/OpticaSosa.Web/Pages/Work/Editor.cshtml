@@ -14,7 +14,7 @@ else {
 @if (Model.Editing) { <input asp-for="Input.Type" type="hidden" /><p>@WorkDisplay.Type(Model.Input.Type). Modificar especificaciones exige nuevos controles y conserva los anteriores.</p> }
 else { <label asp-for="Input.Type">Tipo de trabajo</label><select asp-for="Input.Type">@foreach (var t in Enum.GetValues<OpticalWorkType>()) { <option value="@((int)t)">@WorkDisplay.Type(t)</option> }</select> }
 <label asp-for="Input.Product">Producto y especificaciones operativas</label><input asp-for="Input.Product" maxlength="200" required /><p class="field-help">No incluir datos clínicos en este campo visible para Atención/Ventas.</p>
-<label asp-for="Input.Frame">Armazón / identificación del trabajo</label><input asp-for="Input.Frame" maxlength="200" required />
+<label asp-for="Input.Frame">Armazón / identificación del trabajo</label><input asp-for="Input.Frame" maxlength="200" /><p class="field-help">Obligatorio salvo contactos y accesorios.</p>
 @if (Model.Clinical) {
 <label asp-for="Input.PrescriptionId">Receta asociada (opcional)</label><select asp-for="Input.PrescriptionId"><option value="">Sin receta vinculada</option>
 @if (Model.Input.PrescriptionId.HasValue && Model.Recipes.Items.All(x => x.Id != Model.Input.PrescriptionId)) { <option value="@Model.Input.PrescriptionId">Conservar receta seleccionada</option> }

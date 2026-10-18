@@ -34,7 +34,8 @@ public sealed partial class WorkService(IDbContextFactory<OpticaDbContext> facto
         var work = await Summaries(db, db.OpticalWorks.AsNoTracking().Where(x => x.Id == id)).SingleOrDefaultAsync(ct);
         if (work is null) return null;
         var clinical = current.HasPermission(Permissions.ReadClinical);
-        var controlsQuery = db.QualityControls.AsNoTracking().Where(x => x.WorkId == id && (clinical || x.Stage == QualityStage.Delivery));
+        var visibleTechnical = clinical || !QualityCatalog.RequiresProfessional(work.Type);
+        var controlsQuery = db.QualityControls.AsNoTracking().Where(x => x.WorkId == id && (visibleTechnical || x.Stage == QualityStage.Delivery));
         var count = await controlsQuery.CountAsync(ct);
         var controls = await controlsQuery.Include(x => x.Items).OrderByDescending(x => x.AtUtc).ThenByDescending(x => x.Id)
             .Skip(HistoryPaging.Offset(page)).Take(26).ToListAsync(ct);

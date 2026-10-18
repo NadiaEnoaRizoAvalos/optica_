@@ -22,13 +22,13 @@ public sealed class OpticalWork
         if (id == Guid.Empty || customerId == Guid.Empty || string.IsNullOrWhiteSpace(actor) || !Enum.IsDefined(type)) throw new ArgumentException("Pedido inválido.");
         if (prescriptionId.HasValue != prescriptionRevisionId.HasValue) throw new ArgumentException("La receta debe incluir su versión de referencia.");
         Id = id; CustomerId = customerId; Type = type; CreatedByUserId = actor; CreatedAtUtc = now;
-        Product = Text(product, 200); Frame = Text(frame, 200); PrescriptionId = prescriptionId; PrescriptionRevisionId = prescriptionRevisionId; Touch();
+        Product = Text(product, 200); Frame = FrameText(type, frame); PrescriptionId = prescriptionId; PrescriptionRevisionId = prescriptionRevisionId; Touch();
     }
     public void Edit(string product, string frame, Guid? prescriptionId, Guid? prescriptionRevisionId = null)
     {
         if (Status == WorkStatus.Delivered) throw new InvalidOperationException("Un pedido entregado conserva su historial; registrá un nuevo trabajo.");
         if (prescriptionId.HasValue != prescriptionRevisionId.HasValue) throw new ArgumentException("La receta debe incluir su versión de referencia.");
-        var newProduct = Text(product, 200); var newFrame = Text(frame, 200);
+        var newProduct = Text(product, 200); var newFrame = FrameText(Type, frame);
         if (Product == newProduct && Frame == newFrame && PrescriptionId == prescriptionId && PrescriptionRevisionId == prescriptionRevisionId) return;
         Product = newProduct; Frame = newFrame; PrescriptionId = prescriptionId; PrescriptionRevisionId = prescriptionRevisionId;
         Round++; TechnicalApproved = DeliveryApproved = false;
@@ -66,6 +66,8 @@ public sealed class OpticalWork
         Touch();
     }
     private void Touch() => Version = Guid.NewGuid();
+    private static string FrameText(OpticalWorkType type, string? frame) => !QualityCatalog.RequiresFrame(type) && string.IsNullOrWhiteSpace(frame)
+        ? "" : Text(frame, 200);
     public static string Text(string? value, int max)
     {
         var result = value?.Trim();

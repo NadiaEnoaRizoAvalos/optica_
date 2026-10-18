@@ -2124,7 +2124,7 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
                         {
                             t.HasCheckConstraint("CK_OpticalWork_Prescription", "(PrescriptionId IS NULL) = (PrescriptionRevisionId IS NULL)");
 
-                            t.HasCheckConstraint("CK_OpticalWork_State", "Status BETWEEN 0 AND 5 AND Round > 0 AND Type BETWEEN 0 AND 2 AND (Status NOT IN (4, 5) OR (TechnicalApproved = 1 AND DeliveryApproved = 1))");
+                            t.HasCheckConstraint("CK_OpticalWork_State", "Status BETWEEN 0 AND 5 AND Round > 0 AND Type BETWEEN 0 AND 8 AND (Status NOT IN (4, 5) OR (TechnicalApproved = 1 AND DeliveryApproved = 1))");
                         });
                 });
 
@@ -2201,15 +2201,20 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("WorkId")
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("WorkType")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ActorId");
 
                     b.HasIndex("WorkId", "AtUtc");
 
+                    b.HasIndex("WorkId", "WorkType");
+
                     b.ToTable("QualityControls", t =>
                         {
-                            t.HasCheckConstraint("CK_QualityControl_Approval", "Stage IN (0, 1) AND Status IN (0, 1, 2) AND Role IN (0, 1) AND (Stage <> 0 OR Role = 0) AND (Status <> 2 OR ApprovedAtUtc IS NOT NULL)");
+                            t.HasCheckConstraint("CK_QualityControl_Approval", "Stage IN (0, 1) AND Status IN (0, 1, 2) AND Role IN (0, 1) AND WorkType BETWEEN 0 AND 8 AND (Stage <> 0 OR Role = 0 OR WorkType IN (1,4,5,8)) AND (Status <> 2 OR ApprovedAtUtc IS NOT NULL)");
                         });
                 });
 
@@ -3308,7 +3313,8 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
 
                     b.HasOne("OpticaSosa.Domain.Work.OpticalWork", null)
                         .WithMany()
-                        .HasForeignKey("WorkId")
+                        .HasForeignKey("WorkId", "WorkType")
+                        .HasPrincipalKey("Id", "Type")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

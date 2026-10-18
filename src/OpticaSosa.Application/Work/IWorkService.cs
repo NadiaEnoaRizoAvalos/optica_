@@ -4,15 +4,20 @@ using OpticaSosa.Application.Clinical;
 
 namespace OpticaSosa.Application.Work;
 
-public sealed class WorkInput
+public sealed class WorkInput : IValidatableObject
 {
     public Guid SubmissionId { get; set; } = Guid.NewGuid();
     public Guid Version { get; set; }
     public Guid CustomerId { get; set; }
     public OpticalWorkType Type { get; set; }
     [Required, StringLength(200)] public string Product { get; set; } = "";
-    [Required, StringLength(200)] public string Frame { get; set; } = "";
+    [StringLength(200)] public string Frame { get; set; } = "";
     public Guid? PrescriptionId { get; set; }
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        if (QualityCatalog.RequiresFrame(Type) && string.IsNullOrWhiteSpace(Frame))
+            yield return new("Indicá el armazón para este tipo de trabajo.", [nameof(Frame)]);
+    }
 }
 public sealed class CheckInput
 {

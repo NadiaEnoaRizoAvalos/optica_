@@ -16,7 +16,7 @@
 @if (w.Status == WorkStatus.ReadyForDelivery && Model.Can(Permissions.DeliverOrders)) { <button name="Command" value="deliver">Registrar entrega</button> }
 </form>
 @if (w.Status is WorkStatus.PendingControl or WorkStatus.ReadyForDelivery) { <nav>
-@if (Model.Can(Permissions.TechnicalControl)) { <a class="button-link" href="/pedidos/@w.Id/control?etapa=0">Control técnico</a> }
+@if (Model.Can(Permissions.TechnicalControl) && (!QualityCatalog.RequiresProfessional(w.Type) || Model.Can(Permissions.WriteClinical))) { <a class="button-link" href="/pedidos/@w.Id/control?etapa=0">Control técnico</a> }
 @if (Model.Can(Permissions.DeliveryControl)) { <a class="button-link" href="/pedidos/@w.Id/control?etapa=1">Control previo a entrega</a> }</nav> }
 <p><a href="#historial">Consultar historial</a></p></section>
 <section id="historial"><h2>Historial de controles · @d.ControlCount visibles según permisos</h2>

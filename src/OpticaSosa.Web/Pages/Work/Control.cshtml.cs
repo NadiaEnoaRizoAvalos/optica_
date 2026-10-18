@@ -45,6 +45,7 @@ public sealed class ControlModel(IWorkService works, ICurrentUser current) : Pag
         if (!Enum.IsDefined(stage)) return BadRequest();
         if (!current.HasPermission(stage == QualityStage.Technical ? Permissions.TechnicalControl : Permissions.DeliveryControl)) return Forbid();
         var d = await works.GetAsync(id, ct: HttpContext.RequestAborted); if (d is null) return NotFound();
+        if (stage == QualityStage.Technical && QualityCatalog.RequiresProfessional(d.Work.Type) && !current.HasPermission(Permissions.WriteClinical)) return Forbid();
         Details = d; Template = await works.TemplateAsync(d.Work.Type, stage, HttpContext.RequestAborted);
         if (d.Work.Status is not (WorkStatus.PendingControl or WorkStatus.ReadyForDelivery)) return Redirect($"/pedidos/{id}");
         return null;

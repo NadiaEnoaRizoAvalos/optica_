@@ -1,6 +1,6 @@
 namespace OpticaSosa.Domain.Work;
 
-public enum OpticalWorkType { PrescriptionGlasses, FrameOnly, Repair }
+public enum OpticalWorkType { PrescriptionGlasses, FrameOnly, Repair, ContactLenses, Accessory, MechanicalRepair, OpticalRepair, CommercialGlasses, CommercialFrame }
 public enum WorkStatus { Registered, InPreparation, PendingControl, Observed, ReadyForDelivery, Delivered }
 public enum QualityStage { Technical, Delivery }
 public enum CheckStatus { Pending, Conforming, Observed, NotApplicable }
@@ -11,9 +11,14 @@ public sealed record CheckValue(string Key, CheckStatus Status, string? Notes = 
 
 public static class QualityCatalog
 {
+    public static bool RequiresProfessional(OpticalWorkType type) => type is OpticalWorkType.PrescriptionGlasses or OpticalWorkType.Repair
+        or OpticalWorkType.ContactLenses or OpticalWorkType.OpticalRepair or OpticalWorkType.CommercialGlasses;
+    public static bool RequiresFrame(OpticalWorkType type) => type is not (OpticalWorkType.ContactLenses or OpticalWorkType.Accessory);
     public static IReadOnlyList<CheckDefinition> For(OpticalWorkType type, QualityStage stage)
     {
         if (!Enum.IsDefined(type) || !Enum.IsDefined(stage)) throw new ArgumentException("Tipo de pedido o control inválido.");
+        // Los tipos históricos 0–2 conservan su checklist y snapshots. La matriz comercial usa tipos explícitos nuevos.
+        if ((int)type >= 3) return CommercialQualityCatalog.For(type, stage);
         if (stage == QualityStage.Delivery) return [
             new("customer", "Identificación del cliente", Essential: true), new("order", "Correspondencia del pedido", Essential: true),
             new("prepared", "Producto preparado"), new("accessories", "Accesorios incluidos"),

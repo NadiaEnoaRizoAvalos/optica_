@@ -124,6 +124,12 @@ Estado interpretado según evidencia: «implementada» refiere a funciones exist
 - **Ramas:** base documental sobre el código de fase 9; `equipo/fase10-calidad` a cargo del usuario/Codex y `equipo/fase11-caja` exclusivamente del colaborador. Las tres ramas nacen del mismo commit. No modificar main ni fusionar ramas activas. Coordinar archivos compartidos con una sola persona integradora, según docs/TRABAJO-EN-EQUIPO.md.
 - **Agrupación:** un trabajo de anteojos agrupa expresamente armazón/cristales OD/OI del mismo conjunto, con técnica compatible. Contactos/accesorios/armazones independientes tienen trabajos propios. Múltiples trabajos por pedido, entrega completa sólo con todos los controles aprobados; no agrupar ni dividir automáticamente líneas.
 
+### D-73 — Matriz de calidad conservando el motor y las protecciones clínicas
+
+- **Estado:** incremento 10.1 implementado y verificado automáticamente: 433/433 pruebas y compilación sin errores/advertencias. No cierra fase 10 ni habilita producción/migración operativa. Integración comercial por conjuntos pendiente de 10.2.
+- **Conservación:** mantener OpticalWork/QualityControl, ambas etapas, rondas, plantillas y snapshots. Tipos históricos 0–2 no se reinterpretan; tipos nuevos expresan la matriz aprobada. Técnico clínico sólo Profesional; Atención/Profesional en no clínicos y entrega, sin heredar acceso por ser Administrador. La relación compuesta del control con tipo real de trabajo impide eludir su rol cambiando la etiqueta. Checklist esencial validado en dominio, no sólo pantalla.
+- **Migración y recuperación:** revisar SQL de reconstrucción SQLite y conservar triggers de pertenencia de receta tanto al avanzar como al retroceder con datos históricos compatibles. Comprobar FK/pertenencia antes de confirmar. Rechazar retroceso con tipos nuevos incompatibles, revirtiendo la transacción sin borrar registros. El generador estándar perdió estos triggers en el primer ensayo completo; se corrigió y agregaron regresiones antes de publicar. Sin cambios a caja/pagos, contratos de clientes/productos/ventas/inventario ni datos operativos.
+
 ## Decisiones anteriores D-01 a D-36
 
 ### D-01 — Monolito modular por capas

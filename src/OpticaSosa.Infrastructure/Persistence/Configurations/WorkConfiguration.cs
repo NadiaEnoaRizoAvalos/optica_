@@ -19,7 +19,7 @@ public sealed class WorkConfiguration : IEntityTypeConfiguration<OpticalWork>
         e.HasOne<ApplicationUser>().WithMany().HasForeignKey(x => x.CreatedByUserId).OnDelete(DeleteBehavior.Restrict);
         e.HasIndex(x => new { x.CustomerId, x.CreatedAtUtc });
         e.ToTable(t => {
-            t.HasCheckConstraint("CK_OpticalWork_State", "Status BETWEEN 0 AND 5 AND Round > 0 AND Type BETWEEN 0 AND 2 AND (Status NOT IN (4, 5) OR (TechnicalApproved = 1 AND DeliveryApproved = 1))");
+            t.HasCheckConstraint("CK_OpticalWork_State", "Status BETWEEN 0 AND 5 AND Round > 0 AND Type BETWEEN 0 AND 8 AND (Status NOT IN (4, 5) OR (TechnicalApproved = 1 AND DeliveryApproved = 1))");
             t.HasCheckConstraint("CK_OpticalWork_Prescription", "(PrescriptionId IS NULL) = (PrescriptionRevisionId IS NULL)");
         });
     }
@@ -39,11 +39,12 @@ public sealed class QualityControlConfiguration : IEntityTypeConfiguration<Quali
     public void Configure(EntityTypeBuilder<QualityControl> e)
     {
         e.HasKey(x => x.Id); e.Property(x => x.Notes).HasMaxLength(2000);
-        e.HasOne<OpticalWork>().WithMany().HasForeignKey(x => x.WorkId).OnDelete(DeleteBehavior.Restrict);
+        e.HasOne<OpticalWork>().WithMany().HasForeignKey(x => new { x.WorkId, x.WorkType })
+            .HasPrincipalKey(x => new { x.Id, x.Type }).OnDelete(DeleteBehavior.Restrict);
         e.HasOne<ApplicationUser>().WithMany().HasForeignKey(x => x.ActorId).OnDelete(DeleteBehavior.Restrict);
         e.HasMany(x => x.Items).WithOne().HasForeignKey(x => x.ControlId).OnDelete(DeleteBehavior.Restrict);
         e.HasIndex(x => new { x.WorkId, x.AtUtc });
-        e.ToTable(t => t.HasCheckConstraint("CK_QualityControl_Approval", "Stage IN (0, 1) AND Status IN (0, 1, 2) AND Role IN (0, 1) AND (Stage <> 0 OR Role = 0) AND (Status <> 2 OR ApprovedAtUtc IS NOT NULL)"));
+        e.ToTable(t => t.HasCheckConstraint("CK_QualityControl_Approval", "Stage IN (0, 1) AND Status IN (0, 1, 2) AND Role IN (0, 1) AND WorkType BETWEEN 0 AND 8 AND (Stage <> 0 OR Role = 0 OR WorkType IN (1,4,5,8)) AND (Status <> 2 OR ApprovedAtUtc IS NOT NULL)"));
     }
 }
 public sealed class QualityCheckItemConfiguration : IEntityTypeConfiguration<QualityCheckItem>
