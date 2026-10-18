@@ -2,9 +2,9 @@
 
 ## Estado y límites de esta entrega
 
-Fases 0–4.1 completadas. **5.2.A: PENDIENTE DE VERIFICACIÓN OPERATIVA.** Kit congelado; pendientes confirmación física de la segunda PC, custodias, cifrado autorizado, servicio Windows y respaldos reales. **5.1 implementada/validada automáticamente; prueba manual y adopción operativa pendientes.** Continuidad de desarrollo aislado autorizada: **5.2.B y después 5.3**, sin esperar pruebas visuales. No modificar bases/cuentas operativas ni declarar fase 5 completa/lista para producción.
+Fases 0–4.1 completadas. **5.2.A: PENDIENTE DE VERIFICACIÓN OPERATIVA.** Kit congelado; pendientes confirmación física de la segunda PC, custodias, cifrado autorizado, servicio Windows y respaldos reales. **5.1 y 5.2.B implementadas/validadas automáticamente; 5.3 con revisión y correcciones verificadas automáticamente.** Pruebas manuales y adopción operativa pendientes. No modificar bases/cuentas operativas ni declarar fase 5 completa/lista para producción.
 
-Alcance actual: visor 5.2.B integrado con 5.1 y revisión 5.3, exclusivamente con datos ficticios y ramas de desarrollo. Sin migraciones, servicios, cifrado ni programación real. La copia anterior al externo se limitó a carpeta/ZIP ficticios autorizados; no se tocan respaldos anteriores o el kit congelado. Servidor operativo y demostración 5.1 pausados durante compilación; cualquier demostración debe usar una base ficticia separada.
+Alcance de esta entrega: reorganizar únicamente AGENTS.md, REQUISITOS.md y PLANS.md para las seis etapas solicitadas. Sin programación, migraciones, servicios, cifrado ni activación real. Conservar respaldos, kit del simulacro, ramas, módulos y evidencia anteriores. Cualquier futura demostración debe usar una base ficticia separada.
 
 [REQUISITOS.md](REQUISITOS.md) define comportamiento; [AGENTS.md](AGENTS.md), reglas permanentes; [DECISIONES.md](DECISIONES.md), decisiones y estados; [BITACORA.md](BITACORA.md), historial y evidencia de verificaciones. El plan anterior se conserva allí como histórico, sin continuar sus numeraciones caducas.
 
@@ -27,10 +27,43 @@ Estado que condiciona las próximas fases: transición multirrol sin alterar cue
 
 - Área clínica y comercial conservan igual importancia. La atención clínica existente sigue disponible sin compra y no depende de completar las fases comerciales.
 - Trabajar por funcionalidades pequeñas dentro de la fase aprobada; no saltar a otra fase sin autorización.
-- Cada módulo incluye pantallas funcionales, permisos, auditoría, pruebas pertinentes y pasos para comprobarlo en el navegador.
+- Cada módulo incluye permisos, auditoría y pruebas unitarias, de integración y regresión pertinentes. Durante etapa 1 se conservan pantallas existentes y se agregan sólo interfaces mínimas necesarias para comprobación técnica desde navegador; el diseño definitivo y su aceptación se realizan después.
 - No usar datos clínicos reales hasta aceptar seguridad, cifrado, autorizaciones y recuperación. La primera prioridad operativa es resolver esta protección en fase 5.
 - El inventario mínimo necesario para vender se implementa en fase 7; fase 9 lo amplía. Lotes/vencimientos aplican desde el primer manejo físico de productos que los requieran.
 - La adaptación del circuito de calidad se realiza en fase 10. Hasta entonces se mantienen las reglas actuales y no se presentan pedidos nuevos como un circuito de entrega completo.
+
+## Cronograma por etapas — metodología vigente
+
+Las etapas organizan el orden de trabajo; las fases numeradas conservan el alcance y los avances históricos. No se fijan fechas sin estimar cada tarea. Esta reorganización no inicia fase 6 ni autoriza operaciones sensibles.
+
+| Etapa | Correspondencia con el plan existente | Entrega y condición de avance |
+| --- | --- | --- |
+| 1. Backend y lógica completa | Conservar fases 0–4.1 y lógica verificada de fase 5. Implementar fases 6 → 7 → 8 → 9 → 10 → 11 en tareas pequeñas aprobadas. | Dominio, casos de uso, contratos/DTOs, persistencia, permisos, auditoría y pruebas por módulo. Interfaces mínimas para verificar técnicamente. Avanzar al diseño al completar y verificar los circuitos principales de clínica y operación comercial. |
+| 2. Diseño del frontend | Parte de diseño de fase 12, apoyada en lo existente. | Inventario de pantallas con datos, acciones y permisos, más flujos de navegación. Esperar prototipo Figma e indicaciones del usuario; aprobar el diseño antes de implementarlo. |
+| 3. Implementación del frontend | Parte de integración visual de fase 12. | Pantallas del prototipo aprobado conectadas a servicios existentes y endpoints necesarios; componentes reutilizables, sin reglas duplicadas. Pruebas de integración de contratos y recorridos por rol. |
+| 4. Pruebas manuales y correcciones | Aceptación funcional y visual del sistema integrado. | Pruebas del usuario con datos ficticios, registro de problemas y correcciones verificadas. No marcar pruebas manuales como aprobadas hasta recibir sus resultados. |
+| 5. Celulares e instalación | Parte Windows/Wi-Fi de fase 12. | Interfaz principal estabilizada; adaptar y probar tres celulares, red local privada, HTTPS/firewall, instalador, actualizaciones seguras y otros equipos. Cambios reales sujetos a autorización específica. |
+| 6. Verificación final | Cierre operativo de fase 5 y aceptación integral de fase 12 y del sistema. | Evidencia de seguridad clínica, roles, respaldos automáticos, cifrado/custodia, restauración real en otra PC, visor, instalación/actualización y varios dispositivos. Sin pendientes críticos antes de usar datos reales. |
+
+### Orden funcional de la etapa 1
+
+1. **Fase 6:** catálogo, variantes/unidades y proveedores/laboratorios; resolver P-06 aplicable antes de implementar. No crear stock ficticio.
+2. **Fase 7:** pedidos, ventas, señas y stock mínimo seguro, incluyendo entradas, reservas, faltantes, concurrencia y modalidad mixta stock/laboratorio. Resolver P-02/P-03 antes de los casos de uso afectados.
+3. **Fase 8:** encargos y recepción de laboratorio usando el inventario existente; recepción idempotente y sin confundirla con calidad/entrega.
+4. **Fase 9:** ampliar administración del inventario sobre el núcleo de fase 7; lotes y vencimientos se controlan desde su primer uso, aunque sea anterior.
+5. **Fase 10:** adaptar y reutilizar OpticalWork, QualityControl y QualityCatalog de fase 4.1. Aprobar P-05 y transición segura antes de cambiar las dos etapas de control actualmente obligatorias; no reconstruir el motor.
+6. **Fase 11:** caja e informes básicos conciliados con ventas y pagos, con permisos explícitos.
+
+Mantener Domain/Application/Infrastructure/Web en un solo repositorio y separar responsabilidades por módulo. Usar servicios de aplicación desde Blazor; introducir endpoints HTTP sólo si hacen falta. Diseñar contratos compatibles con la interfaz futura, móviles y despliegue Windows. Un cambio de contrato exige revisar sus pruebas de integración.
+
+### Seguridad, pendientes y aceptación
+
+- Implementar y probar controles críticos durante todo el desarrollo; si una tarea depende de un control no verificado, resolverlo antes o mantener esa tarea bloqueada. No trasladar dependencias de seguridad obligatorias al cierre final.
+- Los pendientes manuales/operativos de fase 5 no bloquean lógica independiente desarrollada con datos ficticios. Tampoco se consideran completados por avanzar en el catálogo o en el frontend.
+- Conservar 5.2.A como PENDIENTE DE VERIFICACIÓN OPERATIVA y el kit congelado. La prueba física sólo se registra como realizada cuando el usuario confirme resultados.
+- Registrar cada comprobación pendiente con alcance, responsable, evidencia esperada, dependencia y resultado; distinguir validación automatizada, revisión manual y aceptación operativa. PLANS.md mantiene estado y BITACORA.md conserva evidencia de futuras entregas.
+- Bases operativas, cuentas, disco externo, cifrado, claves, permisos Windows, servicios e instalación conservan sus autorizaciones específicas; la nueva metodología no amplía permisos previos.
+- Próxima tarea propuesta: desglosar e implementar el primer incremento de fase 6 después de revisar esta adaptación y confirmar su alcance aplicable de P-06. No comenzar programación en esta entrega.
 
 ## Fases pendientes de implementación
 
@@ -226,6 +259,8 @@ Pruebas: cierre, anulaciones, medios de pago, moneda, saldos y diferencias justi
 
 **Estado: pendiente.**
 
+Ejecución distribuida según las etapas 2–6 anteriores: inventario/flujos y Figma aprobado → integración visual → pruebas manuales/correcciones → celulares/instalación → aceptación final. Se conserva el identificador de fase 12 para trazabilidad; no se adelanta su diseño definitivo a la etapa 1.
+
 Tareas: rediseño visual definitivo, navegación y accesibilidad; operación en PC y tres celulares, HTTPS/firewall privados, recursos locales, instalación y actualización seguras con respaldo.
 
 Criterios de aceptación: cuatro sesiones simultáneas en red local sin internet, pantallas adaptables, desconexión/reintento comprensibles y actualización que preserve datos. Revalidar recuperación y condiciones de uso de datos reales.
@@ -248,6 +283,9 @@ Estas decisiones no bloquean la reorganización documental; deben resolverse ant
 Actualización de P-01: autorizada y completada sólo la creación/protección de la carpeta indicada por el usuario y una prueba ficticia sin datos clínicos. No extender esa aprobación a migraciones, vinculación persistida del destino real, servicio, cifrado ni activación automática.
 
 ## Seguimiento de esta entrega y próxima acción
+
+- Metodología reorganizada en seis etapas a solicitud del usuario: preservar implementaciones y evidencia, priorizar lógica pendiente, esperar Figma antes del diseño definitivo y mantener separadas validación automática, manual y operativa. Sólo se modifican los tres documentos indicados; programación de fase 6 pendiente del siguiente paso aprobado. Las entradas siguientes conservan su contexto histórico y no sustituyen el estado vigente al inicio del plan.
+- Validación de esta entrega documental: compilación completa Release con 0 errores y 0 advertencias; nueva ejecución de 291 pruebas, 291 aprobadas (49 infraestructura y 242 web), 0 fallidas y 0 omitidas. El intento inicial bajo aislamiento se anuló sin ejecutar pruebas por fallo de conexión vstest/testhost; la ejecución autorizada posterior completó la batería. No se agregaron pruebas ni se modificó código, la base operativa o el kit del simulacro. Diff limitado a AGENTS.md, REQUISITOS.md y PLANS.md; destino GitHub privado comprobado.
 
 - Reorganización documental completada y verificada; resultados registrados en BITACORA.md. Commit y push documentales se comprueban e informan al cierre, sin un commit adicional para su propio identificador.
 - Plan anterior y decisiones D-01–D-36 conservados con su contexto histórico; D-37–D-46 registran la aprobación y sus límites.

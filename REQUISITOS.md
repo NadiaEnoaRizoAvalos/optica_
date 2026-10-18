@@ -6,7 +6,18 @@ La aplicación conserva dos áreas con igual importancia: gestión clínica e hi
 
 Es un sistema interno para empleados. Clientes, médicos externos, proveedores y laboratorios no reciben cuentas automáticamente. Cada instalación conserva su propia base; no se incorpora un portal público ni una plataforma multiempresa compartida.
 
-Las fases 0–4.1 están completadas según las verificaciones históricas. Las fases 5–12 son planificación aprobada, pendiente de implementación y de autorización para comenzar cada fase. Los detalles de entregas están en [BITACORA.md](BITACORA.md), los estados técnicos en [DECISIONES.md](DECISIONES.md) y el alcance y las confirmaciones pendientes únicamente en [PLANS.md](PLANS.md).
+Las fases 0–4.1 están completadas según las verificaciones históricas. En fase 5, multirrol, respaldos, visor y revisión de seguridad tienen avances implementados y verificados automáticamente; permanecen pendientes las aceptaciones manuales y operativas registradas en PLANS.md. La fase 5 no está cerrada para producción. Las fases 6–12 continúan pendientes y conservan su alcance, organizado ahora en seis etapas metodológicas sin renumerar el historial. Los detalles de entregas están en [BITACORA.md](BITACORA.md), los estados técnicos en [DECISIONES.md](DECISIONES.md) y el alcance y las confirmaciones pendientes únicamente en [PLANS.md](PLANS.md).
+
+## Metodología de entrega
+
+1. **Lógica funcional:** completar los módulos pendientes con pruebas unitarias, de integración y regresión; mantener pantallas existentes e interfaces mínimas de comprobación técnica. No realizar todavía un rediseño visual general.
+2. **Diseño del frontend:** al completar la lógica principal, entregar inventario de pantallas, información, acciones y flujos de navegación. Esperar el prototipo Figma del usuario y su aprobación antes de implementar el diseño definitivo.
+3. **Implementación del frontend:** conectar el prototipo aprobado con servicios existentes y endpoints necesarios, mediante componentes reutilizables. No duplicar reglas de negocio; actualizar pruebas de integración si cambian contratos.
+4. **Pruebas manuales y correcciones:** el usuario prueba el sistema integrado con datos ficticios. Registrar y corregir sus observaciones funcionales y visuales; no atribuir aceptación a pruebas que no realizó.
+5. **Celulares e instalación:** tras estabilizar la interfaz principal, adaptar y verificar celulares, acceso Wi-Fi privado, instalador Windows, actualizaciones seguras y funcionamiento en otros equipos.
+6. **Verificación final:** comprobar integralmente seguridad clínica, roles, respaldos, cifrado y custodia, restauración física en otra PC, visor de emergencia, instalación, actualizaciones y varios dispositivos antes de permitir datos reales.
+
+Estas etapas no postergan controles críticos: seguridad, permisos, integridad y recuperación se implementan y prueban cuando otros módulos dependen de ellos. Los pendientes manuales u operativos no bloquean tareas independientes autorizadas. Se mantiene un único repositorio, datos ficticios y autorización específica para bases operativas, cifrado, instalaciones y demás cambios sensibles.
 
 ## Funcionalidades existentes que deben conservarse
 
@@ -147,7 +158,7 @@ Las fases 0–4.1 están completadas según las verificaciones históricas. Las 
 ### RF-12. Caja, informes y experiencia final — fases 11 y 12
 
 - Fase 11: caja básica, ingresos y medios de pago, cierres y reportes operativos reconciliados con ventas/pagos/anulaciones; permisos explícitos. No implementar contabilidad integral.
-- Fase 12: rediseño visual definitivo y coherencia de navegación, accesibilidad y uso en Windows y tres celulares.
+- Fase 12: conservar el alcance de experiencia final y despliegue, distribuido entre etapas 2–6: diseño y navegación sujetos a Figma aprobado, integración, aceptación manual, uso en Windows/tres celulares y verificación operativa final.
 - Habilitar red local privada, HTTPS, firewall y sesiones simultáneas, sin internet; probar desconexión, reintento y recuperación.
 - Documentar instalación y actualización en Windows conservando datos y respaldos. No exponer el servidor a internet.
 
@@ -158,7 +169,8 @@ Las fases 0–4.1 están completadas según las verificaciones históricas. Las 
 - Claves foráneas, índices, restricciones y migraciones revisadas deben conservar relaciones cliente–receta–versión–profesional–adjunto, y futuras relaciones comerciales sin acoplar la atención clínica a una compra.
 - Autorizar cada operación sensible en el servidor; proteger sesiones, formularios, descargas y auditoría. No registrar secretos ni contenido clínico en logs ni publicarlos en Git.
 - Usar exclusivamente datos ficticios en pruebas. Probar permisos y regresiones, atención sin compra, historias extensas, múltiples documentos, concurrencia, pagos, reservas y recuperación según el módulo implementado.
-- Toda fase incluye pantallas funcionales y pasos reproducibles para el usuario, además de pruebas automatizadas pertinentes. Ningún módulo se considera aceptado sólo por existir en el backend.
+- Durante la etapa 1, verificar cada módulo mediante pruebas automatizadas y, cuando sea necesario, pantallas mínimas con pasos reproducibles desde el navegador. La validación técnica de lógica no equivale a aceptación de la interfaz definitiva ni del sistema integrado; estas quedan para etapas 3 y 4.
+- Conservar Domain/Application/Infrastructure/Web y límites entre clientes, clínica, productos, ventas, laboratorios, inventario, calidad, caja y seguridad. Contratos, DTOs y casos de uso pertenecen a aplicación; las pantallas no deciden reglas ni acceden directamente a EF. Evitar endpoints redundantes cuando Blazor pueda usar los servicios de aplicación.
 - Paginar historiales grandes y limitar recursos por seguridad sin imponer máximos arbitrarios al historial. El objetivo orientativo de respuesta interactiva de dos segundos requiere medir equipo y volumen; no constituye una verificación ya realizada.
 - Informar errores/advertencias de compilación y pruebas ejecutadas, aprobadas, fallidas y omitidas por separado. Registrar evidencia real en BITACORA.md.
 - Cuentas corrientes ampliadas, estadísticas avanzadas, obras sociales/prepagas, mensajería automática, compras agrupadas, integración fiscal, pagos en línea, sincronización, aplicaciones nativas y licencias no forman parte del alcance inicial de estas fases.
