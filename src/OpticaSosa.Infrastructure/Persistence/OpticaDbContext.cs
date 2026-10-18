@@ -31,6 +31,7 @@ public sealed class OpticaDbContext(DbContextOptions<OpticaDbContext> options) :
     public DbSet<OpticaSosa.Domain.Catalog.ProductVariant> ProductVariants => Set<OpticaSosa.Domain.Catalog.ProductVariant>();
     public DbSet<OpticaSosa.Domain.Catalog.ProductSupplier> ProductSuppliers => Set<OpticaSosa.Domain.Catalog.ProductSupplier>();
     public DbSet<OpticaSosa.Domain.Catalog.CommercialSettings> CommercialSettings => Set<OpticaSosa.Domain.Catalog.CommercialSettings>();
+    public DbSet<OpticaSosa.Domain.Technical.TechnicalPublication> TechnicalPublications => Set<OpticaSosa.Domain.Technical.TechnicalPublication>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

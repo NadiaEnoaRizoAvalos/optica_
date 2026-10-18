@@ -128,6 +128,9 @@ Estas etapas no postergan controles críticos: seguridad, permisos, integridad y
 - P-02 confirmada: proyección con graduaciones OD/OI, distancia pupilar, producto/material/tratamiento y montaje. Sin notas clínicas ni documentos originales. Corregir/revocar conserva la versión histórica y bloquea nuevos pasos técnicos hasta nueva publicación válida; no enviar automáticamente al laboratorio.
 - Montaje: alturas OD/OI y distancias pupilares monoculares opcionales en mm con 2 decimales, armazón e instrucciones; no derivar mediciones ni rellenar desconocidos. Para autorizar fabricación seleccionar ojos y exigir esfera explícita (incluido cero), eje si cilindro no cero y base si prisma no cero. La clínica sigue admitiendo registros incompletos sin compra.
 - Cristales y contactos requieren autorización técnica del Profesional aun siendo de stock. Contactos: confirmar producto exacto, graduación, curva base y diámetro por ojo, sin convertir automáticamente una receta de anteojos. Armazones y accesorios pueden venderse sin receta.
+- Se permite confirmar pedidos y recibir señas con técnica pendiente; las líneas de cristales/contactos no se reservan ni se encargan hasta disponer de autorización válida. Armazones/accesorios siguen su circuito independiente.
+- Reservar un pedido confirmado no exige seña. La liberación al cancelar es explícita, sin vencimientos automáticos de reservas no aprobados.
+- Editar líneas y precios únicamente en borrador. Después de confirmar, corregir mediante cancelación y nuevo pedido, sin transferir dinero automáticamente. Si hubo pagos, sólo Administrador puede cancelar y debe registrar la devolución explícita antes del cierre. Lo entregado requiere devolución, no cancelación.
 - El Profesional debe conocer el estado operativo necesario sin recibir automáticamente permisos sobre costos, márgenes o edición de pagos.
 - Incluir desde esta fase existencias iniciales trazables, entradas mínimas necesarias, disponibilidad, reservas, liberaciones y faltantes. No postergar estos controles indispensables hasta fase 9.
 - Admitir materiales de stock, encargados a laboratorio y combinación de ambos, incluso por ojo. Validar requisitos técnicos autorizados y la variante exacta.
@@ -151,6 +154,7 @@ Estas etapas no postergan controles críticos: seguridad, permisos, integridad y
 - Mantener saldos reconciliables con movimientos auditados y compensaciones; no editar directamente un saldo para ocultar una diferencia.
 - Separar físico, reservado, disponible, no utilizable y pendiente de recepción. Preservar lotes y trazabilidad de presentaciones.
 - Controlar lotes/vencimientos de contactos desde el primer manejo físico, aunque ocurra en fase 7 u 8. Revalidar vencimiento tras reservar y antes de preparar/entregar.
+- En contactos el lote y el vencimiento son obligatorios. La fecha indicada es el último día válido: desde el siguiente no se reserva ni entrega. Conservar la precisión mes/año cuando ésa sea la del envase y utilizar el último día de ese mes, sin inventar fechas ni omitir el vencimiento.
 - No sustituir automáticamente marca, modelo, graduación, curva base o diámetro. Gestionar paquetes/unidades mediante conversiones exactas y sólo cuando se necesiten.
 - Reservar no consume; cancelar libera sólo reservas no consumidas. Reponer una devolución exige revisión; no duplicar existencias al abrir un paquete o reintentar recepción/entrega.
 

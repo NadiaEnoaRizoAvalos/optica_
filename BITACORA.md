@@ -2,6 +2,15 @@
 
 Registro de entregas, cambios, verificaciones e incidentes. El estado vigente está en [PLANS.md](PLANS.md); los requisitos en [REQUISITOS.md](REQUISITOS.md) y las decisiones en [DECISIONES.md](DECISIONES.md).
 
+## Incremento 7.1 — publicación técnica versionada — 2026-10-17
+
+- Rama `codex/fase-7-publicacion-tecnica` desde `d6055bd`; continuidad backend autorizada. Publicación profesional ligada a revisión de receta, ojos explícitos, graduaciones exactas, montaje y selección exacta de contactos. No altera las graduaciones originales ni exige compras para atención clínica.
+- Consulta profesional paginada, correcciones con motivo/vínculo explícito, revocación, vigencia frente a cambios de receta/cliente y auditoría sin contenido clínico. Confirmación, idempotencia y concurrencia atómicas; especificaciones de variantes utilizadas bloqueadas. Administrador sin Profesional y Atención/Ventas no acceden al servicio clínico; el futuro pedido necesitará su proyección mínima separada.
+- Migración `20261018021555_TechnicalPublications`: tabla e índices nuevos, FK restrictivas y restricciones de precisión/ojos/contactos, ensayada sólo en bases ficticias. No se aplicó a la instalación operativa. Contratos y futuras acciones documentados; no se anuncia una pantalla nueva ni aceptación manual.
+- Compilación de la solución completa: **0 errores/advertencias**. Regresión final nueva: **340 ejecutadas, 340 aprobadas, 0 fallidas/omitidas** (69 Infraestructura, 271 Web), con **14 casos nuevos** respecto de 326. Verificación específica 14/14 aprobada previamente, sin sumarla otra vez al total. Informes privados en data/verification-71-full.
+- Confirmaciones posteriores registradas: vencimientos inclusivos y precisión mes/año de contactos; pedidos/señas con técnica pendiente, reservas sin seña obligatoria y corrección de confirmados mediante cancelación/nuevo pedido. No se consideran implementadas en 7.1 ni sustituyen las confirmaciones pendientes de laboratorio/calidad.
+- Base operativa y ZIP congelado conservan sus hashes previos. Sin dependencias nuevas ni cambios de cuentas operativas, disco externo, servicios, cifrado o programación reales. 5.2.A sigue PENDIENTE DE VERIFICACIÓN OPERATIVA.
+
 ## Fase 6 — backend de catálogo y proveedores — 2026-10-17
 
 - Continuidad backend 5–11 autorizada por incrementos, manteniendo aprobación de reglas importantes y operaciones sensibles. Rama `codex/fase-6-catalogo-proveedores` desde `711868f`; no se fusiona a main. Nuevas confirmaciones P-06/P-03 y P-02 registradas en requisitos/plan/decisiones; sólo catálogo/proveedores implementados en esta sección.

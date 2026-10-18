@@ -49,6 +49,20 @@ Estado interpretado según evidencia: «implementada» refiere a funciones exist
 - **Montaje confirmado:** alturas OD/OI y DP monoculares opcionales en mm con 2 decimales, referencia a armazón e instrucciones. No derivar monoculares desde la binocular ni inventar valores. Seleccionar ojos incluidos y exigir esfera explícita, eje con cilindro distinto de cero y base con prisma distinto de cero al autorizar fabricación; no endurecer por ello el registro clínico independiente.
 - **Ventas confirmadas:** cristales y contactos necesitan autorización técnica incluso si hay stock. En contactos el Profesional confirma producto exacto, graduación, curva base y diámetro por ojo; no convertir automáticamente recetas de anteojos. Armazones/accesorios pueden venderse sin receta.
 
+### D-62 — Implementación de publicaciones técnicas versionadas
+
+- **Estado:** implementada en incremento 7.1; reglas aprobadas en D-61, regresión final documentada en BITACORA.md. Sin aplicación a la base operativa ni aceptación manual.
+- **Modelo:** publicación independiente ligada por FK restrictiva a una revisión clínica; copia únicamente valores técnicos autorizados. Montaje y selección de contactos en columnas tipadas, sin notas, síntomas ni adjuntos. No crea revisiones clínicas, ventas o controles de calidad artificiales.
+- **Vigencia:** revisar revisión actual, cliente activo, revocación y sustitución. Una corrección sustituye expresamente una publicación mediante identificadores/versiones y motivo; publicaciones independientes para la misma receta no se anulan entre sí. Una revisión clínica posterior invalida las publicaciones de la revisión anterior para nuevos pasos. Los módulos comerciales deberán revalidar dentro de sus transacciones.
+- **Seguridad:** servicio de publicación/consulta exclusivamente Profesional; no concederlo a Ventas. El futuro pedido expondrá sólo la proyección de su trabajo, sin motivos clínicos de corrección/revocación ni acceso general al historial. Confirmación explícita, idempotencia, auditoría, concurrencia y bloqueo de especificaciones de variantes usadas.
+
+### D-63 — Circuito inicial de pedidos y vencimientos
+
+- **Estado:** confirmado por el usuario para implementar en 7.2; no se presenta como lógica ya disponible.
+- **Pedidos:** confirmar y recibir seña con técnica pendiente; reservar sin seña obligatoria. Líneas técnicas bloqueadas para reserva/encargo hasta autorización vigente. Líneas y precios se editan sólo en borrador; tras confirmar se cancela y registra otro pedido, sin trasladar dinero. Si hubo pagos sólo Administrador cancela, con devolución explícita antes del cierre; lo entregado se devuelve. Liberación de reservas al cancelar explícita, sin caducidad automática acordada.
+- **Contactos:** lote obligatorio y fecha de envase inclusiva; desde el día siguiente no reservar/entregar. Mes/año conserva esa precisión y su último día válido. No inferir un vencimiento ausente. La regla se aplica desde el primer manejo físico, sin esperar fase 9.
+- **Pendientes independientes:** recepción/cancelación de encargos de laboratorio (P-06) y matriz de calidad/entregas parciales (P-05) no se consideran confirmadas por estas respuestas.
+
 ## Decisiones anteriores D-01 a D-36
 
 ### D-01 — Monolito modular por capas

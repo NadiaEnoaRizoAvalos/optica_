@@ -63,7 +63,7 @@ Mantener Domain/Application/Infrastructure/Web en un solo repositorio y separar 
 - Conservar 5.2.A como PENDIENTE DE VERIFICACIÓN OPERATIVA y el kit congelado. La prueba física sólo se registra como realizada cuando el usuario confirme resultados.
 - Registrar cada comprobación pendiente con alcance, responsable, evidencia esperada, dependencia y resultado; distinguir validación automatizada, revisión manual y aceptación operativa. PLANS.md mantiene estado y BITACORA.md conserva evidencia de futuras entregas.
 - Bases operativas, cuentas, disco externo, cifrado, claves, permisos Windows, servicios e instalación conservan sus autorizaciones específicas; la nueva metodología no amplía permisos previos.
-- Incremento en curso: fase 6, catálogo y proveedores, con continuidad backend autorizada. P-06 confirmada para unidades/atributos y permisos/datos mínimos; P-03 confirmada para reglas monetarias y circuito inicial. Implementar y verificar antes de continuar; conservar consultas pendientes que afecten encargos, proyección técnica y matriz de calidad.
+- Continuidad backend vigente: fase 6 verificada/publicada; fase 7 por incrementos. P-02 técnica y P-03 monetaria confirmadas, incluidas las reglas posteriores de pedidos, señas y reservas; conservar consultas pendientes para encargos y matriz de calidad.
 
 ## Fases pendientes de implementación
 
@@ -209,7 +209,11 @@ Pruebas: códigos/variantes duplicados, precios exactos, parámetros pertinentes
 
 ### Fase 7 — Pedidos, ventas, señas y stock mínimo seguro
 
-**Estado: pendiente.**
+**Estado: en desarrollo por incrementos.**
+
+- **7.1 Publicación técnica:** implementada y verificada automáticamente; compilación 0 errores/advertencias. Regresión final nueva: **340 ejecutadas y aprobadas, 0 fallidas/omitidas** (69 Infraestructura, 271 Web); 14 casos nuevos, sin sumar repeticiones específicas. Contrato profesional para publicar, paginar, corregir y revocar; versión de receta y autorización explícita, ojos/medidas/montaje y contactos exactos. No incluye síntomas, notas, antecedentes o adjuntos originales. Correcciones conservan historia y los cambios clínicos invalidan nuevas operaciones sobre publicaciones anteriores. Atención/Ventas y Administrador sin Profesional no acceden a este servicio clínico; la proyección comercial se incorporará ligada al pedido, sin abrir la historia general.
+- **7.2 Pedidos, señas y stock mínimo:** pendiente de implementación integrada. Confirmaciones: seña con técnica pendiente; bloquear reserva/encargo de líneas técnicas sin autorización vigente, sin afectar armazones/accesorios; reserva sin seña obligatoria; liberación explícita al cancelar. Líneas/precios sólo en borrador; confirmado se corrige cancelando y creando otro pedido. Si hubo pagos, cancelación administrativa con devolución explícita antes del cierre; sin trasladar fondos automáticamente. Lo entregado usa devoluciones.
+- Migración nueva `20261018021555_TechnicalPublications`: sólo tabla e índices propios, ensayada en bases ficticias. Sin migración operativa ni cambios al kit de recuperación. Pantallas definitivas y aceptación manual pendientes; no se habilita entrega comercial antes de fase 10.
 
 Tareas: pedidos comerciales y vínculos con trabajos/versiones técnicas; materiales de stock, de laboratorio y mixtos; precios, descuentos, moneda, pagos parciales, saldo y fechas prometidas. Implementar existencias iniciales trazables, entradas mínimas, reservas/liberaciones y faltantes desde esta fase. Proyección técnica mínima de sólo lectura para operación autorizada.
 
@@ -287,7 +291,7 @@ Actualización de P-01: autorizada y completada sólo la creación/protección d
 ## Seguimiento de esta entrega y próxima acción
 
 - Sección backend de fase 6 terminada y verificada en `codex/fase-6-catalogo-proveedores`, con 326/326 pruebas finales y compilación sin errores/advertencias. Publicación como avance coherente según autorización permanente; hash y resultado de push se informan al cierre. Base operativa y ZIP congelado conservan sus hashes; sin operaciones externas, cuentas, servicios o cifrado reales.
-- Continuación autorizada: fase 7 por incrementos, comenzando por publicación técnica mínima con las reglas de P-02 ya confirmadas. Conservar 5.2.A pendiente de verificación operativa y las pantallas definitivas para Figma; no confundir validación backend con aceptación manual o producción.
+- Continuación autorizada: finalizar verificación/publicación de 7.1 y continuar pedidos/señas/stock mínimo. Conservar 5.2.A pendiente de verificación operativa y las pantallas definitivas para Figma; no confundir validación backend con aceptación manual o producción.
 
 ### Entregas anteriores — contexto histórico
 

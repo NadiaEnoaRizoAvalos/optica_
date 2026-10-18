@@ -1070,6 +1070,122 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("OpticaSosa.Domain.Technical.TechnicalPublication", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CorrectionReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("PreviousId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("PublishedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PublishedByUserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("PupillaryDistanceHundredths")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("RevocationReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("RevokedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RevokedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("SourceRevisionId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("SupersededById")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PreviousId")
+                        .IsUnique();
+
+                    b.HasIndex("PublishedByUserId");
+
+                    b.HasIndex("RevokedByUserId");
+
+                    b.HasIndex("SupersededById");
+
+                    b.HasIndex("SourceRevisionId", "PublishedAtUtc", "Id");
+
+                    b.ToTable("TechnicalPublications", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_TechnicalPublication_ContactMounting", "Purpose = 1 OR (RightHeightHundredths IS NULL AND LeftHeightHundredths IS NULL AND RightMonocularHundredths IS NULL AND LeftMonocularHundredths IS NULL AND FrameVariantId IS NULL AND FrameReference IS NULL AND MountingInstructions IS NULL AND PupillaryDistanceHundredths IS NULL)");
+
+                            t.HasCheckConstraint("CK_TechnicalPublication_Correction", "(PreviousId IS NULL OR (PreviousId <> Id AND CorrectionReason IS NOT NULL AND length(trim(CorrectionReason)) > 0)) AND (SupersededById IS NULL OR SupersededById <> Id)");
+
+                            t.HasCheckConstraint("CK_TechnicalPublication_Index", "IndexThousandths IS NULL OR (typeof(IndexThousandths) = 'integer' AND IndexThousandths BETWEEN 1 AND 9999000)");
+
+                            t.HasCheckConstraint("CK_TechnicalPublication_LeftAdditionMilli", "LeftAdditionMilli IS NULL OR (typeof(LeftAdditionMilli) = 'integer' AND LeftAdditionMilli BETWEEN -9999000 AND 9999000)");
+
+                            t.HasCheckConstraint("CK_TechnicalPublication_LeftAxis", "LeftAxis IS NULL OR (typeof(LeftAxis) = 'integer' AND LeftAxis BETWEEN 0 AND 180)");
+
+                            t.HasCheckConstraint("CK_TechnicalPublication_LeftContact", "(Purpose = 2 AND IncludeLeft = 1 AND LeftContactVariantId IS NOT NULL AND LeftContactBaseCurveHundredths IS NOT NULL AND LeftContactDiameterHundredths IS NOT NULL AND LeftContactBaseCurveHundredths > 0 AND LeftContactDiameterHundredths > 0) OR ((Purpose = 1 OR IncludeLeft = 0) AND LeftContactVariantId IS NULL AND LeftContactBaseCurveHundredths IS NULL AND LeftContactDiameterHundredths IS NULL)");
+
+                            t.HasCheckConstraint("CK_TechnicalPublication_LeftContactBaseCurveHundredths", "LeftContactBaseCurveHundredths IS NULL OR (typeof(LeftContactBaseCurveHundredths) = 'integer' AND LeftContactBaseCurveHundredths BETWEEN 0 AND 999900)");
+
+                            t.HasCheckConstraint("CK_TechnicalPublication_LeftContactDiameterHundredths", "LeftContactDiameterHundredths IS NULL OR (typeof(LeftContactDiameterHundredths) = 'integer' AND LeftContactDiameterHundredths BETWEEN 0 AND 999900)");
+
+                            t.HasCheckConstraint("CK_TechnicalPublication_LeftCylinderMilli", "LeftCylinderMilli IS NULL OR (typeof(LeftCylinderMilli) = 'integer' AND LeftCylinderMilli BETWEEN -9999000 AND 9999000)");
+
+                            t.HasCheckConstraint("CK_TechnicalPublication_LeftEye", "(IncludeLeft = 1 AND LeftSphereMilli IS NOT NULL AND (LeftCylinderMilli IS NULL OR LeftCylinderMilli = 0 OR LeftAxis IS NOT NULL) AND (LeftPrismMilli IS NULL OR LeftPrismMilli = 0 OR (LeftBase IS NOT NULL AND length(trim(LeftBase)) > 0))) OR (IncludeLeft = 0 AND LeftSphereMilli IS NULL AND LeftCylinderMilli IS NULL AND LeftAxis IS NULL AND LeftAdditionMilli IS NULL AND LeftPrismMilli IS NULL AND LeftBase IS NULL AND LeftHeightHundredths IS NULL AND LeftMonocularHundredths IS NULL)");
+
+                            t.HasCheckConstraint("CK_TechnicalPublication_LeftHeightHundredths", "LeftHeightHundredths IS NULL OR (typeof(LeftHeightHundredths) = 'integer' AND LeftHeightHundredths BETWEEN 0 AND 999900)");
+
+                            t.HasCheckConstraint("CK_TechnicalPublication_LeftMonocularHundredths", "LeftMonocularHundredths IS NULL OR (typeof(LeftMonocularHundredths) = 'integer' AND LeftMonocularHundredths BETWEEN 0 AND 999900)");
+
+                            t.HasCheckConstraint("CK_TechnicalPublication_LeftPrismMilli", "LeftPrismMilli IS NULL OR (typeof(LeftPrismMilli) = 'integer' AND LeftPrismMilli BETWEEN -9999000 AND 9999000)");
+
+                            t.HasCheckConstraint("CK_TechnicalPublication_LeftSphereMilli", "LeftSphereMilli IS NULL OR (typeof(LeftSphereMilli) = 'integer' AND LeftSphereMilli BETWEEN -9999000 AND 9999000)");
+
+                            t.HasCheckConstraint("CK_TechnicalPublication_PupillaryDistance", "PupillaryDistanceHundredths IS NULL OR (typeof(PupillaryDistanceHundredths) = 'integer' AND PupillaryDistanceHundredths BETWEEN 0 AND 999900)");
+
+                            t.HasCheckConstraint("CK_TechnicalPublication_Purpose", "Purpose IN (1,2) AND RequestedCategory = Purpose + 1 AND IncludeRight IN (0,1) AND IncludeLeft IN (0,1) AND (IncludeRight = 1 OR IncludeLeft = 1)");
+
+                            t.HasCheckConstraint("CK_TechnicalPublication_Revocation", "(RevokedAtUtc IS NULL AND RevokedByUserId IS NULL AND RevocationReason IS NULL) OR (RevokedAtUtc IS NOT NULL AND RevokedByUserId IS NOT NULL AND RevocationReason IS NOT NULL AND length(trim(RevocationReason)) > 0)");
+
+                            t.HasCheckConstraint("CK_TechnicalPublication_RightAdditionMilli", "RightAdditionMilli IS NULL OR (typeof(RightAdditionMilli) = 'integer' AND RightAdditionMilli BETWEEN -9999000 AND 9999000)");
+
+                            t.HasCheckConstraint("CK_TechnicalPublication_RightAxis", "RightAxis IS NULL OR (typeof(RightAxis) = 'integer' AND RightAxis BETWEEN 0 AND 180)");
+
+                            t.HasCheckConstraint("CK_TechnicalPublication_RightContact", "(Purpose = 2 AND IncludeRight = 1 AND RightContactVariantId IS NOT NULL AND RightContactBaseCurveHundredths IS NOT NULL AND RightContactDiameterHundredths IS NOT NULL AND RightContactBaseCurveHundredths > 0 AND RightContactDiameterHundredths > 0) OR ((Purpose = 1 OR IncludeRight = 0) AND RightContactVariantId IS NULL AND RightContactBaseCurveHundredths IS NULL AND RightContactDiameterHundredths IS NULL)");
+
+                            t.HasCheckConstraint("CK_TechnicalPublication_RightContactBaseCurveHundredths", "RightContactBaseCurveHundredths IS NULL OR (typeof(RightContactBaseCurveHundredths) = 'integer' AND RightContactBaseCurveHundredths BETWEEN 0 AND 999900)");
+
+                            t.HasCheckConstraint("CK_TechnicalPublication_RightContactDiameterHundredths", "RightContactDiameterHundredths IS NULL OR (typeof(RightContactDiameterHundredths) = 'integer' AND RightContactDiameterHundredths BETWEEN 0 AND 999900)");
+
+                            t.HasCheckConstraint("CK_TechnicalPublication_RightCylinderMilli", "RightCylinderMilli IS NULL OR (typeof(RightCylinderMilli) = 'integer' AND RightCylinderMilli BETWEEN -9999000 AND 9999000)");
+
+                            t.HasCheckConstraint("CK_TechnicalPublication_RightEye", "(IncludeRight = 1 AND RightSphereMilli IS NOT NULL AND (RightCylinderMilli IS NULL OR RightCylinderMilli = 0 OR RightAxis IS NOT NULL) AND (RightPrismMilli IS NULL OR RightPrismMilli = 0 OR (RightBase IS NOT NULL AND length(trim(RightBase)) > 0))) OR (IncludeRight = 0 AND RightSphereMilli IS NULL AND RightCylinderMilli IS NULL AND RightAxis IS NULL AND RightAdditionMilli IS NULL AND RightPrismMilli IS NULL AND RightBase IS NULL AND RightHeightHundredths IS NULL AND RightMonocularHundredths IS NULL)");
+
+                            t.HasCheckConstraint("CK_TechnicalPublication_RightHeightHundredths", "RightHeightHundredths IS NULL OR (typeof(RightHeightHundredths) = 'integer' AND RightHeightHundredths BETWEEN 0 AND 999900)");
+
+                            t.HasCheckConstraint("CK_TechnicalPublication_RightMonocularHundredths", "RightMonocularHundredths IS NULL OR (typeof(RightMonocularHundredths) = 'integer' AND RightMonocularHundredths BETWEEN 0 AND 999900)");
+
+                            t.HasCheckConstraint("CK_TechnicalPublication_RightPrismMilli", "RightPrismMilli IS NULL OR (typeof(RightPrismMilli) = 'integer' AND RightPrismMilli BETWEEN -9999000 AND 9999000)");
+
+                            t.HasCheckConstraint("CK_TechnicalPublication_RightSphereMilli", "RightSphereMilli IS NULL OR (typeof(RightSphereMilli) = 'integer' AND RightSphereMilli BETWEEN -9999000 AND 9999000)");
+                        });
+                });
+
             modelBuilder.Entity("OpticaSosa.Domain.Work.OpticalWork", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1646,6 +1762,305 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("RecordedByUserId")
                         .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Technical.TechnicalPublication", b =>
+                {
+                    b.HasOne("OpticaSosa.Domain.Technical.TechnicalPublication", null)
+                        .WithMany()
+                        .HasForeignKey("PreviousId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("OpticaSosa.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("PublishedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OpticaSosa.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("RevokedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("OpticaSosa.Domain.Clinical.ClinicalRevision", null)
+                        .WithMany()
+                        .HasForeignKey("SourceRevisionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OpticaSosa.Domain.Technical.TechnicalPublication", null)
+                        .WithMany()
+                        .HasForeignKey("SupersededById")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.OwnsOne("OpticaSosa.Domain.Clinical.EyeValues", "Left", b1 =>
+                        {
+                            b1.Property<Guid>("TechnicalPublicationId")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<int?>("Addition")
+                                .HasColumnType("INTEGER")
+                                .HasColumnName("LeftAdditionMilli");
+
+                            b1.Property<int?>("Axis")
+                                .HasColumnType("INTEGER")
+                                .HasColumnName("LeftAxis");
+
+                            b1.Property<string>("Base")
+                                .HasMaxLength(60)
+                                .HasColumnType("TEXT")
+                                .HasColumnName("LeftBase");
+
+                            b1.Property<int?>("Cylinder")
+                                .HasColumnType("INTEGER")
+                                .HasColumnName("LeftCylinderMilli");
+
+                            b1.Property<int?>("Prism")
+                                .HasColumnType("INTEGER")
+                                .HasColumnName("LeftPrismMilli");
+
+                            b1.Property<int?>("Sphere")
+                                .HasColumnType("INTEGER")
+                                .HasColumnName("LeftSphereMilli");
+
+                            b1.HasKey("TechnicalPublicationId");
+
+                            b1.ToTable("TechnicalPublications");
+
+                            b1.WithOwner()
+                                .HasForeignKey("TechnicalPublicationId");
+                        });
+
+                    b.OwnsOne("OpticaSosa.Domain.Clinical.EyeValues", "Right", b1 =>
+                        {
+                            b1.Property<Guid>("TechnicalPublicationId")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<int?>("Addition")
+                                .HasColumnType("INTEGER")
+                                .HasColumnName("RightAdditionMilli");
+
+                            b1.Property<int?>("Axis")
+                                .HasColumnType("INTEGER")
+                                .HasColumnName("RightAxis");
+
+                            b1.Property<string>("Base")
+                                .HasMaxLength(60)
+                                .HasColumnType("TEXT")
+                                .HasColumnName("RightBase");
+
+                            b1.Property<int?>("Cylinder")
+                                .HasColumnType("INTEGER")
+                                .HasColumnName("RightCylinderMilli");
+
+                            b1.Property<int?>("Prism")
+                                .HasColumnType("INTEGER")
+                                .HasColumnName("RightPrismMilli");
+
+                            b1.Property<int?>("Sphere")
+                                .HasColumnType("INTEGER")
+                                .HasColumnName("RightSphereMilli");
+
+                            b1.HasKey("TechnicalPublicationId");
+
+                            b1.ToTable("TechnicalPublications");
+
+                            b1.WithOwner()
+                                .HasForeignKey("TechnicalPublicationId");
+                        });
+
+                    b.OwnsOne("OpticaSosa.Domain.Technical.TechnicalRequest", "Request", b1 =>
+                        {
+                            b1.Property<Guid>("TechnicalPublicationId")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<bool>("IncludeLeft")
+                                .HasColumnType("INTEGER")
+                                .HasColumnName("IncludeLeft");
+
+                            b1.Property<bool>("IncludeRight")
+                                .HasColumnType("INTEGER")
+                                .HasColumnName("IncludeRight");
+
+                            b1.Property<string>("Material")
+                                .HasMaxLength(100)
+                                .HasColumnType("TEXT")
+                                .HasColumnName("Material");
+
+                            b1.Property<string>("Product")
+                                .IsRequired()
+                                .HasMaxLength(200)
+                                .HasColumnType("TEXT")
+                                .HasColumnName("RequestedProduct");
+
+                            b1.Property<Guid?>("ProductId")
+                                .HasColumnType("TEXT")
+                                .HasColumnName("ProductId");
+
+                            b1.Property<int>("Purpose")
+                                .HasColumnType("INTEGER")
+                                .HasColumnName("Purpose");
+
+                            b1.Property<int?>("RefractiveIndex")
+                                .HasColumnType("INTEGER")
+                                .HasColumnName("IndexThousandths");
+
+                            b1.Property<int>("RequestedCategory")
+                                .HasColumnType("INTEGER")
+                                .HasColumnName("RequestedCategory");
+
+                            b1.Property<string>("Treatment")
+                                .HasMaxLength(160)
+                                .HasColumnType("TEXT")
+                                .HasColumnName("Treatment");
+
+                            b1.HasKey("TechnicalPublicationId");
+
+                            b1.HasIndex("ProductId", "RequestedCategory");
+
+                            b1.ToTable("TechnicalPublications");
+
+                            b1.WithOwner()
+                                .HasForeignKey("TechnicalPublicationId");
+
+                            b1.HasOne("OpticaSosa.Domain.Catalog.Product", null)
+                                .WithMany()
+                                .HasForeignKey("ProductId", "RequestedCategory")
+                                .HasPrincipalKey("Id", "Category")
+                                .OnDelete(DeleteBehavior.Restrict);
+
+                            b1.OwnsOne("OpticaSosa.Domain.Technical.MountingSpecification", "Mounting", b2 =>
+                                {
+                                    b2.Property<Guid>("TechnicalRequestTechnicalPublicationId")
+                                        .HasColumnType("TEXT");
+
+                                    b2.Property<string>("FrameReference")
+                                        .HasMaxLength(200)
+                                        .HasColumnType("TEXT")
+                                        .HasColumnName("FrameReference");
+
+                                    b2.Property<Guid?>("FrameVariantId")
+                                        .HasColumnType("TEXT")
+                                        .HasColumnName("FrameVariantId");
+
+                                    b2.Property<string>("Instructions")
+                                        .HasMaxLength(1000)
+                                        .HasColumnType("TEXT")
+                                        .HasColumnName("MountingInstructions");
+
+                                    b2.Property<int?>("LeftHeightMm")
+                                        .HasColumnType("INTEGER")
+                                        .HasColumnName("LeftHeightHundredths");
+
+                                    b2.Property<int?>("LeftMonocularDistanceMm")
+                                        .HasColumnType("INTEGER")
+                                        .HasColumnName("LeftMonocularHundredths");
+
+                                    b2.Property<int?>("RightHeightMm")
+                                        .HasColumnType("INTEGER")
+                                        .HasColumnName("RightHeightHundredths");
+
+                                    b2.Property<int?>("RightMonocularDistanceMm")
+                                        .HasColumnType("INTEGER")
+                                        .HasColumnName("RightMonocularHundredths");
+
+                                    b2.HasKey("TechnicalRequestTechnicalPublicationId");
+
+                                    b2.HasIndex("FrameVariantId");
+
+                                    b2.ToTable("TechnicalPublications");
+
+                                    b2.HasOne("OpticaSosa.Domain.Catalog.ProductVariant", null)
+                                        .WithMany()
+                                        .HasForeignKey("FrameVariantId")
+                                        .OnDelete(DeleteBehavior.Restrict);
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("TechnicalRequestTechnicalPublicationId");
+                                });
+
+                            b1.OwnsOne("OpticaSosa.Domain.Technical.ContactSelection", "LeftContact", b2 =>
+                                {
+                                    b2.Property<Guid>("TechnicalRequestTechnicalPublicationId")
+                                        .HasColumnType("TEXT");
+
+                                    b2.Property<int>("BaseCurveMm")
+                                        .HasColumnType("INTEGER")
+                                        .HasColumnName("LeftContactBaseCurveHundredths");
+
+                                    b2.Property<int>("DiameterMm")
+                                        .HasColumnType("INTEGER")
+                                        .HasColumnName("LeftContactDiameterHundredths");
+
+                                    b2.Property<Guid>("VariantId")
+                                        .HasColumnType("TEXT")
+                                        .HasColumnName("LeftContactVariantId");
+
+                                    b2.HasKey("TechnicalRequestTechnicalPublicationId");
+
+                                    b2.HasIndex("VariantId");
+
+                                    b2.ToTable("TechnicalPublications");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("TechnicalRequestTechnicalPublicationId");
+
+                                    b2.HasOne("OpticaSosa.Domain.Catalog.ProductVariant", null)
+                                        .WithMany()
+                                        .HasForeignKey("VariantId")
+                                        .OnDelete(DeleteBehavior.Restrict)
+                                        .IsRequired();
+                                });
+
+                            b1.OwnsOne("OpticaSosa.Domain.Technical.ContactSelection", "RightContact", b2 =>
+                                {
+                                    b2.Property<Guid>("TechnicalRequestTechnicalPublicationId")
+                                        .HasColumnType("TEXT");
+
+                                    b2.Property<int>("BaseCurveMm")
+                                        .HasColumnType("INTEGER")
+                                        .HasColumnName("RightContactBaseCurveHundredths");
+
+                                    b2.Property<int>("DiameterMm")
+                                        .HasColumnType("INTEGER")
+                                        .HasColumnName("RightContactDiameterHundredths");
+
+                                    b2.Property<Guid>("VariantId")
+                                        .HasColumnType("TEXT")
+                                        .HasColumnName("RightContactVariantId");
+
+                                    b2.HasKey("TechnicalRequestTechnicalPublicationId");
+
+                                    b2.HasIndex("VariantId");
+
+                                    b2.ToTable("TechnicalPublications");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("TechnicalRequestTechnicalPublicationId");
+
+                                    b2.HasOne("OpticaSosa.Domain.Catalog.ProductVariant", null)
+                                        .WithMany()
+                                        .HasForeignKey("VariantId")
+                                        .OnDelete(DeleteBehavior.Restrict)
+                                        .IsRequired();
+                                });
+
+                            b1.Navigation("LeftContact");
+
+                            b1.Navigation("Mounting")
+                                .IsRequired();
+
+                            b1.Navigation("RightContact");
+                        });
+
+                    b.Navigation("Left")
+                        .IsRequired();
+
+                    b.Navigation("Request")
+                        .IsRequired();
+
+                    b.Navigation("Right")
                         .IsRequired();
                 });
 

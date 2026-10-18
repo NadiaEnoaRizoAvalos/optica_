@@ -39,6 +39,17 @@ Documento incremental para preparar el prototipo. No constituye un diseño visua
 - **Trazabilidad:** una variante usada por otros módulos bloqueará cambios de identidad/especificaciones mediante `SpecificationLocked`; se permiten precio/estado nuevos sin reescribir datos históricos de las operaciones. Los módulos que la utilicen deben activar ese bloqueo dentro de su transacción.
 - **Navegación propuesta, no rutas creadas:** catálogo → producto → variantes; proveedores/laboratorios → ficha; administración → moneda. No se agregaron endpoints o pantallas comerciales: se integrarán con estos servicios al implementar Figma, o con una interfaz técnica mínima si hace falta verificar otro incremento.
 
+### Publicación técnica profesional — incremento 7.1
+
+Contrato implementado `ITechnicalPublicationService`: `ListAsync(customerId, recordId, page)`, `GetAsync(customerId, publicationId)`, `PublishAsync(customerId, recordId, TechnicalPublicationInput)` y `RevokeAsync(customerId, publicationId, version, reason)`. Servicio de aplicación con autorización clínica en servidor, sin nuevos endpoints HTTP. No está concedido a Atención/Ventas ni a Administrador sin Profesional.
+
+- **Pantalla futura de autorización:** partir de una receta/version concreta de la ficha clínica; confirmar destino cristales/contactos y ojos incluidos. `SourceRevisionId`, `RecordVersion`, `SubmissionId` estable y `Confirmed` explícito. La clínica puede conservar registros incompletos; fabricar exige esfera, eje si cilindro no cero y base si prisma no cero.
+- **Montaje:** alturas/DP monoculares opcionales por ojo en mm con 2 decimales, referencia de armazón e instrucciones. DP binocular se copia de la receta para cristales; no derivar monoculares ni rellenar valores desconocidos. Para contactos seleccionar variante exacta, curva base y diámetro por ojo, coincidentes con graduaciones; no convertir prescripciones automáticamente.
+- **Consulta:** `TechnicalPublicationDetails` contiene identificadores de cliente/registro/revisión, solicitud técnica, valores de los ojos incluidos, DP, autor/fecha, versión y vigencia. No contiene historia de síntomas, antecedentes, notas, fotos/PDF, precios o costos. Paginar `TechnicalPublicationPage` de 50 con `HasMore`, sin límite total de publicaciones.
+- **Corrección/revocación:** enviar identificador y versión previos, motivo y confirmación; conservar originales. Mostrar `PublicationStatus` (vigente, revocada, sustituida, receta modificada o cliente inactivo). Una publicación independiente no sustituye otra salvo vínculo de corrección explícito. Un conflicto requiere recargar; nunca reactivar una publicación histórica por reintentar un comando.
+- **Separación comercial:** este DTO profesional incluye motivos de corrección/revocación y no debe reutilizarse completo en Ventas. La siguiente sección comercial incorporará un contrato mínimo ligado al pedido y revalidará vigencia al reservar/encargar. No agregar acceso clínico general mediante el menú de pedidos.
+- **Prueba desde navegador:** pendiente de interfaz mínima/integración del frontend. Actualmente las operaciones se verifican mediante pruebas de aplicación con SQLite aislada; no se anuncia una pantalla/ruta que todavía no existe.
+
 ## Rutas actuales relevantes
 
 Estas rutas ya existen en la aplicación principal y se conservan hasta integrar el prototipo aprobado:
