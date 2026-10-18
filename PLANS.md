@@ -2,6 +2,8 @@
 
 ## Estado y límites de esta entrega
 
+**Organización vigente para dos desarrolladores:** base compartida hasta fase 9 en `equipo/base-backend-fase9`; fase 10 en `equipo/fase10-calidad`, a cargo de este Codex; fase 11 en `equipo/fase11-caja`, a cargo exclusivo del colaborador. Esta asignación sustituye la continuidad automática de este Codex hacia fase 11. Cada copia y base ficticia es independiente. [Guía de equipo](docs/TRABAJO-EN-EQUIPO.md) define propiedad y coordinación de archivos compartidos/migraciones. No editar simultáneamente documentación común, permisos, DI, contexto o snapshot.
+
 Fases 0–4.1 completadas. **5.2.A: PENDIENTE DE VERIFICACIÓN OPERATIVA.** Kit congelado; pendientes confirmación física de la segunda PC, custodias, cifrado autorizado, servicio Windows y respaldos reales. **5.1 y 5.2.B implementadas/validadas automáticamente; 5.3 con revisión y correcciones verificadas automáticamente.** Pruebas manuales y adopción operativa pendientes. No modificar bases/cuentas operativas ni declarar fase 5 completa/lista para producción.
 
 Alcance autorizado vigente: continuar backend no sensible de fase 5 y fases comerciales 6–11 en incrementos implementados y verificados, sin pedir aprobación después de cada subfase. Se permiten entidades, contratos/DTOs, servicios, validaciones, endpoints necesarios, pruebas y migraciones exclusivamente en bases aisladas. Las decisiones de negocio importantes pendientes y operaciones sensibles requieren consulta específica. Conservar módulos, evidencia, respaldos y kit congelado; no comenzar frontend definitivo mientras el usuario prepara Figma.

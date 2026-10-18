@@ -174,6 +174,7 @@ Estas etapas no postergan controles críticos: seguridad, permisos, integridad y
 - Registrar quién entrega y cuándo, impedir duplicación y definir tratamiento de entregas parciales antes de habilitarlas.
 - Matriz inicial confirmada: conservar ambas etapas/historia. Técnico de cristales verifica receta vigente, graduación, material, montaje/centrado y estado; de contactos verifica producto/parámetros autorizados, lote, vencimiento y envase íntegro; armazones/accesorios/reparaciones mecánicas verifican correspondencia, integridad y trabajo realizado. Reparación que afecta graduación o montaje sigue cristales.
 - Profesional obligatorio para técnico de cristales, contactos y reparación óptica; Atención/Ventas o Profesional para técnico no clínico y entrega. Administrador sin esos roles no obtiene permisos por administrar. Entrega inicial completa, sin parciales; identidad, pedido completo, estado, documentación/instrucciones y saldo cero. Ningún ítem esencial admite «No aplica». Implementar revisando dominio/SQLite y conservando controles anteriores.
+- Agrupación confirmada para fase 10: un trabajo de anteojos puede agrupar explícitamente líneas del armazón y cristales OD/OI de un mismo conjunto, con autorización técnica compatible. Contactos, accesorios y armazones independientes conservan trabajos propios. Un pedido puede tener varios trabajos; se entrega completo cuando todos están aprobados. No agrupar ni dividir líneas automáticamente.
 
 ### RF-12. Caja, informes y experiencia final — fases 11 y 12
 

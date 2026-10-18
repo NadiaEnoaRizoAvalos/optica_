@@ -2,6 +2,15 @@
 
 Registro de entregas, cambios, verificaciones e incidentes. El estado vigente está en [PLANS.md](PLANS.md); los requisitos en [REQUISITOS.md](REQUISITOS.md) y las decisiones en [DECISIONES.md](DECISIONES.md).
 
+## Base compartida para dos desarrolladores — 2026-10-18
+
+- Inspeccionadas ramas locales/remotas y verificada la cadena de fase 5.1, 5.2.B, 5.3, 6, 7, 8 y 9 hasta `a907b95451becf4e91fa565087b649c5f66e7f7d`, ya publicado. 5.2.A sigue PENDIENTE DE VERIFICACIÓN OPERATIVA. Repositorio privado comprobado; main conserva `5b8bdd1f35122a65cae4abe8b494fac3b40b2316`.
+- Proyecto localizado tras traslado a `G:\WINDOWS\Desktop\Proyectos\optica`; sus 18 archivos locales de fase 10 permanecen intactos en esa copia y no se incluyen en la base de fase 9. Nuevo worktree independiente en `G:\WINDOWS\Desktop\optica`, sin copiar bases ni kits. La base documental se prepara en `equipo/base-backend-fase9`; las ramas `equipo/fase10-calidad` y `equipo/fase11-caja` parten exactamente del mismo commit de esa base.
+- Sólo documentación de coordinación: guía de equipo, asignación por módulos, archivos compartidos a cargo de una sola persona integradora, propuestas de cada rama y reconciliación manual de migraciones. Este Codex continúa fase 10 y no programa fase 11. Agrupación de trabajos por conjunto confirmada y registrada en D-72; implementación comercial pendiente.
+- Revisión de 460 archivos y 27 commits de la base: sin bases/ZIP/claves/archivos generados excluidos ni coincidencias con patrones de secretos revisados. Incluye 8 proyectos, contratos, servicios, entidades, 15 migraciones y pruebas. El diff de preparación no cambia src/tests; no se afirma que una búsqueda de patrones garantice ausencia universal de secretos.
+- Compilación completa Release nueva: **0 errores y 0 advertencias**. Nueva regresión de esta copia: **422 ejecutadas/aprobadas, 0 fallidas/omitidas** (83 Infraestructura, 339 Web); informes privados en data/verification-equipo-base-20261018. Se restauraron dependencias existentes, sin agregar paquetes.
+- SHA-256 de la base operativa y del ZIP congelado conservados respecto de la verificación anterior. Sin servicios, cifrado, disco externo, usuarios, migraciones ni programación operativos. Las ramas disponibles no prueban que el colaborador haya clonado o ejecutado sus pruebas; integración a main y aceptación manual siguen pendientes.
+
 ## Fase 9 — backend de inventario ampliado — 2026-10-18
 
 - Rama `codex/fase-9-inventario` desde `6149091`. Ajustes/bajas sólo Administrador, devoluciones físicas a proveedor con referencia, ingreso en cuarentena, revisiones parciales históricas y conciliación del libro existente; no se duplica inventario ni se generan devoluciones monetarias. Consultas paginadas, identificación del SKU/presentación y alertas por fecha elegida, cuarentena/inactividad.

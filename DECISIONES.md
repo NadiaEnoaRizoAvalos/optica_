@@ -118,6 +118,12 @@ Estado interpretado según evidencia: «implementada» refiere a funciones exist
 - **Estado:** aprobado por el usuario antes de implementar fase 11; implementación pendiente.
 - **Reglas:** una caja abierta por instalación y moneda; Administrador/Atención abren, sólo Administrador cierra con recuento y motivo ante diferencias. Efectivo requiere caja abierta; transferencias/tarjetas registradas por separado. No incluir automáticamente movimientos históricos en una caja nueva ni reconstruir dinero anterior.
 
+### D-72 — Equipo paralelo y trabajos por conjunto
+
+- **Estado:** organización y agrupación confirmadas por el usuario; integración de pedido/trabajos pendiente de fase 10. No se presenta como código implementado en la base compartida.
+- **Ramas:** base documental sobre el código de fase 9; `equipo/fase10-calidad` a cargo del usuario/Codex y `equipo/fase11-caja` exclusivamente del colaborador. Las tres ramas nacen del mismo commit. No modificar main ni fusionar ramas activas. Coordinar archivos compartidos con una sola persona integradora, según docs/TRABAJO-EN-EQUIPO.md.
+- **Agrupación:** un trabajo de anteojos agrupa expresamente armazón/cristales OD/OI del mismo conjunto, con técnica compatible. Contactos/accesorios/armazones independientes tienen trabajos propios. Múltiples trabajos por pedido, entrega completa sólo con todos los controles aprobados; no agrupar ni dividir automáticamente líneas.
+
 ## Decisiones anteriores D-01 a D-36
 
 ### D-01 — Monolito modular por capas
