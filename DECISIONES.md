@@ -28,6 +28,27 @@ Estado interpretado según evidencia: «implementada» refiere a funciones exist
 - **Evidencia:** solución 0 errores/advertencias, 291/291 pruebas, NuGet con transitivas sin paquetes vulnerables informados. Arranque portátil local desde system32 con Windows PowerShell y runtime privado sin SDK; credenciales/versiones/documentos/permisos/loopback comprobados. Importar módulos integrados de ese proceso resuelve PSModulePath heredado sin instalar/cambiar perfiles. No afirmar desconexión física u otra PC por ese ensayo local.
 - **Continuidad:** usuario permite avanzar código con revisiones visuales pendientes. Conservar 5.1/5.2.B/5.3 en ramas encadenadas, sin fusionar a main ni modificar base operativa. Recomendar fase 6 ficticia, con autorización explícita y P-06 aplicable, mientras permanecen abiertos custodia, cifrado, servicio, respaldos reales y ensayos manuales.
 
+### D-59 — Continuidad de backend comercial y preparación de Figma
+
+- **Estado:** autorizada la programación no sensible pendiente de fase 5 y fases 6–11, por incrementos implementados, integrados y verificados; no pedir nueva aprobación para cada subfase pequeña. Sustituye el límite de inicio de fase 6 de D-57/D-58 exclusivamente para backend/pruebas aisladas.
+- **Límites:** consultar reglas importantes no resueltas; mantener autorizaciones específicas para dependencias, migraciones operativas, discos/ACL/servicios Windows reales, cifrado, claves y copias reales. 5.2.A conserva estado operativo pendiente y kit congelado. Ninguna aceptación manual o física se presume realizada.
+- **Integración:** mismo repositorio y capas; contratos de aplicación desde Blazor y endpoints sólo por necesidad. Documentar progresivamente pantallas/datos/acciones en docs/CONTRATOS-Y-PANTALLAS.md. Esperar Figma aprobado antes del diseño definitivo.
+
+### D-60 — Catálogo práctico y reglas monetarias confirmadas
+
+- **Aprobación:** P-06 de catálogo y P-03 monetaria confirmadas por el usuario: categorías/unidades/atributos, perfiles de acceso, datos mínimos del proveedor, moneda inicialmente ARS configurable, 2 decimales y redondeo de empates alejándose de cero. Reglas de pagos/descuentos/anulaciones confirmadas en REQUISITOS.md; su implementación corresponde a fase 7.
+- **Implementación:** producto separado de variante/SKU y proveedor; asociación muchos a muchos sin duplicar artículos. Proveedor/laboratorio puede cumplir ambas funciones. Nombres de proveedores normalizados e identificador fiscal informado únicos; producto único por categoría/nombre/marca/modelo; SKU único incluso inactivo. Sin cuentas automáticas, existencias inventadas o eliminación funcional.
+- **Precisión y permisos:** atributos en columnas explícitas; valores escalados enteros, conservando vacío/cero; precios en centavos con moneda explícita. Profesional usa un contrato técnico sin importes. Administrador administra, Atención/Ventas consulta. Cambios concurrentes usan versiones también de producto/moneda/proveedor para no introducir asociaciones o precios obsoletos.
+- **Seguridad de cambios:** no cambiar automáticamente categoría, moneda de precios existentes o especificaciones bloqueadas por uso. Guardar futuras operaciones con sus valores históricos. Migraciones aditivas nuevas sólo ensayadas en bases ficticias; habilitación operativa y frontend pendientes.
+
+### D-61 — Publicación técnica comercial mínima
+
+- **Estado:** reglas confirmadas por el usuario para implementar en fase 7; no implementadas todavía en esta entrega de catálogo.
+- **Alcance:** graduaciones OD/OI, distancia pupilar, producto/material/tratamiento y montaje vinculados a una versión autorizada por Profesional. Excluir antecedentes, síntomas, notas y documentos clínicos originales; no permitir editar graduaciones desde ventas.
+- **Versionado:** conservar versiones publicadas; corregir/revocar no reescribe historia y bloquea nuevos pasos técnicos hasta nueva publicación válida. Sin envío automático a laboratorio.
+- **Montaje confirmado:** alturas OD/OI y DP monoculares opcionales en mm con 2 decimales, referencia a armazón e instrucciones. No derivar monoculares desde la binocular ni inventar valores. Seleccionar ojos incluidos y exigir esfera explícita, eje con cilindro distinto de cero y base con prisma distinto de cero al autorizar fabricación; no endurecer por ello el registro clínico independiente.
+- **Ventas confirmadas:** cristales y contactos necesitan autorización técnica incluso si hay stock. En contactos el Profesional confirma producto exacto, graduación, curva base y diámetro por ojo; no convertir automáticamente recetas de anteojos. Armazones/accesorios pueden venderse sin receta.
+
 ## Decisiones anteriores D-01 a D-36
 
 ### D-01 — Monolito modular por capas

@@ -29,9 +29,16 @@ public static class Permissions
     public const string ApproveDelivery = "quality.delivery.approve";
     public const string DeliverOrders = "orders.deliver";
     public const string ConfigureQuality = "quality.configure";
+    public const string ReadSuppliers = "suppliers.read";
+    public const string ReadCatalog = "catalog.read";
+    public const string ReadTechnicalCatalog = "catalog.technical.read";
+    public const string ManageCatalog = "catalog.manage";
 
     public static bool Grants(string role, string permission) => (role, permission) switch
     {
+        (Roles.Administrator or Roles.Sales, ReadSuppliers or ReadCatalog) => true,
+        (Roles.Administrator or Roles.Sales or Roles.Professional, ReadTechnicalCatalog) => true,
+        (Roles.Administrator, ManageCatalog) => true,
         (Roles.Administrator, ManageUsers or ReadAudit or ManageBusiness or ManageBackups or VerifyBackups) => true,
         (Roles.Professional, ReadClinical or WriteClinical) => true,
         (Roles.Professional, TechnicalControl or ApproveTechnical) => true,

@@ -66,7 +66,9 @@ public sealed class BackupMigrationTests
         }
         else if (stopAfterFirstMigration)
             await db.GetService<IMigrator>().MigrateAsync("20261016055719_AutomaticBackups");
-        else await db.Database.MigrateAsync();
+        // Este ensayo verifica exclusivamente las dos migraciones de respaldos de fase 5.2.A.
+        // Las migraciones posteriores tienen sus propias pruebas de compatibilidad.
+        else await db.GetService<IMigrator>().MigrateAsync("20261016161235_BackupDestinationBinding");
         var after = await RowsAsync(db);
         Assert.All(before, pair => Assert.Equal(pair.Value, after[pair.Key]));
         Assert.Equal(before.Count + 2, after.Count);

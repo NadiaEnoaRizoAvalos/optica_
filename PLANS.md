@@ -4,7 +4,7 @@
 
 Fases 0–4.1 completadas. **5.2.A: PENDIENTE DE VERIFICACIÓN OPERATIVA.** Kit congelado; pendientes confirmación física de la segunda PC, custodias, cifrado autorizado, servicio Windows y respaldos reales. **5.1 y 5.2.B implementadas/validadas automáticamente; 5.3 con revisión y correcciones verificadas automáticamente.** Pruebas manuales y adopción operativa pendientes. No modificar bases/cuentas operativas ni declarar fase 5 completa/lista para producción.
 
-Alcance de esta entrega: reorganizar únicamente AGENTS.md, REQUISITOS.md y PLANS.md para las seis etapas solicitadas. Sin programación, migraciones, servicios, cifrado ni activación real. Conservar respaldos, kit del simulacro, ramas, módulos y evidencia anteriores. Cualquier futura demostración debe usar una base ficticia separada.
+Alcance autorizado vigente: continuar backend no sensible de fase 5 y fases comerciales 6–11 en incrementos implementados y verificados, sin pedir aprobación después de cada subfase. Se permiten entidades, contratos/DTOs, servicios, validaciones, endpoints necesarios, pruebas y migraciones exclusivamente en bases aisladas. Las decisiones de negocio importantes pendientes y operaciones sensibles requieren consulta específica. Conservar módulos, evidencia, respaldos y kit congelado; no comenzar frontend definitivo mientras el usuario prepara Figma.
 
 [REQUISITOS.md](REQUISITOS.md) define comportamiento; [AGENTS.md](AGENTS.md), reglas permanentes; [DECISIONES.md](DECISIONES.md), decisiones y estados; [BITACORA.md](BITACORA.md), historial y evidencia de verificaciones. El plan anterior se conserva allí como histórico, sin continuar sus numeraciones caducas.
 
@@ -26,7 +26,7 @@ Estado que condiciona las próximas fases: transición multirrol sin alterar cue
 ## Reglas para las próximas fases
 
 - Área clínica y comercial conservan igual importancia. La atención clínica existente sigue disponible sin compra y no depende de completar las fases comerciales.
-- Trabajar por funcionalidades pequeñas dentro de la fase aprobada; no saltar a otra fase sin autorización.
+- Trabajar por funcionalidades pequeñas. La continuidad backend 5–11 está autorizada: avanzar al siguiente incremento después de verificar el anterior, sin reiterar aprobación. Resolver antes las decisiones de negocio que afecten ese incremento; no extender la continuidad a frontend definitivo u operaciones sensibles.
 - Cada módulo incluye permisos, auditoría y pruebas unitarias, de integración y regresión pertinentes. Durante etapa 1 se conservan pantallas existentes y se agregan sólo interfaces mínimas necesarias para comprobación técnica desde navegador; el diseño definitivo y su aceptación se realizan después.
 - No usar datos clínicos reales hasta aceptar seguridad, cifrado, autorizaciones y recuperación. La primera prioridad operativa es resolver esta protección en fase 5.
 - El inventario mínimo necesario para vender se implementa en fase 7; fase 9 lo amplía. Lotes/vencimientos aplican desde el primer manejo físico de productos que los requieran.
@@ -34,7 +34,7 @@ Estado que condiciona las próximas fases: transición multirrol sin alterar cue
 
 ## Cronograma por etapas — metodología vigente
 
-Las etapas organizan el orden de trabajo; las fases numeradas conservan el alcance y los avances históricos. No se fijan fechas sin estimar cada tarea. Esta reorganización no inicia fase 6 ni autoriza operaciones sensibles.
+Las etapas organizan el orden de trabajo; las fases numeradas conservan el alcance y los avances históricos. No se fijan fechas sin estimar cada tarea. La continuidad posterior autoriza programar backend 5–11 con pruebas aisladas, sin ampliar autorizaciones operativas sensibles.
 
 | Etapa | Correspondencia con el plan existente | Entrega y condición de avance |
 | --- | --- | --- |
@@ -63,7 +63,7 @@ Mantener Domain/Application/Infrastructure/Web en un solo repositorio y separar 
 - Conservar 5.2.A como PENDIENTE DE VERIFICACIÓN OPERATIVA y el kit congelado. La prueba física sólo se registra como realizada cuando el usuario confirme resultados.
 - Registrar cada comprobación pendiente con alcance, responsable, evidencia esperada, dependencia y resultado; distinguir validación automatizada, revisión manual y aceptación operativa. PLANS.md mantiene estado y BITACORA.md conserva evidencia de futuras entregas.
 - Bases operativas, cuentas, disco externo, cifrado, claves, permisos Windows, servicios e instalación conservan sus autorizaciones específicas; la nueva metodología no amplía permisos previos.
-- Próxima tarea propuesta: desglosar e implementar el primer incremento de fase 6 después de revisar esta adaptación y confirmar su alcance aplicable de P-06. No comenzar programación en esta entrega.
+- Incremento en curso: fase 6, catálogo y proveedores, con continuidad backend autorizada. P-06 confirmada para unidades/atributos y permisos/datos mínimos; P-03 confirmada para reglas monetarias y circuito inicial. Implementar y verificar antes de continuar; conservar consultas pendientes que afecten encargos, proyección técnica y matriz de calidad.
 
 ## Fases pendientes de implementación
 
@@ -197,7 +197,9 @@ Pendientes manuales: interfaz de 5.1, visor/legibilidad/Windows físico de 5.2.B
 
 ### Fase 6 — Catálogo y proveedores prácticos
 
-**Estado: pendiente.**
+**Estado: backend implementado y verificado automáticamente. Pantallas definitivas/aceptación manual pendientes de etapas 3–4. Sin migraciones operativas.**
+
+Incrementos: 6.1 proveedores/laboratorios y 6.2 productos/variantes, asociación a proveedores, moneda/precios exactos y consulta técnica sin precios. Compilación final: 0 errores/advertencias. Regresión final nueva: 326 ejecutadas y aprobadas (65 Infraestructura y 261 Web), 0 fallidas/omitidas; 35 casos nuevos respecto de la entrega anterior, sin sumar repeticiones. Contratos, campos y futuras acciones en docs/CONTRATOS-Y-PANTALLAS.md. No se agregan existencias ni endpoints redundantes. Migraciones nuevas `20261018013818_Suppliers` y `20261018014943_ProductCatalog`, sólo ensayadas en bases ficticias; Up crea tablas/índices y configuración inicial propia, sin alterar tablas anteriores.
 
 Tareas: pantallas de armazones, cristales, contactos y accesorios; códigos, variantes tipadas realmente utilizadas, unidades, precios y estado; proveedores/laboratorios y contactos. Separar atributos de producto de graduaciones individuales y montaje.
 
@@ -274,15 +276,20 @@ Estas decisiones no bloquean la reorganización documental; deben resolverse ant
 | ID | Confirmación necesaria | Antes de |
 | --- | --- | --- |
 | P-01 | Inspección externa y carpeta privada autorizada/probada con archivo ficticio completadas. Migraciones autorizadas ya aplicadas. Pendientes: vinculación persistida y autorización de copias reales, horario/frecuencia/retención/activación, objetivos de pérdida/recuperación, responsables de alertas, identidad Windows del servicio, custodia de claves y ensayo independiente. Programación y escritura externa de la aplicación permanecen desactivadas. BitLocker/To Go y registro del servicio requieren autorización específica; la autorización de la carpeta no cubre esos cambios. | Habilitación operativa de 5.2. |
-| P-02 | Campos exactos de la proyección técnica comercial, destinatarios, aprobación/publicación y efecto de corregir o revocar una versión. Nunca incluir historia completa ni permitir editar graduaciones. | Proyección de fase 7 y documentos de fase 8. |
-| P-03 | Moneda, escalas/redondeo, descuentos autorizados, excedentes/devoluciones, anulaciones, permisos de pagos y entrega con deuda. | Ventas/pagos de fase 7. |
+| P-02 | Confirmada proyección mínima: graduaciones OD/OI, distancia pupilar, producto/material/tratamiento y montaje, ligada a versión aprobada por Profesional. Sin síntomas, antecedentes, notas clínicas, fotos/PDF originales ni edición comercial de graduaciones. Corrección/revocación conserva historia y bloquea nuevos pasos técnicos hasta publicar versión válida; sin envíos automáticos. Montaje confirmado: alturas OD/OI y DP monoculares opcionales, mm con 2 decimales, armazón e instrucciones; no deducir monoculares. Fabricación: seleccionar ojos, esfera explícita (cero válido), eje con cilindro no cero y base con prisma no cero. Cristales/contactos, aun de stock, requieren autorización técnica; contactos exigen producto exacto, graduación, curva base y diámetro por ojo, sin conversión automática desde receta de anteojos. Armazones/accesorios admiten venta sin receta; clínica conserva registros incompletos y atención sin compra. | Proyección de fase 7 y documentos de fase 8. |
+| P-03 | Confirmada: moneda configurable inicialmente ARS; 2 decimales y empates alejándose de cero; unidades enteras; precios históricos preservados. Administrador/Atención registran pagos y descuentos con motivo, hasta el total de línea. Admitir pagos parciales, sin sobrepagos ni entrega con deuda. Anulaciones/devoluciones monetarias sólo Administrador con motivo y compensaciones. Consultar detalles adicionales importantes antes de implementarlos. | Implementación de precios y ventas/pagos; no cambia operaciones reales. |
 | P-04 | Matriz multirrol implementada/verificada según autorización de 5.1: sólo Administrador, confirmación, protección de acceso propio/último administrador y revocación de sesiones. Pendiente procedimiento operativo de copia, transición/reversión y aceptación. | Aplicación a cuentas operativas, sin cambios automáticos. |
 | P-05 | Controles esenciales y aplicabilidad por producto/trabajo, transición de restricciones actuales y reglas de entrega parcial. | Adaptación de fase 10. |
-| P-06 | Variantes/unidades y datos mínimos del catálogo/proveedor; autorización comercial, recepción parcial, material observado y cancelación del encargo. | Catálogo de fase 6 y encargos de fase 8, según corresponda. |
+| P-06 | Catálogo confirmado: armazones/accesorios por unidad, cristal individual, contactos por caja cerrada con cantidad declarada; variantes reales tipadas según REQUISITOS.md. Administrador administra, Atención consulta, Profesional sólo técnica sin precios/costos; proveedor/laboratorio con nombre obligatorio y contacto/fiscal opcionales, sin cuentas ni eliminación de referenciados. Pendientes de encargos: autorización comercial, recepción parcial, material observado y cancelación. | Catálogo de fase 6 habilitado para implementar; resolver aspectos de encargos antes de fase 8. |
 
 Actualización de P-01: autorizada y completada sólo la creación/protección de la carpeta indicada por el usuario y una prueba ficticia sin datos clínicos. No extender esa aprobación a migraciones, vinculación persistida del destino real, servicio, cifrado ni activación automática.
 
 ## Seguimiento de esta entrega y próxima acción
+
+- Sección backend de fase 6 terminada y verificada en `codex/fase-6-catalogo-proveedores`, con 326/326 pruebas finales y compilación sin errores/advertencias. Publicación como avance coherente según autorización permanente; hash y resultado de push se informan al cierre. Base operativa y ZIP congelado conservan sus hashes; sin operaciones externas, cuentas, servicios o cifrado reales.
+- Continuación autorizada: fase 7 por incrementos, comenzando por publicación técnica mínima con las reglas de P-02 ya confirmadas. Conservar 5.2.A pendiente de verificación operativa y las pantallas definitivas para Figma; no confundir validación backend con aceptación manual o producción.
+
+### Entregas anteriores — contexto histórico
 
 - Metodología reorganizada en seis etapas a solicitud del usuario: preservar implementaciones y evidencia, priorizar lógica pendiente, esperar Figma antes del diseño definitivo y mantener separadas validación automática, manual y operativa. Sólo se modifican los tres documentos indicados; programación de fase 6 pendiente del siguiente paso aprobado. Las entradas siguientes conservan su contexto histórico y no sustituyen el estado vigente al inicio del plan.
 - Validación de esta entrega documental: compilación completa Release con 0 errores y 0 advertencias; nueva ejecución de 291 pruebas, 291 aprobadas (49 infraestructura y 242 web), 0 fallidas y 0 omitidas. El intento inicial bajo aislamiento se anuló sin ejecutar pruebas por fallo de conexión vstest/testhost; la ejecución autorizada posterior completó la batería. No se agregaron pruebas ni se modificó código, la base operativa o el kit del simulacro. Diff limitado a AGENTS.md, REQUISITOS.md y PLANS.md; destino GitHub privado comprobado.

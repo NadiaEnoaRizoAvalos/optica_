@@ -288,6 +288,362 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("OpticaSosa.Domain.Catalog.CommercialSettings", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CommercialSettings", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_CommercialSettings_Currency", "Id = 1 AND Currency GLOB '[A-Z][A-Z][A-Z]'");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Currency = "ARS",
+                            Version = new Guid("5671154c-b49e-4594-85c9-236d8004fd72")
+                        });
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Catalog.Product", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Brand")
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("BrandKey")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Category")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CreatedByUserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Model")
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ModelKey")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("NameKey")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("IsActive", "NameKey");
+
+                    b.HasIndex("Category", "NameKey", "BrandKey", "ModelKey")
+                        .IsUnique();
+
+                    b.ToTable("Products", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Products_Profile", "Category BETWEEN 1 AND 4 AND IsActive IN (0,1) AND length(trim(Name)) BETWEEN 1 AND 160");
+                        });
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Catalog.ProductSupplier", b =>
+                {
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("SupplierId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("ProductId", "SupplierId");
+
+                    b.HasIndex("SupplierId");
+
+                    b.ToTable("ProductSuppliers", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_ProductSuppliers_Active", "IsActive IN (0,1)");
+                        });
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Catalog.ProductVariant", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("Addition")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("AdditionMilli");
+
+                    b.Property<int?>("Axis")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Category")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CodeKey")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("ContactBaseCurveMm")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("ContactBaseCurveHundredths");
+
+                    b.Property<int?>("ContactDiameterMm")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("ContactDiameterHundredths");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CreatedByUserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("Cylinder")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("CylinderMilli");
+
+                    b.Property<int?>("FrameBridgeMm")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("FrameBridgeHundredths");
+
+                    b.Property<string>("FrameColor")
+                        .HasMaxLength(80)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("FrameEyeSizeMm")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("FrameEyeSizeHundredths");
+
+                    b.Property<int?>("FrameTempleMm")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("FrameTempleHundredths");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("LensMaterial")
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("LensRefractiveIndex")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("LensIndexThousandths");
+
+                    b.Property<string>("LensTreatment")
+                        .HasMaxLength(160)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PriceCurrency")
+                        .HasMaxLength(3)
+                        .HasColumnType("TEXT");
+
+                    b.Property<long?>("PriceMinor")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("SpecificationLocked")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("Sphere")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("SphereMilli");
+
+                    b.Property<int>("Unit")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("UnitsPerPackage")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CodeKey")
+                        .IsUnique();
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("ProductId", "Category");
+
+                    b.HasIndex("ProductId", "IsActive", "CodeKey");
+
+                    b.ToTable("ProductVariants", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Variants_AdditionMilli", "AdditionMilli IS NULL OR (typeof(AdditionMilli) = 'integer' AND AdditionMilli BETWEEN -2147483648 AND 2147483647)");
+
+                            t.HasCheckConstraint("CK_Variants_Axis", "Axis IS NULL OR (typeof(Axis) = 'integer' AND Axis BETWEEN 0 AND 180)");
+
+                            t.HasCheckConstraint("CK_Variants_CodeState", "length(trim(Code)) BETWEEN 1 AND 80 AND IsActive IN (0,1) AND SpecificationLocked IN (0,1)");
+
+                            t.HasCheckConstraint("CK_Variants_Contact", "Category = 3 OR (ContactBaseCurveHundredths IS NULL AND ContactDiameterHundredths IS NULL)");
+
+                            t.HasCheckConstraint("CK_Variants_ContactBaseCurveHundredths", "ContactBaseCurveHundredths IS NULL OR (typeof(ContactBaseCurveHundredths) = 'integer' AND ContactBaseCurveHundredths > 0 AND ContactBaseCurveHundredths <= 2147483647)");
+
+                            t.HasCheckConstraint("CK_Variants_ContactDiameterHundredths", "ContactDiameterHundredths IS NULL OR (typeof(ContactDiameterHundredths) = 'integer' AND ContactDiameterHundredths > 0 AND ContactDiameterHundredths <= 2147483647)");
+
+                            t.HasCheckConstraint("CK_Variants_CylinderMilli", "CylinderMilli IS NULL OR (typeof(CylinderMilli) = 'integer' AND CylinderMilli BETWEEN -2147483648 AND 2147483647)");
+
+                            t.HasCheckConstraint("CK_Variants_Frame", "Category = 1 OR (FrameColor IS NULL AND FrameEyeSizeHundredths IS NULL AND FrameBridgeHundredths IS NULL AND FrameTempleHundredths IS NULL)");
+
+                            t.HasCheckConstraint("CK_Variants_FrameBridgeHundredths", "FrameBridgeHundredths IS NULL OR (typeof(FrameBridgeHundredths) = 'integer' AND FrameBridgeHundredths > 0 AND FrameBridgeHundredths <= 2147483647)");
+
+                            t.HasCheckConstraint("CK_Variants_FrameEyeSizeHundredths", "FrameEyeSizeHundredths IS NULL OR (typeof(FrameEyeSizeHundredths) = 'integer' AND FrameEyeSizeHundredths > 0 AND FrameEyeSizeHundredths <= 2147483647)");
+
+                            t.HasCheckConstraint("CK_Variants_FrameTempleHundredths", "FrameTempleHundredths IS NULL OR (typeof(FrameTempleHundredths) = 'integer' AND FrameTempleHundredths > 0 AND FrameTempleHundredths <= 2147483647)");
+
+                            t.HasCheckConstraint("CK_Variants_Lens", "Category = 2 OR (LensMaterial IS NULL AND LensIndexThousandths IS NULL AND LensTreatment IS NULL)");
+
+                            t.HasCheckConstraint("CK_Variants_LensIndexThousandths", "LensIndexThousandths IS NULL OR (typeof(LensIndexThousandths) = 'integer' AND LensIndexThousandths > 0 AND LensIndexThousandths <= 2147483647)");
+
+                            t.HasCheckConstraint("CK_Variants_Powers", "Category IN (2,3) OR (SphereMilli IS NULL AND CylinderMilli IS NULL AND Axis IS NULL AND AdditionMilli IS NULL)");
+
+                            t.HasCheckConstraint("CK_Variants_Price", "(PriceMinor IS NULL AND PriceCurrency IS NULL) OR (PriceMinor IS NOT NULL AND typeof(PriceMinor) = 'integer' AND PriceMinor >= 0 AND PriceCurrency IS NOT NULL AND PriceCurrency GLOB '[A-Z][A-Z][A-Z]')");
+
+                            t.HasCheckConstraint("CK_Variants_SphereMilli", "SphereMilli IS NULL OR (typeof(SphereMilli) = 'integer' AND SphereMilli BETWEEN -2147483648 AND 2147483647)");
+
+                            t.HasCheckConstraint("CK_Variants_Unit", "(Category = 3 AND Unit = 2 AND typeof(UnitsPerPackage) = 'integer' AND UnitsPerPackage > 0) OR (Category IN (1,2,4) AND Unit = 1 AND UnitsPerPackage = 1)");
+                        });
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Catalog.Supplier", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CreatedByUserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(254)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsLaboratory")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("NameKey")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(40)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Services")
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("SuppliesProducts")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("TaxId")
+                        .HasMaxLength(60)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TaxKey")
+                        .HasMaxLength(60)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("NameKey")
+                        .IsUnique();
+
+                    b.HasIndex("TaxKey")
+                        .IsUnique();
+
+                    b.HasIndex("IsActive", "IsLaboratory", "NameKey");
+
+                    b.ToTable("Suppliers", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Suppliers_Active", "IsActive IN (0,1)");
+
+                            t.HasCheckConstraint("CK_Suppliers_Kind", "SuppliesProducts IN (0,1) AND IsLaboratory IN (0,1) AND (SuppliesProducts = 1 OR IsLaboratory = 1)");
+
+                            t.HasCheckConstraint("CK_Suppliers_Name", "length(trim(Name)) BETWEEN 1 AND 160");
+                        });
+                });
+
             modelBuilder.Entity("OpticaSosa.Domain.Clinical.ClinicalAttachment", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1138,6 +1494,55 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
                         });
 
                     b.Navigation("Profile")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Catalog.Product", b =>
+                {
+                    b.HasOne("OpticaSosa.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Catalog.ProductSupplier", b =>
+                {
+                    b.HasOne("OpticaSosa.Domain.Catalog.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OpticaSosa.Domain.Catalog.Supplier", null)
+                        .WithMany()
+                        .HasForeignKey("SupplierId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Catalog.ProductVariant", b =>
+                {
+                    b.HasOne("OpticaSosa.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OpticaSosa.Domain.Catalog.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductId", "Category")
+                        .HasPrincipalKey("Id", "Category")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Catalog.Supplier", b =>
+                {
+                    b.HasOne("OpticaSosa.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
