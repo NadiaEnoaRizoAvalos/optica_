@@ -63,7 +63,8 @@ public static class IdentitySecurityRegistration
                          Permissions.ApproveDelivery, Permissions.DeliverOrders, Permissions.ConfigureQuality,
                          Permissions.ReadSuppliers, Permissions.ReadCatalog, Permissions.ReadTechnicalCatalog, Permissions.ManageCatalog,
                          Permissions.ReadSales, Permissions.WriteSales, Permissions.ReceivePayments, Permissions.RefundPayments,
-                         Permissions.ReadStock, Permissions.ReceiveStock, Permissions.ReadLaboratory, Permissions.WriteLaboratory })
+                         Permissions.ReadStock, Permissions.ReceiveStock, Permissions.ReadLaboratory, Permissions.WriteLaboratory,
+                         Permissions.AdjustStock, Permissions.ReportStockIssue, Permissions.ReviewOperationalStock })
                 options.AddPolicy(permission, policy => policy.RequireAuthenticatedUser().RequireRole(
                     Roles.All.Where(role => Permissions.Grants(role, permission)).ToArray()));
         });

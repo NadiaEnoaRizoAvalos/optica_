@@ -2,6 +2,16 @@
 
 Registro de entregas, cambios, verificaciones e incidentes. El estado vigente está en [PLANS.md](PLANS.md); los requisitos en [REQUISITOS.md](REQUISITOS.md) y las decisiones en [DECISIONES.md](DECISIONES.md).
 
+## Fase 9 — backend de inventario ampliado — 2026-10-18
+
+- Rama `codex/fase-9-inventario` desde `6149091`. Ajustes/bajas sólo Administrador, devoluciones físicas a proveedor con referencia, ingreso en cuarentena, revisiones parciales históricas y conciliación del libro existente; no se duplica inventario ni se generan devoluciones monetarias. Consultas paginadas, identificación del SKU/presentación y alertas por fecha elegida, cuarentena/inactividad.
+- Profesional revisa cristales/contactos; Atención/Profesional no clínicos. Administrador solo no aprueba. Contactos abiertos/vencidos nunca vuelven a utilizable. Cristales personalizados conservan ojo/línea/autorización, y técnica revocada impide liberar cuarentena. Versiones, idempotencia y transacción de movimientos/cantidades/auditoría, con lectura consistente de conciliación.
+- Devolución del cliente exige evidencia de entrega real con ambas etapas de calidad, no consumo de material solamente. Caso de uso/listado y cuarentena implementados; la fase 10 generará esa evidencia en la entrega comercial. Prueba ficticia completa sobre armazón con los controles existentes, sin simular aprobaciones de contactos con plantillas inadecuadas.
+- Migración `20261018034218_InventoryAdministration`: cinco tablas nuevas; ampliación de restricción de StockMovements (reconstrucción SQLite preservando filas) e ingresos iniciales para cuarentenas anteriores. Ensayo ficticio conserva saldos/versiones, libro, clínica, credenciales/roles y auditoría; integridad/FK correctas y modelo EF sincronizado. Respaldo/recuperación aislada también conserva ingresos y conciliación.
+- Compilación completa nueva: **0 errores, 0 advertencias**. Regresión final nueva: **422 ejecutadas/aprobadas, 0 fallidas/omitidas** (83 Infraestructura, 339 Web), **17 casos nuevos** respecto de 405. Informes privados en data/verification-9-full. Tandas específicas previas 12/12 y 16/16, sin sumarlas de nuevo. Incluye última unidad concurrente, rollback por fallo de auditoría, permisos, idempotencia, cuarentena extensa, vencimientos y devolución sin reembolso automático. Sin fallos pendientes.
+- Destino GitHub privado verificado. Base operativa y ZIP congelado conservan sus SHA-256 previos; no se modificaron disco externo, cuentas, servicios Windows, cifrado ni programación real. 5.2.A permanece PENDIENTE DE VERIFICACIÓN OPERATIVA; pantallas comerciales/Figma y aceptación manual pendientes.
+- Usuario confirmó el circuito inicial de caja D-71 para su futura implementación; no se activó ni se reinterpretaron movimientos históricos.
+
 ## Fase 8 — backend de laboratorio — 2026-10-18
 
 - Rama `codex/fase-8-laboratorios` desde `ef8f7c4`; encargos por línea y asignación técnica original, autorización comercial explícita, registro de envío, recepción parcial/idempotente y material observado en cuarentena. Cancelación sólo de no recibido con confirmación del laboratorio tras envío; reprogramaciones históricas y demoras.

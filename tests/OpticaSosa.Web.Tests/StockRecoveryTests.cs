@@ -31,6 +31,9 @@ public sealed class StockRecoveryTests
         Assert.Equal(3, batch.OnHand); Assert.Equal(2, batch.Reserved); Assert.Equal(1, batch.Quarantined); Assert.Equal(0, batch.Available);
         var ledger = (await stock.MovementsAsync(batch.Id)).Items;
         Assert.Equal(batch.OnHand, ledger.Sum(x => x.PhysicalDelta)); Assert.Equal(batch.Reserved, ledger.Sum(x => x.ReservedDelta));
+        var administration = new InventoryAdministration(account.Factory, account.Actor, test.Clock);
+        Assert.Equal(1, Assert.Single((await administration.HoldsAsync(batch.Id)).Items).Pending);
+        Assert.True((await administration.ReconciliationAsync(batch.Id))!.Consistent);
         var reservation = Assert.Single((await stock.ReservationsAsync(test.OrderId)).Items); Assert.Equal(assignment, reservation.TechnicalAssignmentId);
         var projection = await new OrderTechnicalService(account.Factory, account.Actor, test.Clock).ProjectionAsync(test.OrderId, test.LineId);
         Assert.Equal(1.125m, projection!.Right.Sphere);

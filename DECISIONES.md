@@ -103,9 +103,20 @@ Estado interpretado según evidencia: «implementada» refiere a funciones exist
 
 ### D-69 — Ajustes y devoluciones físicas con revisión
 
-- **Estado:** reglas iniciales confirmadas por el usuario durante fase 8; implementación pendiente de fase 9.
+- **Estado:** reglas iniciales confirmadas por el usuario durante fase 8; backend de fase 9 implementado y verificado automáticamente con 422/422 pruebas. Interfaz y aceptación manual pendientes.
 - **Permisos e integridad:** sólo Administrador realiza ajustes/bajas con motivo y movimientos, sin editar saldos ni retirar reservado/consumido como libre. Devoluciones físicas y monetarias son operaciones distintas, sin compensaciones automáticas.
 - **Revisión:** ingresar devoluciones físicas en cuarentena. Profesional revisa cristales/contactos y Atención/Ventas o Profesional productos no clínicos. Contactos abiertos o vencidos no vuelven a utilizable. Cristales personalizados conservan ojo y autorización originales, sin stock genérico automático. Mantener trazabilidad y reintentos sin duplicación.
+
+### D-70 — Inventario reconciliable y devoluciones con evidencia de entrega
+
+- **Decisión:** reutilizar StockBatch/StockMovement y recepción compartida, agregando ingresos de cuarentena, revisiones históricas, devoluciones de cliente y retiros con proveedor cuando corresponde. Idempotencia, versiones y transacción para cantidades/libro/auditoría; conciliación sobre una lectura consistente, sin reparación automática. No mezclar movimientos físicos y dinero.
+- **Entrega y trazabilidad:** StockDeliveryProof sólo vincula reserva consumida con trabajo realmente entregado por el motor de calidad existente. No inferir entrega por consumo ni aceptar devoluciones sobre una simple reserva. La fase 10 producirá esta evidencia en su circuito comercial; ensayos de fase 9 usan un armazón ficticio y ambas etapas de calidad reales. Contactos conservan estado de envase; un ingreso conocido abierto nunca se libera. Material personalizado conserva lote, línea y autorización; técnica obsoleta impide liberarlo como genérico.
+- **Migración:** cinco tablas nuevas y ampliación de check de movimientos que reconstruye sólo ese libro en SQLite. Crear ingresos iniciales equivalentes a cuarentenas anteriores, sin cambiar saldos, usuarios, clínica o movimientos existentes. Verificar migración/recuperación aisladas; aplicación operativa requiere autorización específica.
+
+### D-71 — Circuito inicial de caja confirmado
+
+- **Estado:** aprobado por el usuario antes de implementar fase 11; implementación pendiente.
+- **Reglas:** una caja abierta por instalación y moneda; Administrador/Atención abren, sólo Administrador cierra con recuento y motivo ante diferencias. Efectivo requiere caja abierta; transferencias/tarjetas registradas por separado. No incluir automáticamente movimientos históricos en una caja nueva ni reconstruir dinero anterior.
 
 ## Decisiones anteriores D-01 a D-36
 

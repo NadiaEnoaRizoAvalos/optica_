@@ -3,7 +3,7 @@ using OpticaSosa.Domain.Catalog;
 namespace OpticaSosa.Domain.Inventory;
 
 public enum ExpiryPrecision { None = 0, Day = 1, Month = 2 }
-public enum StockMovementKind { Receipt = 1, Reserve = 2, Release = 3, Consume = 4 }
+public enum StockMovementKind { Receipt = 1, Reserve = 2, Release = 3, Consume = 4, Adjustment = 5, WriteOff = 6, Quarantine = 7, ReviewRelease = 8, CustomerReturn = 9, SupplierReturn = 10 }
 public enum ReservationStatus { Active = 1, Released = 2, Consumed = 3 }
 
 public sealed class StockBatch
@@ -55,6 +55,15 @@ public sealed class StockBatch
         if (quantity <= 0 || quantity > Reserved || quantity > OnHand - Quarantined || (ExpiresOn is { } expiry && today > expiry))
             throw new ArgumentException("No se puede consumir material no reservado, observado o vencido.");
         OnHand -= quantity; Reserved -= quantity; Touch();
+    }
+    public void Adjust(int physicalDelta, int quarantineDelta)
+    {
+        int onHand, quarantine;
+        try { onHand = checked(OnHand + physicalDelta); quarantine = checked(Quarantined + quarantineDelta); }
+        catch (OverflowException) { throw new ArgumentException("La cantidad excede la capacidad del sistema."); }
+        if ((physicalDelta == 0 && quarantineDelta == 0) || onHand < 0 || quarantine < 0 || (long)Reserved + quarantine > onHand)
+            throw new ArgumentException("El movimiento no puede retirar reservas ni ocultar diferencias en cuarentena.");
+        OnHand = onHand; Quarantined = quarantine; Touch();
     }
     private void Touch() => Version = Guid.NewGuid();
 }

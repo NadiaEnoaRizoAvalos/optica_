@@ -18,7 +18,7 @@ public sealed partial class LaboratoryService
             context.Laboratory.Receive(input.Quantity, input.Quarantined, clock.GetUtcNow().UtcDateTime);
             var variant = await db.ProductVariants.SingleAsync(x => x.Id == context.Line.VariantId, ct);
             var receipt = new StockReceiptInput(input.SubmissionId, variant.Id, variant.Version, input.Quantity, input.Quarantined,
-                input.Lot, input.Expiry, input.ExpiryPrecision, input.Reason);
+                input.Lot, input.Expiry, input.ExpiryPrecision, input.Reason, input.QuarantinedContactPackageOpened);
             var batch = await InventoryReceiptWriter.AddAsync(db, variant, receipt, actor, clock, ct);
             db.LaboratoryReceipts.Add(new(input.SubmissionId, laboratoryOrderId, batch.Id, input.Quantity, input.Quarantined,
                 input.Reference, input.Reason, actor, clock.GetUtcNow().UtcDateTime));

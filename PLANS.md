@@ -21,7 +21,7 @@ Alcance autorizado vigente: continuar backend no sensible de fase 5 y fases come
 
 Estos conteos son históricos, no nuevas ejecuciones ni sumandos de una única batería. La configuración del negocio y los avances de GitHub también quedan conservados en la bitácora. La verificación de esta reorganización se registra allí antes del commit.
 
-Estado que condiciona las próximas fases: transición multirrol sin alterar cuentas operativas; respaldo manual consistente; sin catálogo, ventas/pagos, existencias ni encargos comerciales implementados. El trabajo óptico actual exige dos aprobaciones en dominio y SQLite y debe conservarse. Fase 10 reutilizará ese control de calidad, sin reconstruirlo.
+Estado que condiciona las próximas fases: transición multirrol sin alterar cuentas operativas; respaldo manual consistente; catálogo, pedidos/pagos, stock/reservas y laboratorio implementados y verificados como backend en ramas encadenadas. Pantallas comerciales y aceptación manual pendientes. El trabajo óptico existente exige dos aprobaciones en dominio y SQLite y debe conservarse. Fase 10 reutilizará ese control de calidad, sin reconstruirlo.
 
 ## Reglas para las próximas fases
 
@@ -236,7 +236,9 @@ Pruebas: permisos por proyección, cambios técnicos, envíos registrados, demor
 
 ### Fase 9 — Inventario ampliado
 
-**Estado: pendiente.**
+**Estado: backend implementado y verificado automáticamente. Compilación 0 errores/advertencias; regresión nueva 422 ejecutadas/aprobadas, 0 fallidas/omitidas (83 Infraestructura, 339 Web), 17 casos nuevos respecto de 405. Pantallas y aceptación manual pendientes.**
+
+Reutilizado libro de fase 7 y recepciones de fase 8. Ajustes/bajas sólo Administrador, cuarentenas con ingresos/revisiones históricas y devolución física separada del dinero. Contactos abiertos/vencidos bloqueados; revisión clínica sólo Profesional. Alertas y conciliación sin corrección automática. La devolución al cliente exige entrega real probada: integración del caso de entrega comercial en fase 10, sin permitir que consumo solo habilite devolución. Migración `20261018034218_InventoryAdministration`: cinco tablas nuevas, ampliación de restricción de StockMovements (SQLite reconstruye esa tabla conservando filas) e ingresos equivalentes para cuarentenas previas, sin cambiar cantidades. Probada sólo en bases ficticias; no aplicar operativamente.
 
 Tareas: ampliar el núcleo existente con movimientos, ajustes justificados, bajas, devoluciones, alertas y vistas reconciliables; lotes, vencimientos y conversiones exactas de presentaciones cuando correspondan.
 
@@ -294,7 +296,7 @@ Actualización de P-01: autorizada y completada sólo la creación/protección d
 ## Seguimiento de esta entrega y próxima acción
 
 - Sección backend de fase 6 terminada y verificada en `codex/fase-6-catalogo-proveedores`, con 326/326 pruebas finales y compilación sin errores/advertencias. Publicación como avance coherente según autorización permanente; hash y resultado de push se informan al cierre. Base operativa y ZIP congelado conservan sus hashes; sin operaciones externas, cuentas, servicios o cifrado reales.
-- Incrementos 7.1, 7.2 y 7.3 publicados/verificados en sus ramas (`c545cfd`, `0a29832`, `ef8f7c4`). Fase 8 verificada con 405/405 y compilación sin errores/advertencias; publicar sección coherente antes de seguir. Próxima sección autorizada: inventario ampliado de fase 9, con ajustes/devoluciones/revisión según reglas confirmadas D-69. Conservar 5.2.A pendiente de verificación operativa y las pantallas definitivas para Figma; no confundir validación backend con aceptación manual o producción.
+- Incrementos 7.1, 7.2 y 7.3 publicados/verificados en sus ramas (`c545cfd`, `0a29832`, `ef8f7c4`). Fase 8 publicada como `6149091` con 405/405. Fase 9 verificada con 422/422 y compilación sin errores/advertencias en `codex/fase-9-inventario`; publicar sección coherente antes de seguir con fase 10, reutilizando calidad y matriz aprobada D-67. Circuito inicial de caja de fase 11 confirmado en D-71. Conservar 5.2.A pendiente de verificación operativa y las pantallas definitivas para Figma; no confundir validación backend con aceptación manual o producción.
 
 ### Entregas anteriores — contexto histórico
 

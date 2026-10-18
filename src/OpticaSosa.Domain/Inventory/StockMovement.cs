@@ -28,6 +28,13 @@ public sealed class StockMovement
             StockMovementKind.Reserve => reservation is not null && physical == 0 && reserved > 0 && quarantine == 0,
             StockMovementKind.Release => reservation is not null && physical == 0 && reserved < 0 && quarantine == 0,
             StockMovementKind.Consume => reservation is not null && physical < 0 && physical == reserved && quarantine == 0,
+            StockMovementKind.Adjustment => reservation is null && reserved == 0 && physical != 0 &&
+                (quarantine == 0 || quarantine == physical),
+            StockMovementKind.WriteOff or StockMovementKind.SupplierReturn => reservation is null && reserved == 0 && physical < 0 &&
+                (quarantine == 0 || quarantine == physical),
+            StockMovementKind.Quarantine => reservation is null && physical == 0 && reserved == 0 && quarantine > 0,
+            StockMovementKind.ReviewRelease => reservation is null && physical == 0 && reserved == 0 && quarantine < 0,
+            StockMovementKind.CustomerReturn => reservation is not null && physical > 0 && reserved == 0 && quarantine == physical,
             _ => false
         };
         if (!valid) throw new ArgumentException("Los movimientos deben conservar la distinción entre físico, reservado y cuarentena.");

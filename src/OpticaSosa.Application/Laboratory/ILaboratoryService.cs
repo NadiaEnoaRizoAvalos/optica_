@@ -10,7 +10,7 @@ public sealed record LaboratoryCreateInput(Guid SubmissionId, Guid OrderVersion,
     Guid? TechnicalAssignmentId, int Quantity, DateOnly? EstimatedDate, bool CommercialConfirmed);
 public sealed record LaboratoryDispatchInput(Guid SubmissionId, Guid OrderVersion, Guid LaboratoryVersion, string Reference);
 public sealed record LaboratoryReceiveInput(Guid SubmissionId, Guid OrderVersion, Guid LaboratoryVersion, int Quantity,
-    int Quarantined, string? Lot, DateOnly? Expiry, ExpiryPrecision ExpiryPrecision, string Reason, string? Reference = null);
+    int Quarantined, string? Lot, DateOnly? Expiry, ExpiryPrecision ExpiryPrecision, string Reason, string? Reference = null, bool? QuarantinedContactPackageOpened = null);
 public sealed record LaboratoryCancelInput(Guid SubmissionId, Guid OrderVersion, Guid LaboratoryVersion, int Quantity,
     string Reason, string? LaboratoryConfirmation = null);
 public sealed record LaboratoryRescheduleInput(Guid SubmissionId, Guid OrderVersion, Guid LaboratoryVersion, DateOnly? EstimatedDate, string Reason);

@@ -1446,6 +1446,118 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("OpticaSosa.Domain.Inventory.StockCustomerReturn", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ActorUserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool?>("ContactPackageOpened")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("HoldId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ReservationId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("ReturnedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActorUserId");
+
+                    b.HasIndex("HoldId")
+                        .IsUnique();
+
+                    b.HasIndex("ReservationId", "ReturnedAtUtc", "Id");
+
+                    b.ToTable("StockCustomerReturns", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_StockCustomerReturns_Profile", "typeof(Quantity) = 'integer' AND Quantity > 0 AND (ContactPackageOpened IS NULL OR ContactPackageOpened IN (0,1)) AND length(trim(Reason)) BETWEEN 1 AND 500");
+                        });
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Inventory.StockDeliveryProof", b =>
+                {
+                    b.Property<Guid>("ReservationId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("WorkId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("ReservationId");
+
+                    b.HasIndex("WorkId");
+
+                    b.ToTable("StockDeliveryProofs");
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Inventory.StockHold", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("BatchId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CreatedByUserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("OpenedContact")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Origin")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ReleasedQuantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("RemovedQuantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("BatchId", "CreatedAtUtc", "Id");
+
+                    b.ToTable("StockHolds", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_StockHolds_Profile", "Origin IN (1,2,3,4) AND typeof(Quantity) = 'integer' AND Quantity > 0 AND typeof(ReleasedQuantity) = 'integer' AND ReleasedQuantity >= 0 AND typeof(RemovedQuantity) = 'integer' AND RemovedQuantity >= 0 AND ReleasedQuantity + RemovedQuantity <= Quantity AND OpenedContact IN (0,1) AND (OpenedContact = 0 OR ReleasedQuantity = 0) AND length(trim(Reason)) BETWEEN 1 AND 500");
+                        });
+                });
+
             modelBuilder.Entity("OpticaSosa.Domain.Inventory.StockMovement", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1497,7 +1609,7 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
 
                     b.ToTable("StockMovements", null, t =>
                         {
-                            t.HasCheckConstraint("CK_StockMovements_Deltas", "typeof(PhysicalDelta) = 'integer' AND typeof(ReservedDelta) = 'integer' AND typeof(QuarantineDelta) = 'integer' AND ((Kind = 1 AND ReservationId IS NULL AND PhysicalDelta > 0 AND ReservedDelta = 0 AND QuarantineDelta BETWEEN 0 AND PhysicalDelta) OR (Kind = 2 AND ReservationId IS NOT NULL AND PhysicalDelta = 0 AND ReservedDelta > 0 AND QuarantineDelta = 0) OR (Kind = 3 AND ReservationId IS NOT NULL AND PhysicalDelta = 0 AND ReservedDelta < 0 AND QuarantineDelta = 0) OR (Kind = 4 AND ReservationId IS NOT NULL AND PhysicalDelta < 0 AND PhysicalDelta = ReservedDelta AND QuarantineDelta = 0))");
+                            t.HasCheckConstraint("CK_StockMovements_Deltas", "typeof(PhysicalDelta) = 'integer' AND typeof(ReservedDelta) = 'integer' AND typeof(QuarantineDelta) = 'integer' AND ((Kind = 1 AND ReservationId IS NULL AND PhysicalDelta > 0 AND ReservedDelta = 0 AND QuarantineDelta BETWEEN 0 AND PhysicalDelta) OR (Kind = 2 AND ReservationId IS NOT NULL AND PhysicalDelta = 0 AND ReservedDelta > 0 AND QuarantineDelta = 0) OR (Kind = 3 AND ReservationId IS NOT NULL AND PhysicalDelta = 0 AND ReservedDelta < 0 AND QuarantineDelta = 0) OR (Kind = 4 AND ReservationId IS NOT NULL AND PhysicalDelta < 0 AND PhysicalDelta = ReservedDelta AND QuarantineDelta = 0) OR (Kind IN (5,6,10) AND ReservationId IS NULL AND ReservedDelta = 0 AND PhysicalDelta <> 0 AND (Kind = 5 OR PhysicalDelta < 0) AND (QuarantineDelta = 0 OR QuarantineDelta = PhysicalDelta)) OR (Kind = 7 AND ReservationId IS NULL AND PhysicalDelta = 0 AND ReservedDelta = 0 AND QuarantineDelta > 0) OR (Kind = 8 AND ReservationId IS NULL AND PhysicalDelta = 0 AND ReservedDelta = 0 AND QuarantineDelta < 0) OR (Kind = 9 AND ReservationId IS NOT NULL AND PhysicalDelta > 0 AND ReservedDelta = 0 AND QuarantineDelta = PhysicalDelta))");
 
                             t.HasCheckConstraint("CK_StockMovements_Metadata", "length(trim(Reason)) BETWEEN 1 AND 500 AND length(RequestHash) = 64 AND RequestHash NOT GLOB '*[^0-9A-F]*'");
                         });
@@ -1562,6 +1674,96 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
                             t.HasCheckConstraint("CK_StockReservations_Closure", "(Status = 1 AND ClosedAtUtc IS NULL AND ClosedByUserId IS NULL AND ClosureReason IS NULL) OR (Status IN (2,3) AND ClosedAtUtc IS NOT NULL AND ClosedByUserId IS NOT NULL AND ClosureReason IS NOT NULL AND length(trim(ClosureReason)) > 0)");
 
                             t.HasCheckConstraint("CK_StockReservations_Quantity", "typeof(Quantity) = 'integer' AND Quantity > 0");
+                        });
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Inventory.StockReview", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ActorUserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("Approved")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("HoldId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("ItemIntact")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("ProductMatches")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RequestHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("ReviewedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool?>("SealIntact")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActorUserId");
+
+                    b.HasIndex("HoldId", "ReviewedAtUtc", "Id");
+
+                    b.ToTable("StockReviews", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_StockReviews_Profile", "typeof(Quantity) = 'integer' AND Quantity > 0 AND Role IN (1,2) AND Approved IN (0,1) AND ProductMatches IN (0,1) AND ItemIntact IN (0,1) AND (SealIntact IS NULL OR SealIntact IN (0,1)) AND (Approved = 0 OR (ProductMatches = 1 AND ItemIntact = 1)) AND length(trim(Reason)) BETWEEN 1 AND 500 AND length(RequestHash) = 64 AND RequestHash NOT GLOB '*[^0-9A-F]*'");
+                        });
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Inventory.StockWithdrawal", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("BatchId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("HoldId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Kind")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid?>("SupplierId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BatchId");
+
+                    b.HasIndex("HoldId");
+
+                    b.HasIndex("SupplierId");
+
+                    b.ToTable("StockWithdrawals", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_StockWithdrawals_Profile", "typeof(Quantity) = 'integer' AND Quantity > 0 AND ((Kind = 6 AND SupplierId IS NULL) OR (Kind = 10 AND SupplierId IS NOT NULL))");
                         });
                 });
 
@@ -2554,6 +2756,57 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("OpticaSosa.Domain.Inventory.StockCustomerReturn", b =>
+                {
+                    b.HasOne("OpticaSosa.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("ActorUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OpticaSosa.Domain.Inventory.StockHold", null)
+                        .WithMany()
+                        .HasForeignKey("HoldId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OpticaSosa.Domain.Inventory.StockReservation", null)
+                        .WithMany()
+                        .HasForeignKey("ReservationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Inventory.StockDeliveryProof", b =>
+                {
+                    b.HasOne("OpticaSosa.Domain.Inventory.StockReservation", null)
+                        .WithMany()
+                        .HasForeignKey("ReservationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OpticaSosa.Domain.Work.OpticalWork", null)
+                        .WithMany()
+                        .HasForeignKey("WorkId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Inventory.StockHold", b =>
+                {
+                    b.HasOne("OpticaSosa.Domain.Inventory.StockBatch", null)
+                        .WithMany()
+                        .HasForeignKey("BatchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OpticaSosa.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("OpticaSosa.Domain.Inventory.StockMovement", b =>
                 {
                     b.HasOne("OpticaSosa.Infrastructure.Identity.ApplicationUser", null)
@@ -2602,6 +2855,46 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
                     b.HasOne("OpticaSosa.Domain.Inventory.OrderTechnicalAssignment", null)
                         .WithMany()
                         .HasForeignKey("TechnicalAssignmentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Inventory.StockReview", b =>
+                {
+                    b.HasOne("OpticaSosa.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("ActorUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OpticaSosa.Domain.Inventory.StockHold", null)
+                        .WithMany()
+                        .HasForeignKey("HoldId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Inventory.StockWithdrawal", b =>
+                {
+                    b.HasOne("OpticaSosa.Domain.Inventory.StockBatch", null)
+                        .WithMany()
+                        .HasForeignKey("BatchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OpticaSosa.Domain.Inventory.StockHold", null)
+                        .WithMany()
+                        .HasForeignKey("HoldId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("OpticaSosa.Domain.Inventory.StockMovement", null)
+                        .WithMany()
+                        .HasForeignKey("Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OpticaSosa.Domain.Catalog.Supplier", null)
+                        .WithMany()
+                        .HasForeignKey("SupplierId")
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 

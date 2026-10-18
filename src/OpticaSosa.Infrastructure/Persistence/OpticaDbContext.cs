@@ -43,6 +43,11 @@ public sealed class OpticaDbContext(DbContextOptions<OpticaDbContext> options) :
     public DbSet<OpticaSosa.Domain.Laboratory.LaboratoryOrder> LaboratoryOrders => Set<OpticaSosa.Domain.Laboratory.LaboratoryOrder>();
     public DbSet<OpticaSosa.Domain.Laboratory.LaboratoryReceipt> LaboratoryReceipts => Set<OpticaSosa.Domain.Laboratory.LaboratoryReceipt>();
     public DbSet<OpticaSosa.Domain.Laboratory.LaboratoryChange> LaboratoryChanges => Set<OpticaSosa.Domain.Laboratory.LaboratoryChange>();
+    public DbSet<OpticaSosa.Domain.Inventory.StockHold> StockHolds => Set<OpticaSosa.Domain.Inventory.StockHold>();
+    public DbSet<OpticaSosa.Domain.Inventory.StockReview> StockReviews => Set<OpticaSosa.Domain.Inventory.StockReview>();
+    public DbSet<OpticaSosa.Domain.Inventory.StockCustomerReturn> StockCustomerReturns => Set<OpticaSosa.Domain.Inventory.StockCustomerReturn>();
+    public DbSet<OpticaSosa.Domain.Inventory.StockWithdrawal> StockWithdrawals => Set<OpticaSosa.Domain.Inventory.StockWithdrawal>();
+    public DbSet<OpticaSosa.Domain.Inventory.StockDeliveryProof> StockDeliveryProofs => Set<OpticaSosa.Domain.Inventory.StockDeliveryProof>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -162,6 +162,8 @@ Estas etapas no postergan controles críticos: seguridad, permisos, integridad y
 - No sustituir automáticamente marca, modelo, graduación, curva base o diámetro. Gestionar paquetes/unidades mediante conversiones exactas y sólo cuando se necesiten.
 - Reservar no consume; cancelar libera sólo reservas no consumidas. Reponer una devolución exige revisión; no duplicar existencias al abrir un paquete o reintentar recepción/entrega.
 - Reglas confirmadas de fase 9: sólo Administrador ajusta o da de baja con motivo, movimientos explícitos y sin tratar reservado/consumido como libre. Devoluciones físicas separadas del dinero e ingreso en cuarentena hasta revisión. Contactos abiertos o vencidos no vuelven a utilizable. Profesional revisa cristales/contactos; Atención/Ventas o Profesional, productos no clínicos. Cristales personalizados conservan ojo/autorización originales, sin conversión automática a stock genérico.
+- Cada ingreso a cuarentena conserva cantidades pendientes, liberadas y retiradas, origen, motivo y responsable; cada revisión es histórica. La devolución de cliente requiere evidencia de entrega con calidad aprobada, no sólo consumo de material. Su integración comercial se completa en fase 10. Las bajas/devoluciones a proveedor conservan referencia y no crean devoluciones monetarias automáticamente.
+- Mostrar identidad de producto/SKU/unidad, estado activo y vencimiento junto al lote, y alertas paginadas de cuarentena, vencimiento hasta una fecha elegida e inactividad. La conciliación compara físico/reservado/cuarentena con el mismo libro y los ingresos a cuarentena, sin corregir discrepancias silenciosamente.
 
 ### RF-11. Calidad y entrega adaptadas — fase 10
 
@@ -176,6 +178,7 @@ Estas etapas no postergan controles críticos: seguridad, permisos, integridad y
 ### RF-12. Caja, informes y experiencia final — fases 11 y 12
 
 - Fase 11: caja básica, ingresos y medios de pago, cierres y reportes operativos reconciliados con ventas/pagos/anulaciones; permisos explícitos. No implementar contabilidad integral.
+- Circuito inicial de caja confirmado: una caja abierta por instalación y moneda; Administrador o Atención/Ventas abre, sólo Administrador cierra con recuento y motivo obligatorio ante diferencia. Efectivo exige caja abierta, transferencias/tarjetas se registran aparte. Los movimientos anteriores conservan su historia, sin incorporarlos automáticamente a una caja nueva.
 - Fase 12: conservar el alcance de experiencia final y despliegue, distribuido entre etapas 2–6: diseño y navegación sujetos a Figma aprobado, integración, aceptación manual, uso en Windows/tres celulares y verificación operativa final.
 - Habilitar red local privada, HTTPS, firewall y sesiones simultáneas, sin internet; probar desconexión, reintento y recuperación.
 - Documentar instalación y actualización en Windows conservando datos y respaldos. No exponer el servidor a internet.

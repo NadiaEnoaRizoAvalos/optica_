@@ -89,6 +89,16 @@ Contratos implementados `ISalesOrderService` y `IOrderPaymentService`, llamados 
 
 ## Rutas actuales relevantes
 
+### Administración ampliada de inventario — fase 9
+
+Contrato `IInventoryAdministration`, sin endpoints HTTP duplicados ni precios en sus vistas de stock. Todas las pantallas siguientes quedan pendientes de integración con Figma.
+
+- **Existencias/alertas:** `IStockService.BatchAsync` identifica un lote concreto; `BatchesAsync` muestra producto/SKU/unidad/presentación, activo, físico/reservado/cuarentena/disponible, vencimiento/precisión y versión. `AlertsAsync(through, page)` consulta cuarentenas, inactivos y vencimientos hasta la fecha elegida. Listados de 50 con continuación, sin máximo total.
+- **Ajustes y bajas:** Administrador usa `AdjustAsync`, `WriteOffAsync` o `ReturnToSupplierAsync`, con identificador único, versión del lote, cantidad, motivo y, si corresponde, ingreso de cuarentena/versión y proveedor. No retirar reservado como libre ni modificar cantidades sin movimiento. Las devoluciones a proveedor no devuelven dinero automáticamente.
+- **Observaciones/revisión:** `QuarantineAsync` aparta material libre; `HoldsAsync` lista ingresos pendientes o históricos. `ReviewAsync` registra verificación de correspondencia/integridad/envase y resultado, manteniendo rechazo en cuarentena; sólo Profesional en cristales/contactos y Atención/Profesional en no clínicos. Administrador solo no aprueba. Contactos conocidos abiertos o vencidos no se liberan. `ReviewsAsync` conserva resultados anteriores.
+- **Devolución de cliente:** `ReturnFromCustomerAsync` identifica reserva original, versiones, cantidad, motivo y estado explícito del envase de contactos; requiere evidencia de entrega con calidad, no sólo consumo. Ingresa siempre en cuarentena, con límite acumulado a lo realmente entregado. `ReturnsAsync` conserva historia paginada. No modifica pagos/reembolsos; el caso comercial de entrega generará evidencia en fase 10.
+- **Conciliación:** `ReconciliationAsync` compara cantidades con sumas del libro e ingresos pendientes sobre una lectura consistente. Mostrar discrepancia para revisión, sin botón de corrección silenciosa. Cantidades, motivos y autores conservados/auditados; ninguna operación transforma un cristal personalizado en SKU genérico.
+
 Estas rutas ya existen en la aplicación principal y se conservan hasta integrar el prototipo aprobado:
 
 | Área | Rutas de páginas |

@@ -6,9 +6,10 @@ using OpticaSosa.Domain.Inventory;
 namespace OpticaSosa.Application.Inventory;
 
 public sealed record StockReceiptInput(Guid SubmissionId, Guid VariantId, Guid VariantVersion, int Quantity, int Quarantined,
-    string? Lot, DateOnly? Expiry, ExpiryPrecision ExpiryPrecision, string Reason);
+    string? Lot, DateOnly? Expiry, ExpiryPrecision ExpiryPrecision, string Reason, bool? QuarantinedContactPackageOpened = null);
 public sealed record StockBatchView(Guid Id, Guid VariantId, ProductCategory Category, string? Lot, DateOnly? ExpiresOn,
-    ExpiryPrecision ExpiryPrecision, int OnHand, int Reserved, int Quarantined, int Available, Guid Version, DateTime ReceivedAtUtc);
+    ExpiryPrecision ExpiryPrecision, int OnHand, int Reserved, int Quarantined, int Available, Guid Version, DateTime ReceivedAtUtc,
+    Guid ProductId, string ProductName, string VariantCode, ProductUnit Unit, int UnitsPerPackage, bool ProductActive, bool Expired);
 public sealed record StockBatchPage(IReadOnlyList<StockBatchView> Items, int Page, bool HasMore);
 public sealed record StockReceiptResult(bool Succeeded, Guid? BatchId = null, string? Error = null, bool Conflict = false);
 public sealed record ReserveStockInput(Guid SubmissionId, Guid OrderVersion, Guid BatchId, Guid BatchVersion,
@@ -26,6 +27,8 @@ public sealed record OrderAvailabilityPage(IReadOnlyList<OrderAvailabilityLine> 
 public interface IStockService
 {
     Task<StockBatchPage> BatchesAsync(Guid? variantId = null, int page = 1, CancellationToken ct = default);
+    Task<StockBatchView?> BatchAsync(Guid batchId, CancellationToken ct = default);
+    Task<StockBatchPage> AlertsAsync(DateOnly through, int page = 1, CancellationToken ct = default);
     Task<StockReceiptResult> ReceiveAsync(StockReceiptInput input, CancellationToken ct = default);
     Task<StockReservationPage> ReservationsAsync(Guid orderId, int page = 1, CancellationToken ct = default);
     Task<StockMovementPage> MovementsAsync(Guid batchId, int page = 1, CancellationToken ct = default);
