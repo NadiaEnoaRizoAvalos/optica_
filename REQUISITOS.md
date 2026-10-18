@@ -134,6 +134,7 @@ Estas etapas no postergan controles críticos: seguridad, permisos, integridad y
 - El Profesional debe conocer el estado operativo necesario sin recibir automáticamente permisos sobre costos, márgenes o edición de pagos.
 - Incluir desde esta fase existencias iniciales trazables, entradas mínimas necesarias, disponibilidad, reservas, liberaciones y faltantes. No postergar estos controles indispensables hasta fase 9.
 - Admitir materiales de stock, encargados a laboratorio y combinación de ambos, incluso por ojo. Validar requisitos técnicos autorizados y la variante exacta.
+- Asignar explícitamente las líneas técnicas a OD, OI o ambos. Cristales para ambos requieren dos unidades y variante de stock coincidente con los dos. Una caja cerrada de contactos puede cubrir ambos ojos sólo con el mismo producto y parámetros expresamente autorizados por Profesional para los dos; no dividir la caja ni convertir graduaciones.
 - Reservar sólo material recibido, utilizable y no vencido, con transacciones e idempotencia; impedir saldos negativos y doble reserva de la última unidad.
 - Mantener separados existencias físicas, reservas, disponibilidad y encargos pendientes. No transformar un encargo en stock antes de su recepción.
 - Proveer pantallas para probar pedidos, señas, saldos y faltantes. El circuito nuevo de entrega completo depende de fase 10; los trabajos históricos conservan su funcionamiento.
@@ -145,6 +146,7 @@ Estas etapas no postergan controles críticos: seguridad, permisos, integridad y
 - Registrar actores y cambios, mostrar demoras y permitir recepción por material/cantidad, con observaciones sobre material dañado o incorrecto.
 - Una recepción válida incorpora material una sola vez mediante el inventario mínimo existente. Recibir no equivale a aprobar calidad ni entregar al cliente.
 - Separar autorización técnica y comercial. Una exportación no prueba envío efectivo; no enviar mensajes automáticamente.
+- Circuito inicial confirmado: Profesional autoriza técnica; Administrador/Atención autorizan comercialmente y registran envío explícito. Admitir recepción parcial. Material observado queda en cuarentena, sin disponibilidad. Cancelar sólo cantidades no recibidas; después de enviar, exigir confirmación registrada del laboratorio. Conservar lo recibido y sus movimientos; devoluciones de material y dinero son operaciones separadas.
 - Preparar documentación/PDF con la información mínima autorizada por destinatario, sin exponer historia clínica. Cualquier dependencia nueva requiere autorización.
 - No introducir PurchaseAllocation, agrupaciones complejas ni circuitos de compras que no necesite el encargo simple.
 

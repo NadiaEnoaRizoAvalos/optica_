@@ -33,9 +33,15 @@ public static class Permissions
     public const string ReadCatalog = "catalog.read";
     public const string ReadTechnicalCatalog = "catalog.technical.read";
     public const string ManageCatalog = "catalog.manage";
+    public const string ReadSales = "sales.read";
+    public const string WriteSales = "sales.write";
+    public const string ReceivePayments = "sales.payments.receive";
+    public const string RefundPayments = "sales.payments.refund";
 
     public static bool Grants(string role, string permission) => (role, permission) switch
     {
+        (Roles.Administrator or Roles.Sales, ReadSales or WriteSales or ReceivePayments) => true,
+        (Roles.Administrator, RefundPayments) => true,
         (Roles.Administrator or Roles.Sales, ReadSuppliers or ReadCatalog) => true,
         (Roles.Administrator or Roles.Sales or Roles.Professional, ReadTechnicalCatalog) => true,
         (Roles.Administrator, ManageCatalog) => true,

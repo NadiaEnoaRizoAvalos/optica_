@@ -56,6 +56,8 @@ public static class DependencyInjection
         services.AddScoped<OpticaSosa.Application.Catalog.ICatalogService, OpticaSosa.Infrastructure.Catalog.CatalogService>();
         services.AddScoped<OpticaSosa.Application.Catalog.ITechnicalCatalog, OpticaSosa.Infrastructure.Catalog.TechnicalCatalog>();
         services.AddScoped<OpticaSosa.Application.Technical.ITechnicalPublicationService, OpticaSosa.Infrastructure.Technical.TechnicalPublicationService>();
+        services.AddScoped<OpticaSosa.Application.Commerce.ISalesOrderService, OpticaSosa.Infrastructure.Commerce.SalesOrderService>();
+        services.AddScoped<OpticaSosa.Application.Commerce.IOrderPaymentService, OpticaSosa.Infrastructure.Commerce.OrderPaymentService>();
         services.AddScoped<IClinicalService, ClinicalService>();
         services.AddScoped<IClinicalDirectory, ClinicalDirectory>();
         services.AddScoped<IPrivateAttachmentStore, PrivateAttachmentStore>();

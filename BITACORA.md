@@ -2,6 +2,15 @@
 
 Registro de entregas, cambios, verificaciones e incidentes. El estado vigente está en [PLANS.md](PLANS.md); los requisitos en [REQUISITOS.md](REQUISITOS.md) y las decisiones en [DECISIONES.md](DECISIONES.md).
 
+## Incremento 7.2 — pedidos y señas — 2026-10-17
+
+- Rama `codex/fase-7-pedidos-senas` desde `c545cfd`; publicación técnica y catálogo conservados en ramas anteriores. Pedido comercial independiente de recetas/trabajos existentes, borradores con revisiones de líneas, precios/moneda/descuentos exactos y confirmación sin exigir compra para clínica ni técnica antes de la seña.
+- Cobros parciales idempotentes hasta saldo; devoluciones administrativas que compensan cobros originales, sin borrar ni transferir dinero. Cancelación con motivo y dinero explícitamente devuelto; si hubo cobros requiere Administrador. Permisos financieros separados, transacción SQLite, versión, recibos de comandos y auditoría atómicos; conservación de precios frente a cambios posteriores del catálogo.
+- Migración `20261018023358_SalesOrdersAndPayments`: cuatro tablas nuevas y sus índices, sin alteraciones a tablas anteriores. Sólo ensayos ficticios; sin nuevas dependencias ni migraciones operativas. Contratos y futuras acciones documentados, sin endpoints redundantes ni rediseño anticipado. Reservas/vínculo técnico mínimo siguen pendientes en 7.3, no se habilitó entrega.
+- Compilación completa nueva: **0 errores y 0 advertencias**. Regresión final nueva: **357 ejecutadas/aprobadas, 0 fallidas/omitidas** (72 Infraestructura, 285 Web); **17 casos nuevos** respecto de 340. Primera matriz específica 15/15 aprobada, sin sumarla otra vez. Incluye recuperación aislada mediante el respaldo existente, con pedidos/pagos/clínica/publicaciones y hash del respaldo original intacto, más rollback ante fallo de auditoría y restricciones SQLite. Informes privados en data/verification-72-full.
+- Asignación por ojos confirmada durante esta tarea: cristales para ambos requieren dos unidades y stock coincidente; una caja cerrada de contactos puede cubrir ambos sólo con producto/parámetros idénticos autorizados para los dos. Se implementará con reservas, sin venta suelta ni conversión automática.
+- 5.2.A sigue PENDIENTE DE VERIFICACIÓN OPERATIVA, kit congelado. Sin modificaciones a base/cuentas operativas, disco externo, servicios Windows, cifrado o respaldos/programación reales.
+
 ## Incremento 7.1 — publicación técnica versionada — 2026-10-17
 
 - Rama `codex/fase-7-publicacion-tecnica` desde `d6055bd`; continuidad backend autorizada. Publicación profesional ligada a revisión de receta, ojos explícitos, graduaciones exactas, montaje y selección exacta de contactos. No altera las graduaciones originales ni exige compras para atención clínica.

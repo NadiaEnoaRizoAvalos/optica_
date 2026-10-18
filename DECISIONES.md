@@ -63,6 +63,20 @@ Estado interpretado según evidencia: «implementada» refiere a funciones exist
 - **Contactos:** lote obligatorio y fecha de envase inclusiva; desde el día siguiente no reservar/entregar. Mes/año conserva esa precisión y su último día válido. No inferir un vencimiento ausente. La regla se aplica desde el primer manejo físico, sin esperar fase 9.
 - **Pendientes independientes:** recepción/cancelación de encargos de laboratorio (P-06) y matriz de calidad/entregas parciales (P-05) no se consideran confirmadas por estas respuestas.
 
+### D-64 — Pedidos comerciales e historial monetario separados de los trabajos
+
+- **Estado:** backend implementado en 7.2, verificación final registrada en BITACORA.md. No sustituye los trabajos ópticos históricos ni habilita entrega comercial.
+- **Modelo:** pedido propio con líneas por revisión de borrador, moneda/importes en enteros y precios/descripciones acordados. Conservar borradores anteriores, no editar líneas confirmadas ni revalorizar historia desde el catálogo. Variantes usadas mantienen sus especificaciones bloqueadas. No crear ventas a partir de trabajos anteriores.
+- **Dinero:** cobros positivos hasta saldo y devoluciones positivas referidas a un cobro original del mismo pedido; compensar sin borrar. Administrador devuelve y cancela pedidos que tuvieron cobros; Atención también cancela los que nunca cobraron. Devolver todo antes de cerrar no transfiere fondos al nuevo pedido.
+- **Atomicidad:** transacción SQLite, versión del pedido, recibo de comando con identificador/actor/acción/hash y auditoría; reintento idéntico no repite cobros ni otros efectos. No guardar formularios o datos clínicos como JSON genérico. Medio de pago explícito y referencia opcional, sin conciliación bancaria o envío externo.
+- **Integración siguiente:** confirmar/cobrar no reserva ni encarga automáticamente; esas acciones revalidarán técnica y stock en 7.3/8. Asignación OD/OI/ambos confirmada por el usuario: dos cristales para ambos ojos; caja cerrada compartida sólo con producto/parámetros idénticos autorizados en ambos. Inventario mínimo sigue perteneciendo a fase 7.
+
+### D-65 — Encargos de laboratorio: recepción y cancelación
+
+- **Estado:** circuito inicial confirmado por el usuario durante 7.2; implementación pendiente de fase 8.
+- **Reglas:** autorización técnica Profesional y comercial Administrador/Atención; registrar envío expresamente, sin mensajes automáticos. Recepción parcial permitida; observado queda en cuarentena sin disponibilidad. Cancelar sólo cantidades no recibidas y exigir confirmación registrada del laboratorio si ya se enviaron. Lo recibido conserva movimientos; material y dinero se devuelven mediante operaciones separadas.
+- **Integración:** reutilizar stock/recepción idempotente del núcleo de fase 7 y proyección técnica vigente. No crear un segundo inventario ni reinterpretar recibir como aprobar calidad o entregar.
+
 ## Decisiones anteriores D-01 a D-36
 
 ### D-01 — Monolito modular por capas
