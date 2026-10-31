@@ -11,6 +11,7 @@ using OpticaSosa.Application.Business;
 using OpticaSosa.Infrastructure.Business;
 using OpticaSosa.Application.Clinical;
 using OpticaSosa.Infrastructure.Clinical;
+using OpticaSosa.Infrastructure.Delivery;
 
 namespace OpticaSosa.Infrastructure;
 
@@ -83,6 +84,7 @@ public static class DependencyInjection
         services.AddSingleton<OpticaSosa.Infrastructure.Backups.BackupCoordinator>();
         services.AddScoped<OpticaSosa.Application.Backups.IBackupService, OpticaSosa.Infrastructure.Backups.BackupService>();
         services.AddScoped<OpticaSosa.Application.Work.IWorkService, OpticaSosa.Infrastructure.Work.WorkService>();
+        services.AddDelivery();
         return services;
     }
 }

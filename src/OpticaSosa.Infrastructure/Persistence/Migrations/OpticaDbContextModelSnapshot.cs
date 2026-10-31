@@ -1327,6 +1327,103 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("OpticaSosa.Domain.Delivery.CommercialWork", b =>
+                {
+                    b.Property<Guid>("WorkId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DeliveryMaterialHash")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsCurrent")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("PreviousWorkId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ReplacementReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TechnicalMaterialHash")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("WorkId");
+
+                    b.HasIndex("PreviousWorkId")
+                        .IsUnique();
+
+                    b.HasIndex("OrderId", "IsCurrent");
+
+                    b.ToTable("CommercialWorks", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_CommercialWorks_Profile", "IsCurrent IN (0,1) AND (PreviousWorkId IS NULL OR (PreviousWorkId <> WorkId AND length(trim(ReplacementReason)) BETWEEN 1 AND 500)) AND (TechnicalMaterialHash IS NULL OR length(TechnicalMaterialHash)=64) AND (DeliveryMaterialHash IS NULL OR length(DeliveryMaterialHash)=64)");
+                        });
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Delivery.CommercialWorkLine", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsCurrent")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("LineId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("TechnicalAssignmentId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("WorkId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LineId")
+                        .IsUnique()
+                        .HasFilter("IsCurrent = 1");
+
+                    b.HasIndex("TechnicalAssignmentId");
+
+                    b.HasIndex("WorkId");
+
+                    b.ToTable("CommercialWorkLines", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_CommercialWorkLines_Current", "IsCurrent IN (0,1)");
+                        });
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Delivery.OrderDelivery", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ActorUserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("DeliveredAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActorUserId");
+
+                    b.HasIndex("OrderId")
+                        .IsUnique();
+
+                    b.ToTable("OrderDeliveries", (string)null);
+                });
+
             modelBuilder.Entity("OpticaSosa.Domain.Inventory.OrderTechnicalAssignment", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2124,7 +2221,7 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
                         {
                             t.HasCheckConstraint("CK_OpticalWork_Prescription", "(PrescriptionId IS NULL) = (PrescriptionRevisionId IS NULL)");
 
-                            t.HasCheckConstraint("CK_OpticalWork_State", "Status BETWEEN 0 AND 5 AND Round > 0 AND Type BETWEEN 0 AND 2 AND (Status NOT IN (4, 5) OR (TechnicalApproved = 1 AND DeliveryApproved = 1))");
+                            t.HasCheckConstraint("CK_OpticalWork_State", "Status BETWEEN 0 AND 5 AND Round > 0 AND Type BETWEEN 0 AND 8 AND (Status NOT IN (4, 5) OR (TechnicalApproved = 1 AND DeliveryApproved = 1))");
                         });
                 });
 
@@ -2179,6 +2276,10 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("AtUtc")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("MaterialHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Notes")
                         .HasMaxLength(2000)
                         .HasColumnType("TEXT");
@@ -2201,15 +2302,20 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("WorkId")
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("WorkType")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ActorId");
 
                     b.HasIndex("WorkId", "AtUtc");
 
+                    b.HasIndex("WorkId", "WorkType");
+
                     b.ToTable("QualityControls", t =>
                         {
-                            t.HasCheckConstraint("CK_QualityControl_Approval", "Stage IN (0, 1) AND Status IN (0, 1, 2) AND Role IN (0, 1) AND (Stage <> 0 OR Role = 0) AND (Status <> 2 OR ApprovedAtUtc IS NOT NULL)");
+                            t.HasCheckConstraint("CK_QualityControl_Approval", "Stage IN (0, 1) AND Status IN (0, 1, 2) AND Role IN (0, 1) AND WorkType BETWEEN 0 AND 8 AND (Stage <> 0 OR Role = 0 OR WorkType IN (1,4,5,8)) AND (Status <> 2 OR ApprovedAtUtc IS NOT NULL)");
                         });
                 });
 
@@ -2270,6 +2376,10 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
 
                     b.Property<int>("From")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("To")
                         .HasColumnType("INTEGER");
@@ -2711,6 +2821,61 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
                     b.HasOne("OpticaSosa.Infrastructure.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("RecordedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Delivery.CommercialWork", b =>
+                {
+                    b.HasOne("OpticaSosa.Domain.Commerce.SalesOrder", null)
+                        .WithMany()
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OpticaSosa.Domain.Delivery.CommercialWork", null)
+                        .WithMany()
+                        .HasForeignKey("PreviousWorkId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("OpticaSosa.Domain.Work.OpticalWork", null)
+                        .WithMany()
+                        .HasForeignKey("WorkId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Delivery.CommercialWorkLine", b =>
+                {
+                    b.HasOne("OpticaSosa.Domain.Commerce.SalesLine", null)
+                        .WithMany()
+                        .HasForeignKey("LineId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OpticaSosa.Domain.Inventory.OrderTechnicalAssignment", null)
+                        .WithMany()
+                        .HasForeignKey("TechnicalAssignmentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("OpticaSosa.Domain.Delivery.CommercialWork", null)
+                        .WithMany()
+                        .HasForeignKey("WorkId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("OpticaSosa.Domain.Delivery.OrderDelivery", b =>
+                {
+                    b.HasOne("OpticaSosa.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("ActorUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OpticaSosa.Domain.Commerce.SalesOrder", null)
+                        .WithMany()
+                        .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -3308,7 +3473,8 @@ namespace OpticaSosa.Infrastructure.Persistence.Migrations
 
                     b.HasOne("OpticaSosa.Domain.Work.OpticalWork", null)
                         .WithMany()
-                        .HasForeignKey("WorkId")
+                        .HasForeignKey("WorkId", "WorkType")
+                        .HasPrincipalKey("Id", "Type")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

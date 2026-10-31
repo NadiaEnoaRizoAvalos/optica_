@@ -4,15 +4,20 @@ using OpticaSosa.Application.Clinical;
 
 namespace OpticaSosa.Application.Work;
 
-public sealed class WorkInput
+public sealed class WorkInput : IValidatableObject
 {
     public Guid SubmissionId { get; set; } = Guid.NewGuid();
     public Guid Version { get; set; }
     public Guid CustomerId { get; set; }
     public OpticalWorkType Type { get; set; }
     [Required, StringLength(200)] public string Product { get; set; } = "";
-    [Required, StringLength(200)] public string Frame { get; set; } = "";
+    [StringLength(200)] public string Frame { get; set; } = "";
     public Guid? PrescriptionId { get; set; }
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        if (QualityCatalog.RequiresFrame(Type) && string.IsNullOrWhiteSpace(Frame))
+            yield return new("Indicá el armazón para este tipo de trabajo.", [nameof(Frame)]);
+    }
 }
 public sealed class CheckInput
 {
@@ -36,9 +41,9 @@ public sealed record WorkPage(IReadOnlyList<WorkSummary> Items, int Page, bool H
 public sealed record CheckDetails(string Key, string Label, bool Applicable, bool Required, CheckStatus Status, string? Notes);
 public sealed record ControlDetails(Guid Id, int Round, QualityStage Stage, ControlStatus Status, string ActorId,
     ResponsibleRole Role, DateTime AtUtc, DateTime? ApprovedAtUtc, string? Notes, IReadOnlyList<CheckDetails> Items);
-public sealed record TransitionDetails(WorkStatus From, WorkStatus To, string ActorId, DateTime AtUtc, string Action);
+public sealed record TransitionDetails(WorkStatus From, WorkStatus To, string ActorId, DateTime AtUtc, string Action, string? Reason = null);
 public sealed record WorkDetails(WorkSummary Work, Guid? PrescriptionId, int ControlCount, IReadOnlyList<ControlDetails> Controls,
-    IReadOnlyList<TransitionDetails> Transitions, int Page, bool HasMoreControls, bool HasMoreTransitions, int? PrescriptionRevisionNumber);
+    IReadOnlyList<TransitionDetails> Transitions, int Page, bool HasMoreControls, bool HasMoreTransitions, int? PrescriptionRevisionNumber, Guid? CommercialOrderId = null);
 public sealed record TemplateDetails(OpticalWorkType Type, QualityStage Stage, Guid Version, IReadOnlyList<CheckDefinition> Items);
 public interface IWorkService
 {

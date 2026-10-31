@@ -34,18 +34,20 @@ public sealed partial class WorkService(IDbContextFactory<OpticaDbContext> facto
         var work = await Summaries(db, db.OpticalWorks.AsNoTracking().Where(x => x.Id == id)).SingleOrDefaultAsync(ct);
         if (work is null) return null;
         var clinical = current.HasPermission(Permissions.ReadClinical);
-        var controlsQuery = db.QualityControls.AsNoTracking().Where(x => x.WorkId == id && (clinical || x.Stage == QualityStage.Delivery));
+        var visibleTechnical = clinical || !QualityCatalog.RequiresProfessional(work.Type);
+        var controlsQuery = db.QualityControls.AsNoTracking().Where(x => x.WorkId == id && (visibleTechnical || x.Stage == QualityStage.Delivery));
         var count = await controlsQuery.CountAsync(ct);
         var controls = await controlsQuery.Include(x => x.Items).OrderByDescending(x => x.AtUtc).ThenByDescending(x => x.Id)
             .Skip(HistoryPaging.Offset(page)).Take(26).ToListAsync(ct);
         var transitions = await db.WorkTransitions.AsNoTracking().Where(x => x.WorkId == id).OrderByDescending(x => x.AtUtc).ThenByDescending(x => x.Id)
-            .Skip(HistoryPaging.Offset(page)).Take(26).Select(x => new TransitionDetails(x.From, x.To, x.ActorId, x.AtUtc, x.Action)).ToListAsync(ct);
+            .Skip(HistoryPaging.Offset(page)).Take(26).Select(x => new TransitionDetails(x.From, x.To, x.ActorId, x.AtUtc, x.Action, x.Reason)).ToListAsync(ct);
         Guid? prescription = clinical ? await db.OpticalWorks.Where(x => x.Id == id).Select(x => x.PrescriptionId).SingleAsync(ct) : null;
         int? revision = clinical ? await (from w in db.OpticalWorks join r in db.ClinicalRevisions on w.PrescriptionRevisionId equals r.Id where w.Id == id select (int?)r.Number).SingleOrDefaultAsync(ct) : null;
         ClinicalOperations.Audit(db, actor, "work.read", id); await db.SaveChangesAsync(ct);
+        var orderId = await db.Set<OpticaSosa.Domain.Delivery.CommercialWork>().Where(x => x.WorkId == id).Select(x => (Guid?)x.OrderId).SingleOrDefaultAsync(ct);
         return new(work, prescription, count, controls.Take(25).Select(x => new ControlDetails(x.Id, x.Round, x.Stage, x.Status,
             x.ActorId, x.Role, x.AtUtc, x.ApprovedAtUtc, x.Notes, x.Items.Select(i => new CheckDetails(i.Key, i.Label, i.Applicable, i.Required, i.Status, i.Notes)).ToArray())).ToArray(),
-            transitions.Take(25).ToArray(), page, controls.Count > 25, transitions.Count > 25, revision);
+            transitions.Take(25).ToArray(), page, controls.Count > 25, transitions.Count > 25, revision, orderId);
     }
     private static IQueryable<WorkSummary> Summaries(OpticaDbContext db, IQueryable<OpticalWork> works) =>
         from w in works join c in db.Customers on w.CustomerId equals c.Id

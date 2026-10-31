@@ -4,6 +4,7 @@ public sealed class QualityControl
 {
     public Guid Id { get; private set; }
     public Guid WorkId { get; private set; }
+    public OpticalWorkType WorkType { get; private set; }
     public int Round { get; private set; }
     public QualityStage Stage { get; private set; }
     public ControlStatus Status { get; private set; }
@@ -13,18 +14,22 @@ public sealed class QualityControl
     public DateTime? ApprovedAtUtc { get; private set; }
     public string? Notes { get; private set; }
     public Guid TemplateVersion { get; private set; }
+    public string? MaterialHash { get; private set; }
     public List<QualityCheckItem> Items { get; private set; } = [];
     private QualityControl() { }
     public QualityControl(Guid id, OpticalWork work, QualityStage stage, IReadOnlyList<CheckDefinition> rules,
-        IReadOnlyList<CheckValue> values, bool approve, string actor, ResponsibleRole role, DateTime now, string? notes, Guid templateVersion)
+        IReadOnlyList<CheckValue> values, bool approve, string actor, ResponsibleRole role, DateTime now, string? notes, Guid templateVersion, string? materialHash = null)
     {
         if (id == Guid.Empty || string.IsNullOrWhiteSpace(actor) || !Enum.IsDefined(stage) || !Enum.IsDefined(role) ||
-            (stage == QualityStage.Technical && role != ResponsibleRole.Professional)) throw new ArgumentException("Responsable no autorizado para el control.");
+            (stage == QualityStage.Technical && QualityCatalog.RequiresProfessional(work.Type) && role != ResponsibleRole.Professional)) throw new ArgumentException("Responsable no autorizado para el control.");
         if (values.Count != rules.Count || values.Select(x => x.Key).Distinct().Count() != rules.Count || values.Any(x => rules.All(r => r.Key != x.Key)))
             throw new ArgumentException("El checklist debe incluir todas las verificaciones vigentes sin duplicados.");
+        if (QualityCatalog.For(work.Type, stage).Any(x => x.Essential && !rules.Any(r => r.Key == x.Key && r.Applicable && r.Required)))
+            throw new ArgumentException("El checklist no puede omitir verificaciones esenciales del trabajo.");
         if (notes?.Length > 2000) throw new ArgumentException("Observaciones: hasta 2000 caracteres.");
-        Id = id; WorkId = work.Id; Round = work.Round; Stage = stage; ActorId = actor; Role = role; AtUtc = now;
-        Notes = string.IsNullOrWhiteSpace(notes) ? null : notes.Trim(); TemplateVersion = templateVersion;
+        Id = id; WorkId = work.Id; WorkType = work.Type; Round = work.Round; Stage = stage; ActorId = actor; Role = role; AtUtc = now;
+        if (materialHash is not null && (materialHash.Length != 64 || materialHash.Any(x => !Uri.IsHexDigit(x)))) throw new ArgumentException("Referencia de materiales inválida.");
+        Notes = string.IsNullOrWhiteSpace(notes) ? null : notes.Trim(); TemplateVersion = templateVersion; MaterialHash = materialHash;
         foreach (var rule in rules)
         {
             var value = values.Single(x => x.Key == rule.Key);

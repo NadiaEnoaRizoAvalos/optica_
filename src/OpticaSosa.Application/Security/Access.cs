@@ -61,7 +61,7 @@ public static class Permissions
         (Roles.Administrator, ManageCatalog) => true,
         (Roles.Administrator, ManageUsers or ReadAudit or ManageBusiness or ManageBackups or VerifyBackups) => true,
         (Roles.Professional, ReadClinical or WriteClinical) => true,
-        (Roles.Professional, TechnicalControl or ApproveTechnical) => true,
+        (Roles.Professional or Roles.Sales, TechnicalControl or ApproveTechnical) => true,
         (Roles.Professional or Roles.Sales, ReadOrders or WriteOrders or DeliveryControl or ApproveDelivery or DeliverOrders) => true,
         (Roles.Administrator, ConfigureQuality) => true,
         (Roles.Administrator or Roles.Sales or Roles.Professional, ReadCustomers or WriteCustomers) => true,

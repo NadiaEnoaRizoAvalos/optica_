@@ -5,6 +5,7 @@ using OpticaSosa.Application.Security;
 using OpticaSosa.Domain.Work;
 using OpticaSosa.Infrastructure.Persistence;
 using OpticaSosa.Infrastructure.Clinical;
+using OpticaSosa.Infrastructure.Delivery;
 
 namespace OpticaSosa.Infrastructure.Work;
 
@@ -29,13 +30,16 @@ public sealed partial class WorkService
         var actor = ClinicalOperations.Demand(current, input.Stage == QualityStage.Technical ? Permissions.TechnicalControl : Permissions.DeliveryControl);
         if (input.Approve) ClinicalOperations.Demand(current, input.Stage == QualityStage.Technical ? Permissions.ApproveTechnical : Permissions.ApproveDelivery);
         await using var db = await factory.CreateDbContextAsync(ct);
+        await using var transaction = await db.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable, ct);
         var responsibleRoles = await (from ur in db.UserRoles join r in db.Roles on ur.RoleId equals r.Id
                                       join u in db.Users on ur.UserId equals u.Id where u.Id == actor && u.IsActive select r.Name).ToListAsync(ct);
         var role = responsibleRoles.Contains(Roles.Professional) ? ResponsibleRole.Professional : ResponsibleRole.Sales;
-        if (!responsibleRoles.Any(x => x is Roles.Professional or Roles.Sales) || input.Stage == QualityStage.Technical && role != ResponsibleRole.Professional)
+        if (!responsibleRoles.Any(x => x is Roles.Professional or Roles.Sales))
             throw new UnauthorizedAccessException();
         var work = await db.OpticalWorks.FindAsync([id], ct);
         if (work is null) return ClinicalOperations.Missing();
+        if (input.Stage == QualityStage.Technical && QualityCatalog.RequiresProfessional(work.Type) && role != ResponsibleRole.Professional)
+            throw new UnauthorizedAccessException();
         var previous = await db.QualityControls.Include(x => x.Items).SingleOrDefaultAsync(x => x.Id == input.SubmissionId, ct);
         if (previous is not null)
             return previous.WorkId == id && previous.ActorId == actor && previous.Stage == input.Stage && previous.Notes == input.Notes?.Trim() &&
@@ -43,6 +47,8 @@ public sealed partial class WorkService
                 previous.Items.All(i => input.Items.Any(x => x.Key == i.Key && x.Status == i.Status && x.Notes?.Trim() == i.Notes))
                 ? new(ClinicalResultCode.Success, id) : ClinicalOperations.Conflict();
         if (work.Version != input.WorkVersion) return ClinicalOperations.Conflict();
+        var commercial = await CommercialWorkRules.ForWorkAsync(db, id, clock, input.Stage == QualityStage.Delivery && input.Approve, ct);
+        if (!commercial.Readiness.Ready) return ClinicalOperations.Invalid(commercial.Readiness.Error!);
         var template = await ReadTemplateAsync(db, work.Type, input.Stage, ct);
         if (template.Version != input.TemplateVersion) return ClinicalOperations.Conflict();
         if (await db.QualityControls.AnyAsync(x => x.WorkId == id && x.Round == work.Round && x.Stage == input.Stage && x.Status == ControlStatus.Approved, ct) && string.IsNullOrWhiteSpace(input.Notes))
@@ -52,10 +58,13 @@ public sealed partial class WorkService
         {
             var control = new QualityControl(input.SubmissionId, work, input.Stage, template.Items,
                 input.Items.Select(x => new CheckValue(x.Key, x.Status, x.Notes)).ToArray(), input.Approve,
-                actor, role, clock.GetUtcNow().UtcDateTime, input.Notes, template.Version);
+                actor, role, clock.GetUtcNow().UtcDateTime, input.Notes, template.Version, commercial.Group is null ? null : commercial.Readiness.MaterialHash);
             work.Apply(control); db.Add(control);
+            commercial.Group?.RecordControl(input.Stage, control.Status == ControlStatus.Approved, commercial.Readiness.MaterialHash);
             Event(db, work, from, actor, control.Status == ControlStatus.Approved ? "quality.approved" : "quality.recorded");
-            return await ClinicalOperations.SaveAsync(db, id, ct);
+            var saved = await ClinicalOperations.SaveAsync(db, id, ct);
+            if (saved.Succeeded) await transaction.CommitAsync(ct);
+            return saved;
         }
         catch (Exception ex) when (ex is ArgumentException or InvalidOperationException) { return ClinicalOperations.Invalid(ex.Message); }
     }
