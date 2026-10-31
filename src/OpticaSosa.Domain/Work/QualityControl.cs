@@ -14,10 +14,11 @@ public sealed class QualityControl
     public DateTime? ApprovedAtUtc { get; private set; }
     public string? Notes { get; private set; }
     public Guid TemplateVersion { get; private set; }
+    public string? MaterialHash { get; private set; }
     public List<QualityCheckItem> Items { get; private set; } = [];
     private QualityControl() { }
     public QualityControl(Guid id, OpticalWork work, QualityStage stage, IReadOnlyList<CheckDefinition> rules,
-        IReadOnlyList<CheckValue> values, bool approve, string actor, ResponsibleRole role, DateTime now, string? notes, Guid templateVersion)
+        IReadOnlyList<CheckValue> values, bool approve, string actor, ResponsibleRole role, DateTime now, string? notes, Guid templateVersion, string? materialHash = null)
     {
         if (id == Guid.Empty || string.IsNullOrWhiteSpace(actor) || !Enum.IsDefined(stage) || !Enum.IsDefined(role) ||
             (stage == QualityStage.Technical && QualityCatalog.RequiresProfessional(work.Type) && role != ResponsibleRole.Professional)) throw new ArgumentException("Responsable no autorizado para el control.");
@@ -27,7 +28,8 @@ public sealed class QualityControl
             throw new ArgumentException("El checklist no puede omitir verificaciones esenciales del trabajo.");
         if (notes?.Length > 2000) throw new ArgumentException("Observaciones: hasta 2000 caracteres.");
         Id = id; WorkId = work.Id; WorkType = work.Type; Round = work.Round; Stage = stage; ActorId = actor; Role = role; AtUtc = now;
-        Notes = string.IsNullOrWhiteSpace(notes) ? null : notes.Trim(); TemplateVersion = templateVersion;
+        if (materialHash is not null && (materialHash.Length != 64 || materialHash.Any(x => !Uri.IsHexDigit(x)))) throw new ArgumentException("Referencia de materiales inválida.");
+        Notes = string.IsNullOrWhiteSpace(notes) ? null : notes.Trim(); TemplateVersion = templateVersion; MaterialHash = materialHash;
         foreach (var rule in rules)
         {
             var value = values.Single(x => x.Key == rule.Key);

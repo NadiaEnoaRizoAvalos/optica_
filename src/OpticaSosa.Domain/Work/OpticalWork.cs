@@ -86,7 +86,8 @@ public sealed class WorkTransition
     public string ActorId { get; private set; } = "";
     public DateTime AtUtc { get; private set; }
     public string Action { get; private set; } = "";
+    public string? Reason { get; private set; }
     private WorkTransition() { }
-    public WorkTransition(OpticalWork work, WorkStatus from, string actor, DateTime now, string action)
-    { WorkId = work.Id; From = from; To = work.Status; ActorId = actor; AtUtc = now; Action = action; }
+    public WorkTransition(OpticalWork work, WorkStatus from, string actor, DateTime now, string action, string? reason = null)
+    { WorkId = work.Id; From = from; To = work.Status; ActorId = actor; AtUtc = now; Action = action; Reason = reason is null ? null : OpticalWork.Text(reason, 500); }
 }

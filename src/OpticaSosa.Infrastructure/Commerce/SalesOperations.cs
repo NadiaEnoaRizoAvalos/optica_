@@ -37,6 +37,9 @@ internal static class SalesOperations
             var prior = await db.OrderCommandReceipts.AsNoTracking().SingleOrDefaultAsync(x => x.Id == submissionId, ct);
             if (prior is not null) return prior.OrderId == orderId && prior.Action == action && prior.RequestHash == hash && prior.ActorUserId == actor
                 ? new(SalesResultCode.Success, orderId) : Conflict();
+            if (action is not ("sales.payment.received" or "sales.payment.refunded") &&
+                await db.Set<OpticaSosa.Domain.Delivery.OrderDelivery>().AnyAsync(x => x.OrderId == orderId, ct))
+                return Invalid("El pedido ya fue entregado; se conserva su historia. Usá el circuito de devolución cuando corresponda.");
             var result = await operation(db);
             if (result is not null) return result;
             var now = clock.GetUtcNow().UtcDateTime;

@@ -5,6 +5,8 @@ using OpticaSosa.Application.Security;
 using OpticaSosa.Domain.Work;
 using OpticaSosa.Domain.Clinical;
 using OpticaSosa.Infrastructure.Clinical;
+using OpticaSosa.Domain.Delivery;
+using OpticaSosa.Infrastructure.Delivery;
 
 namespace OpticaSosa.Infrastructure.Work;
 
@@ -33,8 +35,11 @@ public sealed partial class WorkService
     {
         var actor = ClinicalOperations.Demand(current, Permissions.WriteOrders);
         await using var db = await factory.CreateDbContextAsync(ct);
+        await using var transaction = await db.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable, ct);
         var work = await db.OpticalWorks.FindAsync([id], ct);
         if (work is null) return ClinicalOperations.Missing();
+        if (await db.Set<CommercialWork>().AnyAsync(x => x.WorkId == id, ct))
+            return ClinicalOperations.Invalid("El trabajo pertenece a un pedido comercial; reemplazá explícitamente su conjunto para cambiar especificaciones.");
         if (work.Version != input.Version || work.CustomerId != input.CustomerId || work.Type != input.Type) return ClinicalOperations.Conflict();
         // Atención/Ventas puede rectificar datos operativos, pero no alterar el vínculo clínico.
         var prescription = current.HasPermission(Permissions.ReadClinical) ? input.PrescriptionId : work.PrescriptionId;
@@ -47,20 +52,31 @@ public sealed partial class WorkService
         catch (Exception ex) when (ex is ArgumentException or InvalidOperationException) { return ClinicalOperations.Invalid(ex.Message); }
         if (work.Version == input.Version) return new(ClinicalResultCode.Success, id);
         Event(db, work, from, actor, "work.updated-controls-invalidated");
-        return await ClinicalOperations.SaveAsync(db, id, ct);
+        var saved = await ClinicalOperations.SaveAsync(db, id, ct);
+        if (saved.Succeeded) await transaction.CommitAsync(ct);
+        return saved;
     }
     public async Task<ClinicalResult> TransitionAsync(Guid id, Guid version, string command, CancellationToken ct = default)
     {
         var actor = ClinicalOperations.Demand(current, command == "deliver" ? Permissions.DeliverOrders : Permissions.WriteOrders);
         await using var db = await factory.CreateDbContextAsync(ct);
+        await using var transaction = await db.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable, ct);
         var work = await db.OpticalWorks.FindAsync([id], ct);
         if (work is null) return ClinicalOperations.Missing();
         if (work.Version != version) return ClinicalOperations.Conflict();
+        var commercial = await CommercialWorkRules.ForWorkAsync(db, id, clock, false, ct);
+        if (commercial.Group is not null)
+        {
+            if (command == "deliver") return ClinicalOperations.Invalid("Registrá la entrega comercial completa del pedido, no un trabajo individual.");
+            if (!commercial.Readiness.Ready) return ClinicalOperations.Invalid(commercial.Readiness.Error!);
+        }
         var from = work.Status;
         try { work.Transition(command); }
         catch (InvalidOperationException ex) { return ClinicalOperations.Invalid(ex.Message); }
         Event(db, work, from, actor, command == "deliver" ? "work.delivered" : "work.state.changed");
-        return await ClinicalOperations.SaveAsync(db, id, ct);
+        var saved = await ClinicalOperations.SaveAsync(db, id, ct);
+        if (saved.Succeeded) await transaction.CommitAsync(ct);
+        return saved;
     }
     private async Task<bool> ValidPrescriptionAsync(OpticaSosa.Infrastructure.Persistence.OpticaDbContext db, Guid customerId, Guid? prescriptionId, CancellationToken ct)
     {

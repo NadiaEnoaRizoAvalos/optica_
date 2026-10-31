@@ -41,9 +41,9 @@ public sealed record WorkPage(IReadOnlyList<WorkSummary> Items, int Page, bool H
 public sealed record CheckDetails(string Key, string Label, bool Applicable, bool Required, CheckStatus Status, string? Notes);
 public sealed record ControlDetails(Guid Id, int Round, QualityStage Stage, ControlStatus Status, string ActorId,
     ResponsibleRole Role, DateTime AtUtc, DateTime? ApprovedAtUtc, string? Notes, IReadOnlyList<CheckDetails> Items);
-public sealed record TransitionDetails(WorkStatus From, WorkStatus To, string ActorId, DateTime AtUtc, string Action);
+public sealed record TransitionDetails(WorkStatus From, WorkStatus To, string ActorId, DateTime AtUtc, string Action, string? Reason = null);
 public sealed record WorkDetails(WorkSummary Work, Guid? PrescriptionId, int ControlCount, IReadOnlyList<ControlDetails> Controls,
-    IReadOnlyList<TransitionDetails> Transitions, int Page, bool HasMoreControls, bool HasMoreTransitions, int? PrescriptionRevisionNumber);
+    IReadOnlyList<TransitionDetails> Transitions, int Page, bool HasMoreControls, bool HasMoreTransitions, int? PrescriptionRevisionNumber, Guid? CommercialOrderId = null);
 public sealed record TemplateDetails(OpticalWorkType Type, QualityStage Stage, Guid Version, IReadOnlyList<CheckDefinition> Items);
 public interface IWorkService
 {

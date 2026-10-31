@@ -8,12 +8,13 @@
 @if (d.PrescriptionId.HasValue) { <a href="/clientes/@w.CustomerId/clinica/@d.PrescriptionId?revision=@d.PrescriptionRevisionNumber">Consultar receta fijada · versión @d.PrescriptionRevisionNumber</a> }
 <div asp-validation-summary="All" role="alert"></div>
 <section><h2>Seguimiento</h2><div class="stats-grid"><div>Control técnico <strong>@(w.TechnicalApproved ? "Aprobado" : "Pendiente")</strong></div><div>Control previo a entrega <strong>@(w.DeliveryApproved ? "Aprobado" : "Pendiente")</strong></div></div>
-@if (w.Status != WorkStatus.Delivered && Model.Can(Permissions.WriteOrders)) { <p><a href="/pedidos/nuevo/@w.Id">Editar especificaciones</a></p> }
+@if (d.CommercialOrderId is not null) { <p>Trabajo del pedido comercial @d.CommercialOrderId. Su entrega se registra con el pedido completo.</p> }
+@if (d.CommercialOrderId is null && w.Status != WorkStatus.Delivered && Model.Can(Permissions.WriteOrders)) { <p><a href="/pedidos/nuevo/@w.Id">Editar especificaciones</a></p> }
 <form method="post"><input asp-for="Version" type="hidden" />
 @if (w.Status == WorkStatus.Registered) { <button name="Command" value="prepare">Comenzar preparación</button> }
 @if (w.Status == WorkStatus.InPreparation) { <button name="Command" value="control">Enviar a control</button> }
 @if (w.Status == WorkStatus.Observed) { <p>Corregí las observaciones antes de iniciar una nueva ronda; se conservarán todos los controles.</p><button name="Command" value="correct">Iniciar corrección</button> }
-@if (w.Status == WorkStatus.ReadyForDelivery && Model.Can(Permissions.DeliverOrders)) { <button name="Command" value="deliver">Registrar entrega</button> }
+@if (d.CommercialOrderId is null && w.Status == WorkStatus.ReadyForDelivery && Model.Can(Permissions.DeliverOrders)) { <button name="Command" value="deliver">Registrar entrega</button> }
 </form>
 @if (w.Status is WorkStatus.PendingControl or WorkStatus.ReadyForDelivery) { <nav>
 @if (Model.Can(Permissions.TechnicalControl) && (!QualityCatalog.RequiresProfessional(w.Type) || Model.Can(Permissions.WriteClinical))) { <a class="button-link" href="/pedidos/@w.Id/control?etapa=0">Control técnico</a> }
@@ -24,5 +25,5 @@
 <p>Control @c.Id · Responsable @c.ActorId · @(c.Role == ResponsibleRole.Professional ? "Profesional" : "Atención/Ventas")</p><p>Aprobación: @(c.ApprovedAtUtc?.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss") ?? "Sin aprobar")</p><p>@c.Notes</p>
 @foreach (var i in c.Items) { <p><strong>@i.Label:</strong> @WorkDisplay.Check(i.Status) · @i.Notes</p> }</details> }
 @if (d.Controls.Count == 0) { <p>Sin controles visibles registrados.</p> }
-<h2>Historial de estados y operaciones</h2>@foreach (var t in d.Transitions) { <p>@t.AtUtc.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss") · @WorkDisplay.Status(t.From) → @WorkDisplay.Status(t.To) · Usuario @t.ActorId · @t.Action</p> }
+<h2>Historial de estados y operaciones</h2>@foreach (var t in d.Transitions) { <p>@t.AtUtc.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss") · @WorkDisplay.Status(t.From) → @WorkDisplay.Status(t.To) · Usuario @t.ActorId · @t.Action · @t.Reason</p> }
 <nav>@if (d.Page > 1) { <a href="?pagina=@(d.Page - 1)#historial">Más recientes</a> }@if (d.HasMoreControls || d.HasMoreTransitions) { <a href="?pagina=@(d.Page + 1)#historial">Más antiguos</a> }</nav></section>

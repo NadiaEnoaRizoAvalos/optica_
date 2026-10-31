@@ -17,6 +17,14 @@ Sin cambios a OpticaDbContext, DI, políticas globales de registro, layout o est
 
 La migración reconstruye OpticalWorks/QualityControls, conserva datos y captura el tipo histórico antes de exigir la relación nueva. Se revisó el SQL de EF y se recrean sus triggers clínicos dentro de la misma transacción, con guard de FK/pertenencia antes de confirmar; el retroceso aislado compatible también los conserva. Ensayos sólo ficticios; requiere autorización operativa antes de cualquier aplicación real. No fusionar su snapshot con el futuro de caja automáticamente.
 
-## Integración de entrega pendiente
+## Integración de entrega — alcance autorizado
 
 Implementar trabajos por conjunto confirmados en D-72, vínculos explícitos con líneas/técnica, comprobación de materiales y entrega completa, auditada e idempotente, con saldo cero. No modificar registros de caja ni duplicar pagos. Registrar aquí cualquier cambio adicional a componentes compartidos antes de aplicarlo.
+
+## Incremento 10.2 — cambios coordinados por el integrador
+
+- Nuevas entidades/configuraciones de Delivery descubiertas por el mecanismo EF existente (`Set<T>`), sin editar OpticaDbContext. Migraciones aditivas CommercialWorkDelivery y QualityMaterialEvidence, con snapshot coordinado; no mezclar con el esquema futuro de caja. Cambios nullable a WorkTransitions/QualityControls conservan motivos/evidencia sin alterar registros anteriores.
+- DI: una llamada al registro del módulo de entrega. Sin permisos nuevos: lectura operativa mediante permisos existentes y escritura/entrega sólo Atención o Profesional.
+- SalesOperations: impedir operaciones físicas/cancelación sobre un pedido entregado, conservando el reintento del comando original. Los casos de pagos/devoluciones monetarias existentes mantienen su comportamiento y contratos. No editar OrderPaymentService ni desarrollar caja.
+- WorkService y páginas propias: trabajos comerciales no admiten edición o entrega individual que evada el conjunto; controles/transiciones validan técnica, materiales y versiones en transacción. Los trabajos históricos sin vínculo conservan su circuito.
+- Integración de caja: usar los mismos pagos/saldos existentes y compartir la transacción SQLite al entregar. El indicador de saldo cero no publica importes al Profesional. Fase 11 deberá reconciliar sus migraciones con esta rama antes de integrar; no se modifica su rama.

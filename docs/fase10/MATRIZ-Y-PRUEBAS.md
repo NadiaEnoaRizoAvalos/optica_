@@ -1,5 +1,7 @@
 # Incremento 10.1 — controles según producto
 
+Este documento conserva la entrega 10.1. El cierre conjunto posterior de 10.1/10.2 está en [CIERRE-BACKEND.md](CIERRE-BACKEND.md) y los contratos de entrega en [CONTRATOS-ENTREGA.md](CONTRATOS-ENTREGA.md).
+
 Se reutilizan OpticalWork, QualityControl, WorkService, plantillas, rondas y pantallas existentes. No se crea un segundo motor de calidad. Este incremento adapta la matriz y los permisos; la agrupación de pedidos, los materiales y la entrega comercial completa pertenecen al incremento siguiente.
 
 ## Matriz

@@ -29,6 +29,7 @@ public sealed class WorkTransitionConfiguration : IEntityTypeConfiguration<WorkT
     public void Configure(EntityTypeBuilder<WorkTransition> e)
     {
         e.HasKey(x => x.Id); e.Property(x => x.Action).HasMaxLength(80);
+        e.Property(x => x.Reason).HasMaxLength(500);
         e.HasOne<OpticalWork>().WithMany().HasForeignKey(x => x.WorkId).OnDelete(DeleteBehavior.Restrict);
         e.HasOne<ApplicationUser>().WithMany().HasForeignKey(x => x.ActorId).OnDelete(DeleteBehavior.Restrict);
         e.HasIndex(x => new { x.WorkId, x.AtUtc });
@@ -39,6 +40,7 @@ public sealed class QualityControlConfiguration : IEntityTypeConfiguration<Quali
     public void Configure(EntityTypeBuilder<QualityControl> e)
     {
         e.HasKey(x => x.Id); e.Property(x => x.Notes).HasMaxLength(2000);
+        e.Property(x => x.MaterialHash).HasMaxLength(64);
         e.HasOne<OpticalWork>().WithMany().HasForeignKey(x => new { x.WorkId, x.WorkType })
             .HasPrincipalKey(x => new { x.Id, x.Type }).OnDelete(DeleteBehavior.Restrict);
         e.HasOne<ApplicationUser>().WithMany().HasForeignKey(x => x.ActorId).OnDelete(DeleteBehavior.Restrict);

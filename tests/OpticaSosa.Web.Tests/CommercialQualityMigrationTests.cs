@@ -92,7 +92,11 @@ public sealed class CommercialQualityMigrationTests
             await Assert.ThrowsAsync<SqliteException>(() => attempt.GetService<IMigrator>().MigrateAsync("20261018034218_InventoryAdministration"));
         await using var db = await pro.Factory.CreateDbContextAsync();
         Assert.Equal(OpticalWorkType.ContactLenses, (await db.OpticalWorks.SingleAsync(x => x.Id == id)).Type);
-        Assert.Single(await db.QualityControls.Where(x => x.WorkId == id).ToListAsync());
+        // Tras descender migraciones posteriores vacías, consultar campos del esquema 10.1, sin columnas futuras.
+        var approval = Assert.Single(await db.QualityControls.Where(x => x.WorkId == id)
+            .Select(x => new { x.Stage, x.Status, x.Role }).ToListAsync());
+        Assert.Equal(QualityStage.Technical, approval.Stage); Assert.Equal(ControlStatus.Approved, approval.Status);
+        Assert.Equal(ResponsibleRole.Professional, approval.Role);
         Assert.Contains("20261018040139_ProductQualityMatrix", await db.Database.GetAppliedMigrationsAsync());
         Assert.Equal(1, Assert.Single(await db.Database.SqlQueryRaw<int>("PRAGMA foreign_keys").ToListAsync()));
         Assert.Equal(2, await db.Database.SqlQueryRaw<int>("SELECT COUNT(*) AS Value FROM sqlite_master WHERE type = 'trigger' AND name LIKE 'TR_OpticalWorks_Prescription_%'").SingleAsync());
